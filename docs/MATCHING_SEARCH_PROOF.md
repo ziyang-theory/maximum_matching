@@ -5,9 +5,10 @@ state, and executable DDFS and MIN updates preserve its operational invariant.
 A lower-blossom input representation initializes path witnesses that actual
 petal events preserve throughout one search level. The executable current-bucket
 loop retains these invariants, and a disjoint output certifies a shortest
-augmenting path. Converse support coverage is proved before same-level petals;
-its composition through the loop remains unfinished. A complete MV phase and
-its running-time theorem remain unproved. Work is paused; see CHECKPOINT.md.
+augmenting path. Converse support coverage now composes through the loop,
+restoring the next blossom representation. Successive levels and computed
+petal expansion form a complete single shortest-path search. The full blocking
+phase and its running-time theorem remain unproved; see CHECKPOINT.md.
 
 The source is the supplied arXiv:2012.03582v1 (7 December 2020), pp.13–19,
 33 and 37–40. Exact source hash and locators are in SOURCE_MAP.md.
@@ -111,7 +112,7 @@ petal records. The representation is stored as `Nonempty` in `Prop`; it is
 erased rather than used as a runtime oracle. A found result contains the raw
 DDFS paths and equality to the exact call that produced them.
 `CurrentBucketWitness.shortest_augmenting` proves a corresponding real shortest
-augmentation exists; executable matching-path recovery is still separate.
+augmentation exists; `ShortestAugmentingSearch` now computes that path from the retained operational arms.
 `CurrentBucketProgress` proves old bud classes never split during the loop.
 The triangle regression executes one actual petal, with final roots `[0,0,0]`
 and maxlabels `[none, some 2, some 2]`.
@@ -129,25 +130,51 @@ theorem's stage-bound hypotheses; no unconditional exact-output wrapper is claim
 `PetalPathTransport` proves that old fixed-root paths map to actual paths after
 contraction, preserving the exact vertex-image set. `PetalDisjointTransport`
 preserves two disjoint arms when the first ends outside the selected region
-and the second reaches bottom. The case where the first target equals the
-bottleneck is not included in that theorem yet.
+and the second reaches bottom. The surviving-target theorem now also permits the first target to equal the
+bottleneck. `CurrentBucketCoverage` composes these transports through the loop.
+
+## Complete single-path search
+
+`CurrentBucketCoverage` proves that every current-tenacity vertex receives its
+MAX label after exhaustion. An unlabeled fixed-root invariant then rules out
+a current-length augmentation: its free endpoint would be a current-tenacity
+root requiring a MAX label. This establishes the next odd lower bound.
+
+`PetalBasePaths` constructs a shortest path with an honest bottleneck prefix.
+`PetalBase` identifies either a selected vertex's base with the bottleneck,
+or their common base when the bottleneck has current tenacity.
+`PetalBaseClasses` transports canonical blossom classes. Together with final
+high roots, `CurrentBucketBlossoms` restores the next lower representation and
+identifies current-tenacity vertices' final roots with their semantic bases.
+`CurrentBucketStage` and `LevelSearch` therefore execute successive actual
+MIN/MAX stages without an assumed support-discovery oracle.
+
+The executable refinement retains `OperationalArms`: actual parity segments
+from every known label to its current root, with exact lengths and fiber
+containment. MIN reuses existing arms or creates new singleton arms. MAX
+extends old arms along recovered predecessor tails and computes new maximum
+arms from stored colored-tree parents and the trigger bridge. The runtime
+choices are list/parent operations; semantic existentials occur only in erased
+proofs. `RecoverableBucket` has exactly the original loop's outcome and petal
+history after erasure. `findShortestAugmenting` returns the computed shortest
+matching path, or certifies no augmentation.
 
 ## Remaining proof obligations
 
-- Combine the initial converse support arms with actual contraction transport
-  throughout the bucket loop, including a target equal to the bottleneck.
-- Prove exhaustion accounts for all supplied bridges and all current-tenacity
-  vertices, then discharge the prior-MAX completeness induction for the next
-  search level. Initial converse coverage and old-class monotonicity alone do
-  not prove this.
-- Identify final bud roots with canonical bases at the end of the search level.
-  `GeneralBasePathTransfer` proves the relevant canonical-base transfer from
-  actual shortest-path geometry, not from a supplied support assertion.
-- Complete recursive path extraction/removal and maximal shortest-family
-  discovery, then instantiate `PhaseDriver.Complete` and `ShortestBlocking`.
-- Implement and account for the efficient representation. Current finite
-  enumeration and reconstruction do not have the full MV running-time bound.
+- Connect actual path deletion and recursive pruning to continued DDFS in a
+  restricted graph. Full-graph `PetalRecord.highest`, `region` and `computed`
+  cannot simply be reused for the restricted graph.
+- Preserve the live expansion routes and every disjoint shortest augmentation
+  through removal. The generic `RecursiveRemoval` theorem proves bottom-path
+  preservation only once its avoidance/live hypotheses have been supplied.
+- Construct a maximal shortest family at general length and instantiate
+  `PhaseDriver.Complete` and `ShortestBlocking`. The length-one case is
+  completed in `FreeEdgePhase`.
+- Establish efficient representation and machine costs. MIN enumerates
+  exactly `n * n` ordered pairs; runtime arm closures also retain prior states
+  and can recompute expansions. Neither is covered by the abstract linear
+  DDFS transition bound.
 
-Target builds and independent statement/proof reviews cover these modules.
-The complete source-only build, all-public-declaration axiom audit and bundled
-kernel replay are recorded with final source hashes in `validation/`.
+Independent statement/proof reviews and runtime regressions cover the new
+search and recovery modules. The complete source-only build, public axiom
+audit and bundled kernel replay are recorded with exact hashes in `validation/`.

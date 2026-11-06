@@ -23,11 +23,11 @@ The most recent results are in [../validation/summary.json](../validation/summar
 ## Trust boundary
 
 - Proof terms use ordinary Lean foundations. `propext`, `Quot.sound`, and where needed `Classical.choice` are reported explicitly. No custom mathematical axiom, admitted proof, or native-decision axiom is accepted.
-- Proof examples use kernel reduction/tactics. `DDFSExecutableExamples` and `CurrentBucketExamples` additionally use guarded compiled evaluations to exercise executable search, tree reconstruction and actual petal/MAX processing; these regression checks are separate from the universal kernel-checked correctness proofs.
+- Proof examples use kernel reduction/tactics. `DDFSExecutableExamples`, `CurrentBucketCompletionExamples`, `LevelSearchExamples`, `MatchingPathRecoveryExamples`, `ShortestAugmentingExamples` and `RecursiveRemovalExamples` additionally use guarded compiled evaluations to exercise executable search, tree reconstruction, petal/MAX processing, actual matching-path recovery and pruning; these regression checks are separate from the universal kernel-checked correctness proofs.
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
 - Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.
-- Whole-algorithm time and memory complexity are not certified. The mathematical phase-count bound and output-local linear DDFS transition bounds are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
+- Whole-algorithm time and memory complexity are not certified. `Search.allCandidates_length` establishes the exact quadratic candidate enumeration; runtime arm closures have no compact-storage or linear-extraction bound. The mathematical phase-count bound and output-local linear DDFS transition bounds are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
 
 ## Independent checks
 
@@ -47,3 +47,11 @@ include both declarations.
 [ADDITIONAL_PROOFS.md](ADDITIONAL_PROOFS.md) records the independently reviewed
 base-induction steps, weighted expansion, bridge classification, semantic MIN
 preservation, and DDFS transition accounting added after the third review.
+
+
+The resumed search/recovery development is recorded in [CHECKPOINT.md](CHECKPOINT.md),
+with its review scope in [SEARCH_RECOVERY_REVIEW.md](SEARCH_RECOVERY_REVIEW.md).
+Independent reviewers checked actual bucket coverage, surviving-root MAX
+exclusion, the noncircular use of exhaustion to derive the strict bound for
+base restoration, and executable recovery without semantic path selection.
+The complete blocking-family phase is not certified by these reviews.

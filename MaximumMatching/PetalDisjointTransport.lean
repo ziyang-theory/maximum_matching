@@ -1,7 +1,7 @@
 import MaximumMatching.PetalPathTransport
 
 /-! Contraction preserves disjoint root arms while their target remains
-outside the selected petal. Any would-be new intersection would force both
+outside the selected petal or equals its bottleneck. Any new intersection would force both
 original paths through the old bottleneck. -/
 namespace MaximumMatching.Search.PetalRecord
 variable {n : Nat} {G : Graph (Fin n)} {M : Matching G}
@@ -68,13 +68,13 @@ theorem after_root_eq_fixed_iff (R : PetalRecord M) (u v : Fin n)
     · exact (hselected u hu hsu).trans (hselected v hv hsv).symm
 
 /-- Disjointness survives while the first arm's target is outside the petal
-and the second arm reaches the bottom. Both resulting paths are constructed
-from actual old paths; their endpoints and image sets are retained exactly. -/
-theorem transport_disjoint_paths (R : PetalRecord M)
+or is its surviving bottleneck, and the second arm reaches the bottom. Both
+resulting paths retain their endpoints and exact vertex-image sets. -/
+theorem transport_disjoint_paths_of_surviving_target (R : PetalRecord M)
     (p q : DDFS.Path (predecessorGraph R.prior R.forest R.invariant))
     (hpfix : ∀ v, p.Contains v → R.forest.root v = v)
     (hqfix : ∀ v, q.Contains v → R.forest.root v = v)
-    (hdis : p.Disjoint q) (hpend : ¬ R.selected p.last)
+    (hdis : p.Disjoint q) (hpend : p.last = R.bottleneck ∨ ¬ R.selected p.last)
     (hqbottom : (predecessorGraph R.prior R.forest R.invariant).level q.last = 0) :
     ∃ a b : DDFS.Path (predecessorGraph R.prior R.after R.after_invariant),
       a.first = R.after.root p.first ∧ a.last = p.last ∧
@@ -85,7 +85,14 @@ theorem transport_disjoint_paths (R : PetalRecord M)
   obtain ⟨b, hbf, hbl, _, hb⟩ := R.transport_path q hqfix
   have hplast : R.after.root p.last = p.last := by
     have hf := hpfix p.last p.contains_last
-    exact (R.after_outside p.last (by change ¬ R.selected (R.forest.root p.last); rwa [hf])).trans hf
+    rcases hpend with he | hn
+    · exact (R.after_selected p.last (by
+        change R.selected (R.forest.root p.last)
+        rw [hf, he]
+        exact R.trees.bottleneck_mem)).trans he.symm
+    · exact (R.after_outside p.last (by
+        change ¬ R.selected (R.forest.root p.last)
+        rwa [hf])).trans hf
   have hqlast : R.after.root q.last = q.last := by
     have hf := hqfix q.last q.contains_last
     by_cases hs : R.selected q.last
@@ -105,7 +112,21 @@ theorem transport_disjoint_paths (R : PetalRecord M)
       (huz.trans hvz.symm) with he | ⟨hsu, hsv⟩
   · exact hdis v (he ▸ hpu) hqv
   · exact hdis R.bottleneck
-      (R.selected_path_contains_bottleneck p u hpu hsu (Or.inr hpend))
+      (R.selected_path_contains_bottleneck p u hpu hsu hpend)
       (R.selected_bottom_path_contains_bottleneck q v hqv hsv hqbottom)
+
+/-- The outside-target specialization of surviving-target path transport. -/
+theorem transport_disjoint_paths (R : PetalRecord M)
+    (p q : DDFS.Path (predecessorGraph R.prior R.forest R.invariant))
+    (hpfix : ∀ v, p.Contains v → R.forest.root v = v)
+    (hqfix : ∀ v, q.Contains v → R.forest.root v = v)
+    (hdis : p.Disjoint q) (hpend : ¬ R.selected p.last)
+    (hqbottom : (predecessorGraph R.prior R.forest R.invariant).level q.last = 0) :
+    ∃ a b : DDFS.Path (predecessorGraph R.prior R.after R.after_invariant),
+      a.first = R.after.root p.first ∧ a.last = p.last ∧
+      b.first = R.after.root q.first ∧ b.last = q.last ∧ a.Disjoint b ∧
+      (∀ v, a.Contains v ↔ ∃ u, p.Contains u ∧ R.after.root u = v) ∧
+      (∀ v, b.Contains v ↔ ∃ u, q.Contains u ∧ R.after.root u = v) :=
+  R.transport_disjoint_paths_of_surviving_target p q hpfix hqfix hdis (Or.inr hpend) hqbottom
 
 end MaximumMatching.Search.PetalRecord

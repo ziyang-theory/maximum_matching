@@ -1,6 +1,6 @@
 # Maximum matching in Lean 4
 
-**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes all conclusions of the general structural Theorem 6.19, recursive-blossom laminarity, finite-tenacity bridge classification, executable DDFS with colored spanning trees, guarded bud contraction and local transition bounds, and the square-root phase-count argument. It does not contain a complete MV solver.
+**Partial formalization of the Micali–Vazirani algorithm. Full blocking-phase correctness and the MV running-time bound are not yet proved.** The development includes complete executable shortest augmenting-path search through actual MIN/MAX/DDFS levels, computed petal expansion, the general structural Theorem 6.19, blossom laminarity, and the conditional square-root phase-count argument. It does not yet contain a complete MV solver.
 
 Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020; supplied as [max_matching.pdf](max_matching.pdf). The exact version and claim map are recorded in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
 
@@ -46,8 +46,15 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Finite MIN enumerates every next-level predecessor; initial invariants are proved | `Search.scanLevel_complete`, `initial_scanLevel_complete` |
 | MAX updates compute support-member maxlevels and register newly known incident bridges | `Search.maxProcessVertex_correct` |
 | Actual MIN queues every current-tenacity bridge under preserved prior-stage invariants | `Search.scanLevel_current_bucket_complete` |
+| Exhausting a complete actual bucket discovers every current MAX label and restores the next stage | `Search.runCurrentBucket_exhausted_stageInvariant` |
+| Final current-tenacity buds equal canonical bases; the next blossom representation is restored | `Search.runCurrentBucket_exhausted_base_eq`, `runCurrentBucket_exhausted_lower_representation` |
+| Consecutive actual MIN/MAX levels decide whether the supplied matching is maximum | `Search.findAugmenting`, `Search.isMaximum_iff` |
+| Computed shortest augmenting path, including recursive petal expansion, or certified absence | `Search.findShortestAugmenting` |
+| Executable maximal shortest-family construction for length one | `Search.freeEdgePhase_maximalShortest` |
+| Recursive predecessor pruning preserves exactly the live paths to bottom | `DDFS.RecursiveRemoval.mem_prune_iff` |
+| Exact size of the current MIN enumeration, including nonedges | `Search.allCandidates_length` |
 
-Remaining work includes combining converse support coverage with same-stage path transport to prove bucket completeness, end-of-level bud/base correspondence, complete phase construction with executable path extraction/removal, and concrete data-structure costs. Work is paused at this validated checkpoint; [docs/CHECKPOINT.md](docs/CHECKPOINT.md) records the continuation points. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
+Remaining work is to connect path deletion and restricted-graph DDFS into a maximal shortest-family phase, then establish concrete data-structure costs. The new pruning lemmas are components of that integration, not a completed removal phase. [docs/CHECKPOINT.md](docs/CHECKPOINT.md) records the continuation points. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV blocking phase. The current MIN enumeration has exactly `n * n` candidates, so the source's sparse-graph running-time bound also needs a different concrete representation. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
 
 ## Build and check
 
@@ -80,6 +87,8 @@ The verification script copies source/configuration into a fresh temporary direc
 - `MatchingGraphExpansion`, `MatchingBridgePath`, `MatchingSupportSound`, `MatchingBottleneckParity`: lower-blossom path lifting, support soundness and even bottleneck levels; `FiberWeightedExpansion` supplies general fiber-based concatenation.
 - `CurrentBridge*`, `PetalRootExpansion`, `PetalCurrentMax`, `CurrentBucket*`: preserved same-stage paths, sound MAX events and executable bucket processing.
 - `SupportPath*`, `SupportBridge*`, `MatchingSupportComplete`, `Petal*Transport`: actual support-path compression and contraction transport, with explicit hypotheses.
+- `CurrentBucketCoverage`, `PetalBase*`, `CurrentBucketBlossoms`, `CurrentBucketStage`: complete bucket discovery, canonical bases and consecutive-level induction.
+- `Operational*Arms`, `OperationalMaxRoutes`, `MatchingPathRecovery*`, `FiberWeightedRecovery`, `RecoverableBucket`, `ShortestAugmentingSearch`: computed parity routes and complete single-path search; `RecursiveRemoval*` contains the separate pruning components.
 - `Examples`, `DDFSExamples`: kernel-checked boundary cases and actual collision, backtracking and Barrier-restoration traces.
 - `docs/`: original step plan, source correspondence, remaining obligations and independent reviews.
 

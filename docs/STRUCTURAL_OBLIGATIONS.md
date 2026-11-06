@@ -67,7 +67,10 @@ for selected non-bottleneck roots under lower-blossom input representation.
 `CurrentBridgeRepresentation` now preserves expansion and soundness through
 same-level petals; `CurrentBucket` executes the actual fixed queued list.
 `MatchingSupportComplete` proves initial converse support coverage. Combining
-it with actual path transport to prove complete bucket discovery remains open.
+it with actual path transport is now proved in `CurrentBucketCoverage`.
+`CurrentBucketBlossoms` restores the next-cutoff representation and canonical
+bases, and `ShortestAugmentingSearch` computes a shortest path or certified
+absence. The remaining phase/cost obligations are in `CHECKPOINT.md`.
 Assigned
 DDFS layers and expanded segment lengths must stay distinct, especially for
 artificial top vertices. Generic path certificates and weighted concatenation
