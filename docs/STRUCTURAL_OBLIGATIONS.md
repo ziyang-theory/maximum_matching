@@ -60,9 +60,11 @@ segments have actual witnesses. The new general base/confinement theorems can
 discharge their lower eligible-threshold premises.
 
 The executable `DDFSBud.executeAndContract` now merges the computed bottleneck
-region under explicit fixed-root/rank representation. Selecting the complete
-matching-derived layered graph and identifying its DDFS region with actual
-bridge support remain construction obligations. Assigned
+region under explicit fixed-root/rank representation. `MatchingSearchGraph`
+now constructs the actual predecessor/bud graph, and matching-state operations
+preserve that representation. `MatchingSupportSound` derives support membership
+for selected non-bottleneck roots under lower-blossom input representation.
+Converse support coverage and preservation through same-level petals remain open. Assigned
 DDFS layers and expanded segment lengths must stay distinct, especially for
 artificial top vertices. Generic path certificates and weighted concatenation
 do not supply the support correspondence by themselves.

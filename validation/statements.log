@@ -1265,3 +1265,356 @@ MaximumMatching.Examples.DeferredBridge.max_registers_deferred_bridge : (2, 5) �
   {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} {r g : Fin n} (out : MaximumMatching.DDFS.Machine.FullOutput H r g)
   (F : MaximumMatching.BudForest (Fin n)) (u v : Fin n),
   F.root u = F.root v → (out.contract F).root u = (out.contract F).root v
+@MaximumMatching.BudForest.withLabels_root : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
+  (labels next : V → Option Nat) (hrank : ∀ (v : V), F.rank v = (labels v).getD 0)
+  (hroots : ∀ (v : V), (labels v).isSome = true → (labels (F.root v)).isSome = true)
+  (hkeep : ∀ (v : V) (k : Nat), labels v = some k → next v = some k) (v : V),
+  (F.withLabels labels next hrank hroots hkeep).root v = F.root v
+@MaximumMatching.BudForest.withLabels_assignedRoots : ∀ {V : Type} [inst : DecidableEq V]
+  (F : MaximumMatching.BudForest V) (labels next : V → Option Nat) (hrank : ∀ (v : V), F.rank v = (labels v).getD 0)
+  (hroots : ∀ (v : V), (labels v).isSome = true → (labels (F.root v)).isSome = true)
+  (hkeep : ∀ (v : V) (k : Nat), labels v = some k → next v = some k) (v : V),
+  (next v).isSome = true → (next ((F.withLabels labels next hrank hroots hkeep).root v)).isSome = true
+@MaximumMatching.BudForest.mergeManyInto_root_exact : ∀ {V : Type} [inst : DecidableEq V]
+  (F : MaximumMatching.BudForest V) (xs : List V) (b v : V),
+  (∀ (x : V), x ∈ xs → F.rank (F.root b) < F.rank (F.root x) ∨ F.root x = F.root b) →
+    (F.mergeManyInto xs b).root v = if F.root v ∈ List.map F.root xs then F.root b else F.root v
+@MaximumMatching.Search.initial_budGraphInvariant : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G),
+  MaximumMatching.Search.BudGraphInvariant M 0 (MaximumMatching.Search.initial M)
+    (MaximumMatching.Search.uncontractedForest (MaximumMatching.Search.initial M))
+@MaximumMatching.Search.BudGraphInvariant.edge_witness : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V},
+  MaximumMatching.Search.BudGraphInvariant M i s F →
+    ∀ {v w : V},
+      MaximumMatching.Search.budEdge s F v w →
+        ∃ u k j,
+          s.minLabel v = some k ∧ s.minLabel u = some j ∧ MaximumMatching.Predecessor M u v ∧ F.root u = w ∧ j < k
+@MaximumMatching.Search.BudGraphInvariant.reachBottom : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M i s F),
+  MaximumMatching.DDFS.ReachBottom (MaximumMatching.Search.predecessorGraph s F h)
+@MaximumMatching.Search.BudGraphInvariant.root_reaches_free : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M i s F) (v : V) (k : Nat),
+  s.minLabel v = some k →
+    ∃ p, p.first = F.root v ∧ M.Free p.last ∧ ∀ (j : Fin (p.length + 1)), F.parent (p.vertex j) = p.vertex j
+@MaximumMatching.Search.scanLevelWithBuds_invariant : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (s : MaximumMatching.Search.State (Fin n))
+  (F : MaximumMatching.BudForest (Fin n)) (h : MaximumMatching.Search.BudGraphInvariant M i s F),
+  MaximumMatching.Search.MaxCompleteBelowTenacity M (2 * i + 1) s →
+    MaximumMatching.Search.BudGraphInvariant M (i + 1) (MaximumMatching.Search.scanLevelWithBuds M i s F h).fst
+      (MaximumMatching.Search.scanLevelWithBuds M i s F h).snd
+@MaximumMatching.Search.executeBudSearch_vertices : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M i s F) (r g : Fin n),
+  (∃ k, s.minLabel r = some k) →
+    (∃ k, s.minLabel g = some k) →
+      match (MaximumMatching.Search.executeBudSearch h r g).fst with
+      | MaximumMatching.DDFS.Machine.FullOutput.disjoint p q red green separate =>
+        M.Free p.last ∧
+          M.Free q.last ∧
+            (∀ (j : Fin (p.length + 1)), (∃ k, s.minLabel (p.vertex j) = some k) ∧ F.parent (p.vertex j) = p.vertex j) ∧
+              ∀ (j : Fin (q.length + 1)), (∃ k, s.minLabel (q.vertex j) = some k) ∧ F.parent (q.vertex j) = q.vertex j
+      | MaximumMatching.DDFS.Machine.FullOutput.bottleneck b S trees highest region =>
+        (∃ k, s.minLabel b = some k) ∧ ∀ (v : Fin n), S v → (∃ k, s.minLabel v = some k) ∧ F.parent v = v
+@MaximumMatching.Search.executeBudSearch_preserves : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M i s F) (r g : Fin n),
+  (∃ k, s.minLabel r = some k) →
+    (∃ k, s.minLabel g = some k) →
+      MaximumMatching.Search.BudGraphInvariant M i s (MaximumMatching.Search.executeBudSearch h r g).snd
+@MaximumMatching.Search.executeBudSearch_contracts : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M i s F) (r g b : Fin n)
+  (S : Fin n → Prop)
+  (trees : MaximumMatching.DDFS.ColoredTrees (MaximumMatching.Search.predecessorGraph s F h) S (F.root r) (F.root g) b)
+  (highest :
+    MaximumMatching.DDFS.HighestBottleneck (MaximumMatching.Search.predecessorGraph s F h) (F.root r) (F.root g) b)
+  (region : ∀ (v : Fin n), S v ↔ MaximumMatching.DDFS.OnRootTo (F.root r) (F.root g) b v),
+  MaximumMatching.DDFS.Machine.executeFull ⋯ (F.root r) (F.root g) =
+      MaximumMatching.DDFS.Machine.FullOutput.bottleneck b S trees highest region →
+    ∀ (v : Fin n), S (F.root v) → (MaximumMatching.Search.executeBudSearch h r g).snd.root v = b
+@MaximumMatching.predecessor_blossom_expansion : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (cut : Nat),
+  MaximumMatching.EligibleTenacity M cut →
+    ∀ (u v b : V),
+      MaximumMatching.Predecessor M u v →
+        MaximumMatching.Blossom M cut b u →
+          MaximumMatching.levelLT (some cut) (MaximumMatching.tenacity M b) →
+            ∀ (N B : Nat),
+              MaximumMatching.minlevel M v = some N →
+                MaximumMatching.minlevel M b = some B →
+                  ∃ a,
+                    a.first = v ∧
+                      a.last = b ∧
+                        a.length + B = N ∧
+                          a.phase % 2 = (N + 1) % 2 ∧
+                            (a.phase + a.length) % 2 = (B + 1) % 2 ∧
+                              ∀ (k : Fin (a.length + 1)),
+                                0 < ↑k → ↑k < a.length → MaximumMatching.Blossom M cut b (a.vertex k)
+@MaximumMatching.Search.BudGraphInvariant.realize_bottom_path : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M cap s F),
+  cut % 2 = 1 →
+    (∀ (p : MaximumMatching.AltPath M), p.Augmenting → cut < p.length) →
+      2 * cap ≤ cut + 3 →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+          ∀ (p : MaximumMatching.DDFS.Path (MaximumMatching.Search.predecessorGraph s F h)),
+            F.parent p.first = p.first →
+              (∃ k, s.minLabel p.first = some k) →
+                (MaximumMatching.Search.predecessorGraph s F h).level p.last = 0 →
+                  ∃ q,
+                    q.first = p.last ∧
+                      q.last = p.first ∧
+                        q.length = (s.minLabel p.first).getD 0 ∧
+                          MaximumMatching.minlevel M q.last = some q.length ∧
+                            ∀ (v : V), (∃ j, q.vertex j = v) → MaximumMatching.BlossomHull M cut p.Contains v
+@MaximumMatching.Search.BudGraphInvariant.bridge_top_segments : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V},
+  MaximumMatching.Search.BudGraphInvariant M cap s F →
+    cut % 2 = 1 →
+      (∀ (p : MaximumMatching.AltPath M), p.Augmenting → cut < p.length) →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+          ∀ (u v : V),
+            MaximumMatching.Bridge M u v →
+              MaximumMatching.edgeTenacity M u v = some (cut + 2) →
+                (∃ k, s.minLabel u = some k) →
+                  (∃ k, s.minLabel v = some k) →
+                    ∃ a b,
+                      a.first = u ∧
+                        a.last = F.root u ∧
+                          b.first = v ∧
+                            b.last = F.root v ∧
+                              (a.phase + a.length) % 2 = ((s.minLabel (F.root u)).getD 0 + 1) % 2 ∧
+                                (b.phase + b.length) % 2 = ((s.minLabel (F.root v)).getD 0 + 1) % 2 ∧
+                                  (∀ (k : Fin (a.length + 1)),
+                                      ↑k < a.length → MaximumMatching.Blossom M cut (F.root u) (a.vertex k)) ∧
+                                    (∀ (k : Fin (b.length + 1)),
+                                        ↑k < b.length → MaximumMatching.Blossom M cut (F.root v) (b.vertex k)) ∧
+                                      a.phase % 2 = b.phase % 2 ∧
+                                        (M.mate b.first = some a.first ↔ (b.phase + 1) % 2 = 1) ∧
+                                          a.length + (s.minLabel (F.root u)).getD 0 +
+                                                (b.length + (s.minLabel (F.root v)).getD 0) +
+                                              1 =
+                                            cut + 2
+@MaximumMatching.Search.BudGraphInvariant.bridge_linkage_path : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M cap s F),
+  cut % 2 = 1 →
+    (∀ (p : MaximumMatching.AltPath M), p.Augmenting → cut < p.length) →
+      2 * cap ≤ cut + 3 →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+          ∀ (u v : V),
+            MaximumMatching.Bridge M u v →
+              MaximumMatching.edgeTenacity M u v = some (cut + 2) →
+                (∃ k, s.minLabel u = some k) →
+                  (∃ k, s.minLabel v = some k) →
+                    ∀ (p q : MaximumMatching.DDFS.Path (MaximumMatching.Search.predecessorGraph s F h)),
+                      p.first = F.root u →
+                        q.first = F.root v →
+                          (MaximumMatching.Search.predecessorGraph s F h).level q.last = 0 →
+                            p.Disjoint q →
+                              ∃ z,
+                                z.first = q.last ∧
+                                  z.last = p.last ∧ z.length + (s.minLabel p.last).getD 0 = cut + 2 ∧ z.ContainsEdge u v
+@MaximumMatching.Search.BudGraphInvariant.disjoint_bridge_paths_shortest : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M cap s F),
+  cut % 2 = 1 →
+    MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+      2 * cap ≤ cut + 3 →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+          ∀ (u v : V),
+            MaximumMatching.Bridge M u v →
+              MaximumMatching.edgeTenacity M u v = some (cut + 2) →
+                (∃ k, s.minLabel u = some k) →
+                  (∃ k, s.minLabel v = some k) →
+                    ∀ (p q : MaximumMatching.DDFS.Path (MaximumMatching.Search.predecessorGraph s F h)),
+                      p.ToBottom (F.root u) →
+                        q.ToBottom (F.root v) →
+                          p.Disjoint q →
+                            ∃ z,
+                              z.Augmenting ∧
+                                z.length = cut + 2 ∧
+                                  z.ContainsEdge u v ∧
+                                    ∀ (r : MaximumMatching.AltPath M), r.Augmenting → z.length ≤ r.length
+@MaximumMatching.DDFS.ColoredTrees.bottom_linkage : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  {S : Fin n → Prop} {r g b : Fin n} (T : MaximumMatching.DDFS.ColoredTrees H S r g b),
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ (v : Fin n),
+      S v →
+        H.level b < H.level v →
+          ∃ p q,
+            p.last = v ∧
+              H.level q.last = 0 ∧
+                p.Disjoint q ∧
+                  (p.first = r ∧ q.first = g ∧ T.color v = some false ∨
+                    p.first = g ∧ q.first = r ∧ T.color v = some true)
+@MaximumMatching.Search.BudGraphInvariant.colored_region_support : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M cap s F),
+  cut % 2 = 1 →
+    MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+      2 * cap ≤ cut + 3 →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+          ∀ (u v : Fin n),
+            MaximumMatching.Bridge M u v →
+              MaximumMatching.edgeTenacity M u v = some (cut + 2) →
+                (∃ k, s.minLabel u = some k) →
+                  (∃ k, s.minLabel v = some k) →
+                    ∀ (b : Fin n) (S : Fin n → Prop)
+                      (T :
+                        MaximumMatching.DDFS.ColoredTrees (MaximumMatching.Search.predecessorGraph s F h) S (F.root u)
+                          (F.root v) b),
+                      (∀ (w : Fin n), S w ↔ MaximumMatching.DDFS.OnRootTo (F.root u) (F.root v) b w) →
+                        ∀ (w : Fin n),
+                          S w →
+                            w ≠ b → MaximumMatching.tenacity M w = some (cut + 2) ∧ MaximumMatching.InSupport M u v w
+@MaximumMatching.Search.BudGraphInvariant.colored_bottleneck_even : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M cap s F),
+  cut % 2 = 1 →
+    2 * cap ≤ cut + 3 →
+      MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+        ∀ (u v : Fin n),
+          MaximumMatching.Bridge M u v →
+            MaximumMatching.edgeTenacity M u v = some (cut + 2) →
+              (∃ k, s.minLabel u = some k) →
+                (∃ k, s.minLabel v = some k) →
+                  ∀ (b : Fin n) (S : Fin n → Prop)
+                    (T :
+                      MaximumMatching.DDFS.ColoredTrees (MaximumMatching.Search.predecessorGraph s F h) S (F.root u)
+                        (F.root v) b),
+                    ∃ B, s.minLabel b = some B ∧ B % 2 = 0
+@MaximumMatching.Search.recordQueuedPetal_origin : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {cap : Nat} {s : MaximumMatching.Search.State (Fin n)}
+  {F : MaximumMatching.BudForest (Fin n)} (h : MaximumMatching.Search.BudGraphInvariant M cap s F)
+  (hq : MaximumMatching.Search.BucketsSound M s) (t : Nat) (u v : Fin n) (hqueued : (u, v) ∈ s.bucket t)
+  (hknown : MaximumMatching.Search.edgeTenacity M s u v = some t) (R : MaximumMatching.Search.PetalRecord M),
+  MaximumMatching.Search.recordQueuedPetal h hq t u v hqueued hknown = some R →
+    R.cap = cap ∧ R.prior = s ∧ R.forest = F ∧ R.tenacity = t ∧ R.left = u ∧ R.right = v
+@MaximumMatching.Search.PetalRecord.after_root : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} (R : MaximumMatching.Search.PetalRecord M) (v : Fin n),
+  R.after.root v = if R.forest.root v ∈ R.trees.vertices then R.bottleneck else R.forest.root v
+@MaximumMatching.Search.PetalRecord.maxEvent_correct : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} [inst : DecidableRel G.Adj] (R : MaximumMatching.Search.PetalRecord M)
+  (i cut cutoff : Nat),
+  cut % 2 = 1 →
+    MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+      MaximumMatching.Search.LowerBlossomRepresentation M cut R.prior R.forest →
+        R.tenacity = cut + 2 →
+          cut + 2 = 2 * i + 1 →
+            R.cap = i + 1 →
+              MaximumMatching.Search.StageState M (i + 1) cutoff R.prior →
+                MaximumMatching.Search.StageState M (i + 1) cutoff (R.maxEvent i).fst ∧
+                  MaximumMatching.Search.BudGraphInvariant M (i + 1) (R.maxEvent i).fst (R.maxEvent i).snd ∧
+                    (∀ (v : Fin n), v ∈ R.newRoots → (R.maxEvent i).fst.maxLabel v = MaximumMatching.maxlevel M v) ∧
+                      ∀ (v : Fin n) (k : Nat), R.prior.maxLabel v = some k → (R.maxEvent i).fst.maxLabel v = some k
+@MaximumMatching.tenacity_one_bridge_augmenting : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (u v : V),
+  MaximumMatching.Bridge M u v →
+    MaximumMatching.edgeTenacity M u v = some 1 →
+      ∃ p,
+        p.Augmenting ∧
+          p.length = 1 ∧ p.ContainsEdge u v ∧ ∀ (q : MaximumMatching.AltPath M), q.Augmenting → p.length ≤ q.length
+@MaximumMatching.Search.uncontracted_lower_representation_one : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} [inst : DecidableEq V] (s : MaximumMatching.Search.State V),
+  (∀ (p : MaximumMatching.AltPath M), p.Augmenting → 1 < p.length) →
+    MaximumMatching.Search.LowerBlossomRepresentation M 1 s (MaximumMatching.Search.uncontractedForest s)
+@MaximumMatching.AltPath.base_eq_of_shortest_prefix : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M),
+  p.Shortest →
+    ∀ (t : Nat),
+      MaximumMatching.EligibleTenacity M t →
+        MaximumMatching.tenacity M p.last = some t →
+          ∀ (i : Fin (p.length + 1)),
+            MaximumMatching.tenacity M (p.vertex i) = some t →
+              (p.take ↑i ⋯).Shortest →
+                (∀ (j : Fin (p.length + 1)),
+                    ↑i < ↑j → MaximumMatching.levelLE (MaximumMatching.tenacity M (p.vertex j)) (some t)) →
+                  MaximumMatching.base M p.last = MaximumMatching.base M (p.vertex i)
+@MaximumMatching.AltPath.reverse_stretch_minlevel_witness : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  t % 2 = 1 →
+    ∀ (A J : Fin (p.length + 1)),
+      ↑A < ↑J →
+        ↑A % 2 = 0 →
+          ↑J % 2 = 1 →
+            ↑J ≤ t →
+              t < 2 * ↑A →
+                MaximumMatching.minlevel M (p.vertex A) = some (t - ↑A) →
+                  MaximumMatching.minlevel M (p.vertex J) = some (t - ↑J) →
+                    MaximumMatching.tenacity M (p.vertex J) = some t →
+                      ∃ z,
+                        z.length = t - ↑A ∧
+                          z.last = p.vertex A ∧
+                            MaximumMatching.minlevel M z.last = some z.length ∧
+                              ∀ (K : Fin (p.length + 1)), ↑A ≤ ↑K → ↑K ≤ ↑J → ∃ L, ↑L = t - ↑K ∧ z.vertex L = p.vertex K
+@MaximumMatching.DDFS.FiberWeightedMatching.realize : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V} {F : MaximumMatching.BudForest V}
+  (W : MaximumMatching.DDFS.FiberWeightedMatching M H F) (p : MaximumMatching.DDFS.Path H),
+  (∀ (v : V), p.Contains v → F.root v = v) →
+    ∃ s,
+      s.first = p.first ∧
+        s.last = p.last ∧
+          s.length = W.weight p ∧
+            s.phase % 2 = W.phase p.first % 2 ∧
+              (s.phase + s.length) % 2 = W.phase p.last % 2 ∧
+                (∀ (v : V), s.Contains v → p.Contains (F.root v)) ∧
+                  ∀ (v : V), s.Contains v → F.root v = p.first → v = p.first
+@MaximumMatching.DDFS.FiberWeightedMatching.bridge_detour_of_potential_contains : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V}
+  {F : MaximumMatching.BudForest V} (W : MaximumMatching.DDFS.FiberWeightedMatching M H F)
+  (p q : MaximumMatching.DDFS.Path H),
+  (∀ (v : V), p.Contains v → F.root v = v) →
+    (∀ (v : V), q.Contains v → F.root v = v) →
+      p.Disjoint q →
+        ∀ (a b : MaximumMatching.ParitySegment M),
+          a.last = p.first →
+            b.last = q.first →
+              (a.phase + a.length) % 2 = W.phase p.first % 2 →
+                (b.phase + b.length) % 2 = W.phase q.first % 2 →
+                  (∀ (i : Fin (a.length + 1)), ↑i < a.length → F.root (a.vertex i) = p.first) →
+                    (∀ (i : Fin (b.length + 1)), ↑i < b.length → F.root (b.vertex i) = q.first) →
+                      M.Free q.last →
+                        a.phase % 2 = b.phase % 2 →
+                          G.Adj b.first a.first →
+                            (M.mate b.first = some a.first ↔ (b.phase + 1) % 2 = 1) →
+                              ∀ (height : V → Nat),
+                                (∀ {u v : V} (he : H.Edge u v), (W.segment he).length + height v = height u) →
+                                  height q.last = 0 →
+                                    ∀ (budget : Nat),
+                                      a.length + height p.first + (b.length + height q.first) + 1 = budget →
+                                        ∃ z,
+                                          z.first = q.last ∧
+                                            z.last = p.last ∧
+                                              z.length + height p.last = budget ∧
+                                                z.length = budget - height p.last ∧ z.ContainsEdge b.first a.first
+@MaximumMatching.Search.BudGraphInvariant.lower_blossom_fiber : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V},
+  MaximumMatching.Search.BudGraphInvariant M cap s F →
+    cut ≤ 2 * cap + 1 →
+      MaximumMatching.Search.LowerBlossomRepresentation M cut s F →
+        ∀ (b v : V),
+          MaximumMatching.levelLT (some cut) (MaximumMatching.tenacity M b) →
+            MaximumMatching.Blossom M cut b v → F.root v = b
+@MaximumMatching.Search.BudGraphInvariant.fiberWeightedMatching_drop : ∀ {V : Type} [inst : DecidableEq V]
+  {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G} {cap cut : Nat} {s : MaximumMatching.Search.State V}
+  {F : MaximumMatching.BudForest V} (h : MaximumMatching.Search.BudGraphInvariant M cap s F) (hc : cut % 2 = 1)
+  (hnoaug : ∀ (p : MaximumMatching.AltPath M), p.Augmenting → cut < p.length) (hhalf : 2 * cap ≤ cut + 3)
+  (hcap : cut ≤ 2 * cap + 1) (hrep : MaximumMatching.Search.LowerBlossomRepresentation M cut s F) {u v : V}
+  (he : (MaximumMatching.Search.predecessorGraph s F h).Edge u v),
+  ((h.fiberWeightedMatching hc hnoaug hhalf hcap hrep).segment he).length + (s.minLabel v).getD 0 =
+    (s.minLabel u).getD 0
+@MaximumMatching.AltPath.current_bridge_prefix_honest : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  MaximumMatching.AtMostShortestAugmenting M t →
+    MaximumMatching.tenacity M p.last = some t →
+      MaximumMatching.maxlevel M p.last = some p.length →
+        ∀ (I : Fin p.length),
+          MaximumMatching.Bridge M (p.vertex ⟨↑I, ⋯⟩) (p.vertex ⟨↑I + 1, ⋯⟩) →
+            MaximumMatching.edgeTenacity M (p.vertex ⟨↑I, ⋯⟩) (p.vertex ⟨↑I + 1, ⋯⟩) = some t → p.BFSHonest ⟨↑I, ⋯⟩

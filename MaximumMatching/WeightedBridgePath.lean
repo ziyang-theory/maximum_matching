@@ -11,13 +11,13 @@ namespace ParitySegment
 /-- Reverse the free-ending arm, cross one actual bridge edge, and follow the
 other arm. Disjointness of the arms proves simplicity, including when an arm
 has length zero. The matching status of the bridge fixes its phase. -/
-theorem bridge_join (a b : ParitySegment M)
+theorem bridge_join_contains (a b : ParitySegment M)
     (hfree : M.Free b.last) (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
     (hphase : a.phase % 2 = b.phase % 2)
     (hedge : G.Adj b.first a.first)
     (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
     ∃ z : AltPath M, z.first = b.last ∧ z.last = a.last ∧
-      z.length = b.length + 1 + a.length := by
+      z.length = b.length + 1 + a.length ∧ z.ContainsEdge b.first a.first := by
   have hend : (b.phase + b.length) % 2 = 1 := by
     by_cases hz : b.length = 0
     · have hends : b.first = b.last := congrArg b.vertex (Fin.ext (by omega))
@@ -76,7 +76,26 @@ theorem bridge_join (a b : ParitySegment M)
   have hdf : d.first = b.last :=
     (c.append_first a hcp hcj hcd).trans ((b.reverse.append_first e hp hj hd).trans b.reverse_first)
   let z := (d.toAltSegment hdp).fromFree (by change M.Free d.first; rw [hdf]; exact hfree)
-  refine ⟨z, hdf, c.append_last a hcp hcj hcd, rfl⟩
+  refine ⟨z, hdf, c.append_last a hcp hcj hcd, rfl, ?_⟩
+  refine ⟨⟨b.length, by change b.length < b.length + 1 + a.length; omega⟩, Or.inl ⟨?_, ?_⟩⟩
+  · change d.vertex ⟨b.length, _⟩ = b.first
+    simp only [d, append, c, reverse, e, ofEdge, show b.length ≤ b.length + 1 by omega,
+      dite_true, Nat.le_refl, Nat.sub_self, first]
+  · change d.vertex ⟨b.length + 1, _⟩ = a.first
+    simp only [d, append, c, reverse, e, ofEdge, Nat.le_refl, dite_true,
+      show ¬b.length + 1 ≤ b.length by omega, dite_false,
+      Nat.add_sub_cancel_left, Nat.one_ne_zero, ite_false]
+
+/-- The endpoint-and-length form of the actual bridge construction. -/
+theorem bridge_join (a b : ParitySegment M)
+    (hfree : M.Free b.last) (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
+    (hphase : a.phase % 2 = b.phase % 2)
+    (hedge : G.Adj b.first a.first)
+    (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
+    ∃ z : AltPath M, z.first = b.last ∧ z.last = a.last ∧
+      z.length = b.length + 1 + a.length := by
+  obtain ⟨z, hf, hl, hn, _⟩ := bridge_join_contains a b hfree hdis hphase hedge hmatch
+  exact ⟨z, hf, hl, hn⟩
 
 end ParitySegment
 
@@ -127,6 +146,30 @@ theorem bridge_detour (W : BlossomWeightedMatching M H t) (p q : Path H)
     (by simpa only [hsf, hrf, hrp] using hmatch)
   exact ⟨z, hzf.trans hrl, hzl.trans hsl, by simpa only [hsn, hrn] using hzn⟩
 
+theorem bridge_detour_contains (W : BlossomWeightedMatching M H t) (p q : Path H)
+    (hp : ∀ v, p.Contains v → levelLT (some t) (tenacity M v))
+    (hq : ∀ v, q.Contains v → levelLT (some t) (tenacity M v)) (hdis : p.Disjoint q)
+    (a b : ParitySegment M) (ha : a.last = p.first) (hb : b.last = q.first)
+    (hap : (a.phase + a.length) % 2 = W.phase p.first % 2)
+    (hbp : (b.phase + b.length) % 2 = W.phase q.first % 2)
+    (hab : ∀ i : Fin (a.length + 1), i.val < a.length → Blossom M t p.first (a.vertex i))
+    (hbb : ∀ i : Fin (b.length + 1), i.val < b.length → Blossom M t q.first (b.vertex i))
+    (hfree : M.Free q.last) (hphase : a.phase % 2 = b.phase % 2)
+    (hedge : G.Adj b.first a.first)
+    (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
+    ∃ z : AltPath M, z.first = q.last ∧ z.last = p.last ∧
+      z.length = (b.length + W.weight q) + 1 + (a.length + W.weight p) ∧
+      z.ContainsEdge b.first a.first := by
+  obtain ⟨s, r, hsf, hsl, hsn, hrf, hrl, hrn, hsp, hrp, hsep⟩ :=
+    W.realize_disjoint_low_starts p q hp hq hdis a b ha hb hap hbp hab hbb
+  obtain ⟨z, hzf, hzl, hzn, hze⟩ := ParitySegment.bridge_join_contains s r
+    (hrl.symm ▸ hfree) (fun i j he => hsep j i he.symm)
+    (by simpa only [hsp, hrp] using hphase)
+    (by simpa only [hsf, hrf] using hedge)
+    (by simpa only [hsf, hrf, hrp] using hmatch)
+  exact ⟨z, hzf.trans hrl, hzl.trans hsl, by simpa only [hsn, hrn] using hzn,
+    by simpa only [hsf, hrf] using hze⟩
+
 /-- Telescope actual edge lengths against a potential, while accounting for
 both low-top prefixes separately. In the source application the potential is
 finite minlevel, the two prefix-plus-anchor values are the endpoint levels,
@@ -154,6 +197,31 @@ theorem bridge_detour_of_potential (W : BlossomWeightedMatching M H t) (p q : Pa
   have hpn := W.weight_add_potential height hdrop p
   have hqn := W.weight_add_potential height hdrop q
   exact ⟨z, hzf, hzl, by omega, by omega⟩
+
+theorem bridge_detour_of_potential_contains (W : BlossomWeightedMatching M H t) (p q : Path H)
+    (hp : ∀ v, p.Contains v → levelLT (some t) (tenacity M v))
+    (hq : ∀ v, q.Contains v → levelLT (some t) (tenacity M v)) (hdis : p.Disjoint q)
+    (a b : ParitySegment M) (ha : a.last = p.first) (hb : b.last = q.first)
+    (hap : (a.phase + a.length) % 2 = W.phase p.first % 2)
+    (hbp : (b.phase + b.length) % 2 = W.phase q.first % 2)
+    (hab : ∀ i : Fin (a.length + 1), i.val < a.length → Blossom M t p.first (a.vertex i))
+    (hbb : ∀ i : Fin (b.length + 1), i.val < b.length → Blossom M t q.first (b.vertex i))
+    (hfree : M.Free q.last) (hphase : a.phase % 2 = b.phase % 2)
+    (hedge : G.Adj b.first a.first)
+    (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1)
+    (height : V → Nat)
+    (hdrop : ∀ {u v} (he : H.Edge u v),
+      (W.segment he).length + height v = height u)
+    (hzero : height q.last = 0) (budget : Nat)
+    (hbudget : (a.length + height p.first) + (b.length + height q.first) + 1 = budget) :
+    ∃ z : AltPath M, z.first = q.last ∧ z.last = p.last ∧
+      z.length + height p.last = budget ∧ z.length = budget - height p.last ∧
+      z.ContainsEdge b.first a.first := by
+  obtain ⟨z, hzf, hzl, hzn, hze⟩ := W.bridge_detour_contains p q hp hq hdis a b ha hb
+    hap hbp hab hbb hfree hphase hedge hmatch
+  have hpn := W.weight_add_potential height hdrop p
+  have hqn := W.weight_add_potential height hdrop q
+  exact ⟨z, hzf, hzl, by omega, by omega, hze⟩
 
 end DDFS.BlossomWeightedMatching
 end MaximumMatching

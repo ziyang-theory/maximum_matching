@@ -62,11 +62,13 @@ def without_comments(source: str) -> str:
 
 def public_declarations(source: str) -> list[str]:
     """Only our conventional namespace layout; Lean checks every generated name."""
-    stack: list[str] = []
+    stack: list[tuple[str, str]] = []
     names: list[str] = []
-    for line in source.splitlines():
+    for line in without_comments(source).splitlines():
         if match := re.match(r"^namespace\s+([\w.]+)\s*$", line):
-            stack.append(match[1])
+            stack.append(("namespace", match[1]))
+        elif match := re.match(r"^(?:noncomputable\s+)?section(?:\s+([\w.]+))?\s*$", line):
+            stack.append(("section", match[1] or ""))
         elif re.match(r"^end(?:\s+[\w.]+)?\s*$", line):
             if stack:
                 stack.pop()
@@ -74,7 +76,8 @@ def public_declarations(source: str) -> list[str]:
             r"^(?:@\[[^]]*\]\s*)?(?:noncomputable\s+)?"
             r"(?:theorem|def|abbrev|structure|inductive)\s+([\w'.]+)", line
         ):
-            names.append(".".join(stack + [match[1]]))
+            namespaces = [name for kind, name in stack if kind == "namespace"]
+            names.append(".".join(namespaces + [match[1]]))
     return names
 
 
@@ -240,6 +243,37 @@ def main() -> None:
         "DDFS.Machine.executeAndContract",
         "DDFS.Machine.executeAndContract_bottleneck",
         "DDFS.Machine.FullOutput.contract_root_congr",
+        "BudForest.withLabels_root",
+        "BudForest.withLabels_assignedRoots",
+        "BudForest.mergeManyInto_root_exact",
+        "Search.initial_budGraphInvariant",
+        "Search.BudGraphInvariant.edge_witness",
+        "Search.BudGraphInvariant.reachBottom",
+        "Search.BudGraphInvariant.root_reaches_free",
+        "Search.scanLevelWithBuds_invariant",
+        "Search.executeBudSearch_vertices",
+        "Search.executeBudSearch_preserves",
+        "Search.executeBudSearch_contracts",
+        "predecessor_blossom_expansion",
+        "Search.BudGraphInvariant.realize_bottom_path",
+        "Search.BudGraphInvariant.bridge_top_segments",
+        "Search.BudGraphInvariant.bridge_linkage_path",
+        "Search.BudGraphInvariant.disjoint_bridge_paths_shortest",
+        "DDFS.ColoredTrees.bottom_linkage",
+        "Search.BudGraphInvariant.colored_region_support",
+        "Search.BudGraphInvariant.colored_bottleneck_even",
+        "Search.recordQueuedPetal_origin",
+        "Search.PetalRecord.after_root",
+        "Search.PetalRecord.maxEvent_correct",
+        "tenacity_one_bridge_augmenting",
+        "Search.uncontracted_lower_representation_one",
+        "AltPath.base_eq_of_shortest_prefix",
+        "AltPath.reverse_stretch_minlevel_witness",
+        "DDFS.FiberWeightedMatching.realize",
+        "DDFS.FiberWeightedMatching.bridge_detour_of_potential_contains",
+        "Search.BudGraphInvariant.lower_blossom_fiber",
+        "Search.BudGraphInvariant.fiberWeightedMatching_drop",
+        "AltPath.current_bridge_prefix_honest",
     ]
     statements = "import MaximumMatching\n\n" + "\n".join(
         f"#check @MaximumMatching.{name}" for name in key_results

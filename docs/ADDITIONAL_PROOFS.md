@@ -140,9 +140,20 @@ not identify the region with matching-specific bridge support.
 
 ## Still required for completion
 
-Concrete matching-derived
-DDFS support, mutable petal/bud correspondence, complete MIN/MAX search,
+Converse DDFS support coverage, same-level petal path preservation,
+end-of-level petal/bud correspondence, complete MIN/MAX search,
 recursive expansion/removal and maximal shortest-family discovery also remain.
 The `Complete` and `ShortestBlocking` contracts are still uninstantiated for
 MV. Executable DDFS and its local abstract transition bounds do not establish
 the concrete representation or whole-algorithm running-time bound.
+
+## Matching-state search connection
+
+[MATCHING_SEARCH_PROOF.md](MATCHING_SEARCH_PROOF.md) records the new actual
+predecessor/bud graph, MIN rank updates, computed petal records and MAX events.
+Under lower-blossom input representation, constructed edge and top segments
+expand actual DDFS linkages, selected roots have current tenacity and belong
+to the trigger support, and disjoint outcomes give shortest augmenting paths.
+Independent reviewers checked the active-start condition excluding artificial
+unknown layer-zero vertices, exact old-class contraction, odd-bottleneck
+contradiction, bridge occurrence and both color orientations.

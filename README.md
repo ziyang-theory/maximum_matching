@@ -29,6 +29,10 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Deterministic DDFS constructs either disjoint bottom paths or colored parent trees | `DDFS.Machine.executeFull` |
 | Final DDFS visited region equals the root-to-bottleneck path region | `DDFS.Machine.visited_iff_on_root_to_bottleneck` |
 | DDFS uses at most `4 * m + 3` abstract transitions, counting edges in its output region | `DDFS.Machine.trace_bottleneck_local_bound`, `trace_disjoint_local_bound` |
+| Actual MIN predecessor lists and bud roots define a descending graph reaching free vertices | `Search.BudGraphInvariant.root_reaches_free` |
+| Matching-state DDFS and subsequent MIN preserve the operational bud representation | `Search.executeBudSearch_preserves`, `scanLevelWithBuds_invariant` |
+| Under lower-blossom representation, DDFS regions give true support members and disjoint paths give shortest augmentations | `Search.BudGraphInvariant.colored_region_support`, `disjoint_bridge_paths_shortest` |
+| Recorded petal events execute MAX assignments and incident refresh correctly under that representation | `Search.PetalRecord.maxEvent_correct` |
 | Finite-tenacity bridge endpoint classification (Lemma 8.1) | `matched_bridge_levels`, `unmatched_bridge_tenacity` |
 | Weighted high-core paths expand simply and disjointly from witnessed blossom segments | `DDFS.BlossomWeightedMatching.realize`, `realize_disjoint` |
 | Maximal shortest families strictly increase augmenting-path length | `AugmentingFamily.shortest_length_increases` |
@@ -40,7 +44,7 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | MAX updates compute support-member maxlevels and register newly known incident bridges | `Search.maxProcessVertex_correct` |
 | Actual MIN queues every current-tenacity bridge under preserved prior-stage invariants | `Search.scanLevel_current_bucket_complete` |
 
-Remaining work includes matching-graph support discovery and mutable petal correspondence; concrete DDFS data-structure costs; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
+Remaining work includes preserving path expansion through petals formed within the same search level, converse support coverage and end-of-level bud/base correspondence, complete phase construction with recursive path extraction/removal, and concrete data-structure costs. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
 
 ## Build and check
 
@@ -68,7 +72,9 @@ The verification script copies source/configuration into a fresh temporary direc
 - `Levels`, `LimitedHonesty`, `MinimumBase`, `MinimumBridgeAll`: semantic levels and the minimum-tenacity bridge theorem; `GeneralStructureInduction`, `GeneralConfinement`, `GeneralSuffixBase`, `GeneralEdgeBounds`, `GeneralBridge`, `GeneralSupport`: completed general structure and semantic support coverage.
 - `Blossom*`, `BaseTree`, `BasePaths`, `Segment*`, `Relative*`: recursive blossoms, laminarity and relative alternating paths.
 - `DDFS*`, `BridgePath`: path certificates, lifting, total correctness and local transition counts; `WeightedExpansion`, `WeightedTopExpansion`, `GeneralWeighted*`: weighted segment construction and expansion.
-- `Bud`, `BudLink`, `Min*`, `MaxCorrectness`, `Bridge*`: finite MIN enumeration, local MAX updates and bridge scheduling.
+- `Bud*`, `Min*`, `MaxCorrectness`, `Bridge*`: finite MIN enumeration, local MAX updates and bridge scheduling.
+- `MatchingSearchGraph`, `MatchingBudStage`, `MatchingDDFSBud`, `PetalRecord`, `PetalMax`: actual matching-state search events and local invariants.
+- `MatchingGraphExpansion`, `MatchingBridgePath`, `MatchingSupportSound`, `MatchingBottleneckParity`: lower-blossom path lifting, support soundness and even bottleneck levels; `FiberWeightedExpansion` supplies general fiber-based concatenation.
 - `Examples`, `DDFSExamples`: kernel-checked boundary cases and actual collision, backtracking and Barrier-restoration traces.
 - `docs/`: original step plan, source correspondence, remaining obligations and independent reviews.
 
