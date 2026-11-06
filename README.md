@@ -1,6 +1,6 @@
 # Maximum matching in Lean 4
 
-**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development contains the matching foundations and limited BFS-honesty theorem, plus local algorithm components. It does not contain a complete MV solver.
+**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes the minimum-tenacity common-base and unique-bridge theorems, recursive-blossom laminarity, DDFS path certificates, and the square-root phase-count argument. It does not contain a complete MV solver.
 
 Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020; supplied as [max_matching.pdf](max_matching.pdf). The exact version and claim map are recorded in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
 
@@ -14,11 +14,19 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Execute a supplied disjoint family, gaining exactly its number of paths | `AugmentingFamily.run_cardinality` |
 | Matched endpoints have equal tenacity, including infinity (Lemma 5.2) | `matched_tenacity` |
 | Both conclusions of limited BFS honesty, all parity/infinity cases (Theorem 5.3) | `AltPath.limited_bfs_honesty` |
-| Layered-path simplicity and highest-bottleneck existence/uniqueness | `DDFS.Path.injective`, `DDFS.highestBottleneck_exists`, `DDFS.highestBottleneck_unique` |
+| Same-free-root shortest paths of both parities (Lemma 6.9) | `rooted_shortest_even_iff_odd` |
+| Common base and unique bridge at minimum eligible tenacity (Lemma 6.13) | `minimum_unique_base`, `AltPath.minimum_maxlevel_path_unique_bridge` |
+| Recursive blossoms form a laminar family; general base existence is separate | `blossoms_laminar` |
+| Actual common bases split shortest paths into shortest relative segments | `IsBase.shortest_relative`, `IsBase.append_relative_shortest` |
+| DDFS disjoint-path/bottleneck dichotomy and per-vertex linkage certificate | `DDFS.bottom_dichotomy`, `DDFS.highestBottleneck_certificate` |
+| Finite DDFS transition system terminates and reports correct paths/bottleneck | `DDFS.Machine.exists_correct_run`, `maximal_trace_correct` |
+| Final DDFS visited region equals the root-to-bottleneck path region | `DDFS.Machine.visited_iff_on_root_to_bottleneck` |
+| Maximal shortest families strictly increase augmenting-path length | `AugmentingFamily.shortest_length_increases` |
+| At most `2 * Nat.sqrt n` nonempty phases, given the shortest-family search contract | `PhaseDriver.run_positivePhases_le_two_sqrt` |
 | Bud lookup terminates; compression preserves roots under a rank invariant | `BudForest.root`, `BudForest.compressMany_root` |
 | MIN scans retain tied predecessors and never rescan an undirected edge | `Search.scan_tie_adds_predecessor`, `Search.scan_reverse_noop` |
 
-The missing dependencies include the concrete DDFS machine and its coverage invariant; unique bases, recursive blossoms and Theorem 6.19; the complete MIN/MAX phase, support discovery, path expansion and removal; and the phase-count/cost proofs. [docs/STATUS.md](docs/STATUS.md) separates these from completed results. No unproved MV lemma is installed as an axiom or hidden behind an algorithm-correctness parameter.
+Remaining work includes the higher-tenacity base/bridge induction and weighted path expansion; DDFS certificate-tree output and linear work accounting; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
 
 ## Build and check
 
@@ -42,9 +50,11 @@ The verification script copies source/configuration into a fresh temporary direc
 
 - `Basic`, `PathLemmas`, `Augmentation`, `Phase`, `Family`: graph/matching representation and actual path operations.
 - `SymmetricDifference`, `DifferenceUniqueness`, `Optimality`: complete Berge proof.
-- `Levels`, `Honesty`, `Splice`, `Structure`, `LimitedHonesty`, `Base`: semantic levels and structural path arguments.
-- `Bud`, `Min`, `DDFS`: verified data-structure/local-update components and DDFS graph-theoretic specification.
-- `Examples`: small kernel-checked examples, including an invalid alternating-walk shortcut on a triangle.
+- `DifferencePacking`, `PhaseProgress`, `PhaseDriver`, `PhaseBound`: proved packing, phase progress and outer-loop accounting.
+- `Levels`, `LimitedHonesty`, `MinimumBase`, `MinimumBridgeAll`: semantic levels and the completed minimum-tenacity induction.
+- `Blossom*`, `BaseTree`, `BasePaths`, `Segment*`, `Relative*`: recursive blossoms, laminarity and relative alternating paths.
+- `DDFS*`, `BridgePath`: path certificates, lifting and total correctness of the DDFS stack transitions; `Bud`, `Min`: local updates.
+- `Examples`, `DDFSExamples`: kernel-checked boundary cases and actual collision, backtracking and Barrier-restoration traces.
 - `docs/`: original step plan, source correspondence, remaining obligations and independent reviews.
 
 Semantic levels use `none` for infinity and mathematical choice to select minima; they are specifications, not the operational MIN/MAX implementation. Augmentation, disjoint-family execution, bud lookup/compression and local MIN updates are executable. General definitions allow any vertex type; cardinality and the Berge criterion use `Fin n`. Loops and parallel edges are excluded; no normalization theorem for multigraphs is claimed.

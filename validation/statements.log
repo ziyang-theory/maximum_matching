@@ -34,12 +34,181 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
     ∀ (t : Nat),
       MaximumMatching.tenacity M u = some t →
         ∀ (b : V), (∃ p, p.last = u ∧ p.Shortest ∧ p.BaseOnPath t b) ↔ ∃ q, q.last = v ∧ q.Shortest ∧ q.BaseOnPath t b
+@MaximumMatching.rooted_shortest_even_iff_odd : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    ∀ (v : V),
+      MaximumMatching.tenacity M v = some t →
+        ∀ (f : V), MaximumMatching.RootedShortest M 0 f v ↔ MaximumMatching.RootedShortest M 1 f v
+@MaximumMatching.AltPath.minimum_unique_bridge_maxlevel : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M),
+  p.Shortest →
+    ∀ (t : Nat),
+      MaximumMatching.EligibleTenacity M t →
+        MaximumMatching.tenacity M p.last = some t →
+          MaximumMatching.maxlevel M p.last = some p.length →
+            (∀ (v : V), MaximumMatching.levelLE (some t) (MaximumMatching.tenacity M v)) → p.UniqueTenacityBridge t
+@MaximumMatching.AltPath.minimum_maxlevel_path_unique_bridge : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    MaximumMatching.tenacity M p.last = some t →
+      MaximumMatching.maxlevel M p.last = some p.length →
+        (∀ (v : V), MaximumMatching.levelLE (some t) (MaximumMatching.tenacity M v)) → p.UniqueTenacityBridge t
+@MaximumMatching.minimum_unique_base : ∀ {V : Type} {G : MaximumMatching.Graph V} (M : MaximumMatching.Matching G)
+  (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    (∀ (w : V), MaximumMatching.levelLE (some t) (MaximumMatching.tenacity M w)) →
+      ∀ (v : V), MaximumMatching.tenacity M v = some t → MaximumMatching.HasUniqueBase M v t
+@MaximumMatching.blossoms_laminar : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (s t : Nat),
+  s % 2 = 1 →
+    t % 2 = 1 →
+      ∀ (b c : V),
+        MaximumMatching.levelLT (some s) (MaximumMatching.tenacity M b) →
+          MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M c) →
+            (∃ v, MaximumMatching.Blossom M s b v ∧ MaximumMatching.Blossom M t c v) →
+              (∀ (v : V), MaximumMatching.Blossom M s b v → MaximumMatching.Blossom M t c v) ∨
+                ∀ (v : V), MaximumMatching.Blossom M t c v → MaximumMatching.Blossom M s b v
+@MaximumMatching.minimum_blossom_relative_paths : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    (∀ (w : V), MaximumMatching.levelLE (some t) (MaximumMatching.tenacity M w)) →
+      ∀ (b v : V),
+        MaximumMatching.Blossom M t b v →
+          ∀ (q : MaximumMatching.AltSegment M),
+            q.Shortest →
+              q.first = b →
+                q.last = v →
+                  (∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M t b w) ∧
+                    ∀ (k : Fin q.length),
+                      MaximumMatching.edgeTenacity M (q.vertex ⟨↑k, ⋯⟩) (q.vertex ⟨↑k + 1, ⋯⟩) = some t
+@MaximumMatching.AltPath.minlevel_predecessor_honest : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M),
+  p.Shortest →
+    MaximumMatching.minlevel M p.last = some p.length →
+      ∀ (t : Nat),
+        MaximumMatching.tenacity M p.last = some t →
+          ∀ (i : Fin p.length),
+            MaximumMatching.levelLE (some t) (MaximumMatching.tenacity M (p.vertex ⟨↑i + 1, ⋯⟩)) → p.BFSHonest ⟨↑i, ⋯⟩
+@MaximumMatching.IsBase.shortest_relative : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  {v b : V},
+  MaximumMatching.IsBase M v b →
+    ∀ (p : MaximumMatching.AltPath M),
+      p.last = v → p.Shortest → ∃ i hie, p.vertex i = b ∧ (p.take ↑i ⋯).Shortest ∧ (p.segment ↑i ⋯ hie).Shortest
+@MaximumMatching.IsBase.append_relative_shortest : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} {v b : V} (hb : MaximumMatching.IsBase M v b) (p : MaximumMatching.AltPath M)
+  (hp : p.Shortest) (hpe : p.length % 2 = 0) (hpb : p.last = b) (q : MaximumMatching.AltSegment M) (hq : q.Shortest)
+  (hqb : q.first = b) (hqv : q.last = v), (p.appendSegment q hpe ⋯ ⋯).Shortest
+@MaximumMatching.matched_outer_minlevel : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  {u v : V},
+  M.mate u = some v →
+    MaximumMatching.Outer M u →
+      ∀ (k : Nat), MaximumMatching.minlevel M u = some k → 0 < k ∧ MaximumMatching.minlevel M v = some (k - 1)
 @MaximumMatching.DDFS.highestBottleneck_exists : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V) (r g : V),
   (∃ p, p.ToBottom r) →
     (∃ b, MaximumMatching.DDFS.Bottleneck H r g b) → ∃ b, MaximumMatching.DDFS.HighestBottleneck H r g b
 @MaximumMatching.DDFS.highestBottleneck_unique : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V) (r g b c : V),
   (∃ p, p.ToBottom r) →
     MaximumMatching.DDFS.HighestBottleneck H r g b → MaximumMatching.DDFS.HighestBottleneck H r g c → b = c
+@MaximumMatching.DDFS.two_path_dichotomy : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V) (T : V → Prop)
+  (r g : V),
+  MaximumMatching.DDFS.Reaches H T r →
+    MaximumMatching.DDFS.Reaches H T g →
+      MaximumMatching.DDFS.DisjointTo H T r g ∨ ∃ b, MaximumMatching.DDFS.CommonDominator H T r g b
+@MaximumMatching.DDFS.highestBottleneck_certificate : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V)
+  (r g b w : V),
+  (∃ p, p.ToBottom r) →
+    (∃ q, q.ToBottom g) →
+      MaximumMatching.DDFS.HighestBottleneck H r g b →
+        H.level b < H.level w →
+          ∀ (a : MaximumMatching.DDFS.Path H),
+            a.first = r ∨ a.first = g →
+              a.last = w → MaximumMatching.DDFS.Linkage H r g w b ∨ MaximumMatching.DDFS.Linkage H g r w b
+@MaximumMatching.DDFS.lift_path : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  {H : MaximumMatching.DDFS.LayeredGraph V},
+  MaximumMatching.DDFS.LayeredMatching M H →
+    ∀ (q : MaximumMatching.DDFS.Path H) (p : MaximumMatching.AltPath M),
+      p.last = q.last →
+        (∀ (i : Fin (p.length + 1)), H.level (p.vertex i) = ↑i) →
+          ∃ r,
+            r.first = p.first ∧
+              r.last = q.first ∧
+                r.length = H.level q.first ∧
+                  (∀ (i : Fin (r.length + 1)), H.level (r.vertex i) = ↑i) ∧
+                    ∀ (v : V), (∃ i, r.vertex i = v) ↔ (∃ i, p.vertex i = v) ∨ q.Contains v
+@MaximumMatching.DDFS.bridge_detour : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  {H : MaximumMatching.DDFS.LayeredGraph V},
+  MaximumMatching.DDFS.LayeredMatching M H →
+    ∀ (r g b w : V) (α : Nat),
+      H.level r = α →
+        H.level g = α →
+          G.Adj g r →
+            (M.mate g = some r ↔ α % 2 = 1) →
+              ∀ (a q : MaximumMatching.DDFS.Path H),
+                a.first = r →
+                  a.last = w →
+                    q.first = g →
+                      q.last = b →
+                        a.Disjoint q →
+                          H.level b < H.level w →
+                            ∀ (p : MaximumMatching.AltPath M),
+                              p.last = b →
+                                (∀ (i : Fin (p.length + 1)), H.level (p.vertex i) = ↑i) →
+                                  ∃ z, z.first = p.first ∧ z.last = w ∧ z.length = 2 * α + 1 - H.level w
+@MaximumMatching.DDFS.Machine.step_rank_lt : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  {s t : MaximumMatching.DDFS.Machine.State H},
+  MaximumMatching.DDFS.Machine.Step s t → MaximumMatching.DDFS.Machine.rank t < MaximumMatching.DDFS.Machine.rank s
+@MaximumMatching.DDFS.Machine.step_wellFounded : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
+  WellFounded fun t s => MaximumMatching.DDFS.Machine.Step s t
+@MaximumMatching.DDFS.Machine.reaches_stuck : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  (s : MaximumMatching.DDFS.Machine.State H),
+  ∃ k t,
+    MaximumMatching.DDFS.Machine.Trace k s t ∧
+      ∀ (u : MaximumMatching.DDFS.Machine.State H), ¬MaximumMatching.DDFS.Machine.Step t u
+@MaximumMatching.DDFS.Machine.reachable_invariant : ∀ {V : Type} {H : MaximumMatching.DDFS.LayeredGraph V},
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ {r g : V} {s : MaximumMatching.DDFS.Machine.State H},
+      MaximumMatching.DDFS.Machine.Reachable r g s → MaximumMatching.DDFS.Machine.Invariant r g s
+@MaximumMatching.DDFS.Machine.reachable_progress : ∀ {V : Type} {H : MaximumMatching.DDFS.LayeredGraph V},
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ {r g : V} {s : MaximumMatching.DDFS.Machine.State H},
+      MaximumMatching.DDFS.Machine.Reachable r g s →
+        MaximumMatching.DDFS.Machine.Terminal s ∨ ∃ t, MaximumMatching.DDFS.Machine.Step s t
+@MaximumMatching.DDFS.Machine.exists_correct_run : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ (r g : Fin n),
+      ∃ k s,
+        MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s ∧
+          MaximumMatching.DDFS.Machine.Terminal s ∧ MaximumMatching.DDFS.Machine.CorrectOutcome r g s
+@MaximumMatching.DDFS.Machine.maximal_trace_correct : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ (r g : Fin n) {k : Nat} {s : MaximumMatching.DDFS.Machine.State H},
+      MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s →
+        (∀ (t : MaximumMatching.DDFS.Machine.State H), ¬MaximumMatching.DDFS.Machine.Step s t) →
+          MaximumMatching.DDFS.Machine.Terminal s ∧ MaximumMatching.DDFS.Machine.CorrectOutcome r g s
+@MaximumMatching.DDFS.Machine.visited_iff_on_root_to_bottleneck : ∀ {V : Type}
+  {H : MaximumMatching.DDFS.LayeredGraph V},
+  MaximumMatching.DDFS.ReachBottom H →
+    ∀ {r g b : V} {s : MaximumMatching.DDFS.Machine.State H} {p q : MaximumMatching.DDFS.Path H},
+      MaximumMatching.DDFS.Machine.Reachable r g s →
+        s.mode = MaximumMatching.DDFS.Machine.Mode.bottleneck b p q →
+          ∀ (u : V), s.frame.visited u ↔ MaximumMatching.DDFS.OnRootTo r g b u
+MaximumMatching.exists_differenceFamily : ∀ (n : Nat) (G : MaximumMatching.Graph (Fin n))
+  (M N : MaximumMatching.Matching G), ∃ f, f.count = N.cardinality - M.cardinality
+@MaximumMatching.deficit_of_long_paths : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  (M N : MaximumMatching.Matching G) (l : Nat),
+  (∀ (p : MaximumMatching.AltPath M), p.Augmenting → l ≤ p.length) → (N.cardinality - M.cardinality) * (l + 1) ≤ n
+@MaximumMatching.AugmentingFamily.shortest_length_increases : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} (f : MaximumMatching.AugmentingFamily M) (l : Nat),
+  f.MaximalShortest l → ∀ (q : MaximumMatching.AltPath f.run), q.Augmenting → l < q.length
+@MaximumMatching.PhaseDriver.run_isMaximum : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  (search : MaximumMatching.PhaseDriver.Search G),
+  MaximumMatching.PhaseDriver.Complete search →
+    ∀ (M : MaximumMatching.Matching G), (MaximumMatching.PhaseDriver.run search M).matching.IsMaximum
+@MaximumMatching.PhaseDriver.run_positivePhases_le_two_sqrt : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  (search : MaximumMatching.PhaseDriver.Search G),
+  MaximumMatching.PhaseDriver.ShortestBlocking search →
+    ∀ (M : MaximumMatching.Matching G), (MaximumMatching.PhaseDriver.run search M).positivePhases ≤ 2 * n.sqrt
 @MaximumMatching.BudForest.compressMany_root : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
   (xs : List V) (v : V), (F.compressMany xs).root v = F.root v
 @MaximumMatching.Search.scan_tie_adds_predecessor : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}

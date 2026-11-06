@@ -26,12 +26,16 @@ The most recent results are in [../validation/summary.json](../validation/summar
 - Small examples use kernel reduction/tactics, not an external Boolean test presented as a universal proof.
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
-- Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the two independent review notes record that work and their exact scopes.
-- Performance and memory complexity are not certified. `indexOf` uses a linear scan of path vertices, and no RAM/pointer cost semantics has been formalized.
+- Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.
+- Whole-algorithm time and memory complexity are not certified. The mathematical phase-count bound and finite DDFS transition termination are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
 
 ## Independent checks
 
 [INDEPENDENT_REVIEW.md](INDEPENDENT_REVIEW.md) covers paper correspondence, matching/level proofs, symmetric-difference optimality, full limited BFS honesty, structural definitions and concrete boundary cases. [SECOND_REVIEW.md](SECOND_REVIEW.md) independently checks disjoint-family execution, bud compression, MIN updates and DDFS structural facts. Each report identifies its source snapshot; later changes must be covered by the final reproducibility pass and, where substantive, a follow-up review.
+
+[THIRD_REVIEW.md](THIRD_REVIEW.md) covers the minimum-tenacity base/bridge
+proofs, source blossom recursion and laminarity, relative paths, DDFS
+certificates and stack transitions, and the phase-progress/count proofs.
 
 The coordinating agent additionally reviewed the final `eligible_vertex_matched`
 and `matched_outer_inner` additions: the former excludes a free eligible-tenacity
