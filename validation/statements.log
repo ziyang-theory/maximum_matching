@@ -2145,3 +2145,126 @@ MaximumMatching.Examples.DeferredBridge.max_registers_deferred_bridge : (2, 5) �
   MaximumMatching.DDFS.ReachBottom
     (MaximumMatching.DDFS.RecursiveRemoval.restricted H (MaximumMatching.DDFS.RecursiveRemoval.remove H live forbidden))
 MaximumMatching.Search.allCandidates_length : ∀ (n : Nat), (MaximumMatching.Search.allCandidates n).length = n * n
+@MaximumMatching.Search.CurrentBucketWitness.recover_coverage : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i cut : Nat} {B : MaximumMatching.Search.CurrentBucketState M i cut}
+  (certificate : MaximumMatching.Search.CurrentBucketWitness B)
+  (A : MaximumMatching.Search.OperationalArms M B.state B.forest) (hc : cut % 2 = 1)
+  (htop : MaximumMatching.AtMostShortestAugmenting M (cut + 2)) (hstageTen : cut + 2 = 2 * i + 1),
+  have p := (certificate.recover A hc htop hstageTen).val;
+  (∀ (w : Fin n),
+      (∃ j, p.vertex j = w) →
+        certificate.red.Contains (B.forest.root w) ∨ certificate.green.Contains (B.forest.root w)) ∧
+    (∀ (w : Fin n), certificate.red.Contains w ∨ certificate.green.Contains w → ∃ j, p.vertex j = w) ∧
+      MaximumMatching.Search.RootClosed B.forest p
+@MaximumMatching.Search.CurrentBucketState.augmenting_bridge_arms : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i cut : Nat} (B : MaximumMatching.Search.CurrentBucketState M i cut),
+  cut % 2 = 1 →
+    MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+      cut + 2 = 2 * i + 1 →
+        MaximumMatching.Search.LowerBlossomRepresentation M cut B.state B.forest →
+          ∀ (p : MaximumMatching.AltPath M),
+            p.Augmenting →
+              p.length = 2 * i + 1 →
+                ∃ u v,
+                  MaximumMatching.Bridge M u v ∧
+                    MaximumMatching.edgeTenacity M u v = some (2 * i + 1) ∧
+                      MaximumMatching.Search.BottomBridgeArms
+                        (MaximumMatching.Search.predecessorGraph B.state B.forest ⋯) B.forest u v fun w =>
+                        ∃ j, p.vertex j = w
+@MaximumMatching.Search.runCurrentBucket_bottom_arms : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} [inst : DecidableRel G.Adj] {i cut : Nat} (hc : cut % 2 = 1)
+  (htop : MaximumMatching.AtMostShortestAugmenting M (cut + 2)) (hstageTen : cut + 2 = 2 * i + 1)
+  (B : MaximumMatching.Search.CurrentBucketState M i cut) (es : List (Fin n × Fin n))
+  (hqueued : ∀ (e : Fin n × Fin n), e ∈ es → e ∈ B.state.bucket (2 * i + 1)) (u v : Fin n) (Q : Fin n → Prop),
+  MaximumMatching.Search.BottomBridgeArms (MaximumMatching.Search.predecessorGraph B.state B.forest ⋯) B.forest u v Q →
+    have T := (MaximumMatching.Search.runCurrentBucket hc htop hstageTen B es hqueued).fst.state;
+    MaximumMatching.Search.BottomBridgeArms (MaximumMatching.Search.predecessorGraph T.state T.forest ⋯) T.forest u v Q
+@MaximumMatching.Search.ActiveSearchState.initial_reach : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i cut : Nat} (B : MaximumMatching.Search.CurrentBucketState M i cut),
+  MaximumMatching.DDFS.ReachBottom
+    (MaximumMatching.DDFS.RecursiveRemoval.restricted (MaximumMatching.Search.predecessorGraph B.state B.forest ⋯)
+      (MaximumMatching.Search.ActiveSearchState.initialLive B))
+@MaximumMatching.Search.ActiveSearchState.recoverLivePath : {n : Nat} →
+  {G : MaximumMatching.Graph (Fin n)} →
+    {M : MaximumMatching.Matching G} →
+      {i cut : Nat} →
+        (S : MaximumMatching.Search.ActiveSearchState M i cut) →
+          MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+            cut + 2 = 2 * i + 1 →
+              (u v : Fin n) →
+                (u, v) ∈ S.B.state.bucket (2 * i + 1) →
+                  S.B.forest.root u ∈ S.live →
+                    S.B.forest.root v ∈ S.live →
+                      (p q : MaximumMatching.DDFS.Path S.graph) →
+                        p.ToBottom (S.B.forest.root u) →
+                          q.ToBottom (S.B.forest.root v) →
+                            p.Disjoint q →
+                              { z //
+                                z.Augmenting ∧
+                                  z.length = 2 * i + 1 ∧
+                                    (∀ (w : Fin n), (∃ j, z.vertex j = w) → S.B.forest.root w ∈ S.live) ∧
+                                      MaximumMatching.Search.RootClosed S.B.forest z ∧
+                                        (∃ j, z.vertex j = S.B.forest.root u) ∧ ∃ j, z.vertex j = S.B.forest.root v }
+@MaximumMatching.Search.ActiveSearchState.LiveBridgeArms.remove_path : ∀ {n i cut : Nat}
+  {G : MaximumMatching.Graph (Fin n)} {M : MaximumMatching.Matching G}
+  {S : MaximumMatching.Search.ActiveSearchState M i cut} {u v : Fin n} {p q : MaximumMatching.AltPath M},
+  (S.LiveBridgeArms u v fun w => ∃ j, q.vertex j = w) →
+    (∀ (j : Fin (p.length + 1)), ∃ k, p.vertex k = S.B.forest.root (p.vertex j)) →
+      p.Disjoint q → (S.remove (S.pathRoots p)).LiveBridgeArms u v fun w => ∃ j, q.vertex j = w
+@MaximumMatching.Search.ActivePetalRecord.maxEvent_correct_of_current : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i cut : Nat} [inst : DecidableRel G.Adj]
+  (R : MaximumMatching.Search.ActivePetalRecord M i cut)
+  (P : MaximumMatching.Search.CurrentBridgeRepresentation M cut ⋯),
+  cut % 2 = 1 →
+    MaximumMatching.AtMostShortestAugmenting M (cut + 2) →
+      cut + 2 = 2 * i + 1 →
+        MaximumMatching.Search.StageState M (i + 1) (2 * i + 1) R.maxEvent.fst ∧
+          MaximumMatching.Search.BudGraphInvariant M (i + 1) R.maxEvent.fst R.maxEvent.snd ∧
+            (∀ (v : Fin n), v ∈ R.newRoots → R.maxEvent.fst.maxLabel v = MaximumMatching.maxlevel M v) ∧
+              ∀ (v : Fin n) (k : Nat), R.prior.maxLabel v = some k → R.maxEvent.fst.maxLabel v = some k
+@MaximumMatching.Search.ActivePetalRecord.afterPetal_liveBridgeArms : ∀ {n i cut : Nat}
+  {G : MaximumMatching.Graph (Fin n)} {M : MaximumMatching.Matching G} [inst : DecidableRel G.Adj]
+  (R : MaximumMatching.Search.ActivePetalRecord M i cut) (hc : cut % 2 = 1)
+  (htop : MaximumMatching.AtMostShortestAugmenting M (cut + 2)) (hstageTen : cut + 2 = 2 * i + 1) {u v : Fin n}
+  {Q : Fin n → Prop}, R.input.LiveBridgeArms u v Q → (R.afterPetal hc htop hstageTen).LiveBridgeArms u v Q
+@MaximumMatching.Search.runBlockingBucket_maximalShortest : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} {i cut : Nat} [inst : DecidableRel G.Adj] (hc : cut % 2 = 1)
+  (htop : MaximumMatching.AtMostShortestAugmenting M (cut + 2)) (hstageTen : cut + 2 = 2 * i + 1)
+  (S : MaximumMatching.Search.ActiveSearchState M i cut) (es : List (Fin n × Fin n))
+  (hqueued : ∀ (e : Fin n × Fin n), e ∈ es → e ∈ S.B.state.bucket (2 * i + 1)),
+  (∀ (p : MaximumMatching.AltPath M),
+      p.Augmenting → p.length = 2 * i + 1 → ∃ u v, (u, v) ∈ es ∧ S.LiveBridgeArms u v fun w => ∃ j, p.vertex j = w) →
+    (MaximumMatching.Search.runBlockingBucket hc htop hstageTen S es hqueued).family.MaximalShortest (2 * i + 1)
+@MaximumMatching.Search.locateBlockingPhase : {n : Nat} →
+  {G : MaximumMatching.Graph (Fin n)} →
+    {M : MaximumMatching.Matching G} →
+      [DecidableRel G.Adj] →
+        {i cut : Nat} →
+          (S : MaximumMatching.Search.LevelSearchState M i cut) →
+            MaximumMatching.Search.OperationalArms M S.state S.forest → MaximumMatching.Search.BlockingPhaseStart M
+@MaximumMatching.Search.resumeBlockingPhase_maximalShortest : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} [inst : DecidableRel G.Adj] {i cut : Nat} (hc : cut % 2 = 1)
+  (htop : MaximumMatching.AtMostShortestAugmenting M (cut + 2)) (hstageTen : cut + 2 = 2 * i + 1)
+  (B : MaximumMatching.Search.CurrentBucketState M i cut)
+  (A : MaximumMatching.Search.OperationalArms M B.state B.forest) (W : MaximumMatching.Search.CurrentBucketWitness B)
+  (es : List (Fin n × Fin n)) (hqueued : ∀ (e : Fin n × Fin n), e ∈ es → e ∈ B.state.bucket (2 * i + 1)),
+  (∀ (p : MaximumMatching.AltPath M),
+      p.Augmenting →
+        p.length = 2 * i + 1 →
+          ∃ u v,
+            (u, v) ∈ es ∧
+              MaximumMatching.Search.BottomBridgeArms (MaximumMatching.Search.predecessorGraph B.state B.forest ⋯)
+                B.forest u v fun w => ∃ j, p.vertex j = w) →
+    (MaximumMatching.Search.resumeBlockingPhase hc htop hstageTen B A W es hqueued).family.MaximalShortest (2 * i + 1)
+@MaximumMatching.Search.blockingPhase_complete : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj], MaximumMatching.PhaseDriver.Complete MaximumMatching.Search.blockingPhase
+@MaximumMatching.Search.blockingPhase_shortestBlocking : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj], MaximumMatching.PhaseDriver.ShortestBlocking MaximumMatching.Search.blockingPhase
+@MaximumMatching.Search.runBlockingPhases_isMaximum : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
+  (MaximumMatching.Search.runBlockingPhases M).matching.IsMaximum
+@MaximumMatching.Search.runBlockingPhases_positivePhases_le_two_sqrt : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
+  (MaximumMatching.Search.runBlockingPhases M).positivePhases ≤ 2 * n.sqrt
+@MaximumMatching.Search.maximumMatching_isMaximum : ∀ {n : Nat} (G : MaximumMatching.Graph (Fin n))
+  [inst : DecidableRel G.Adj], (MaximumMatching.Search.maximumMatching G).IsMaximum

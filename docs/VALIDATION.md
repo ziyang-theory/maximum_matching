@@ -18,12 +18,12 @@ The script:
 6. Runs `lake env leanchecker --fresh MaximumMatching` in the source-only project.
 7. Verifies that the source did not change during checking and writes exact hashes and a machine-readable result summary.
 
-The most recent results are in [../validation/summary.json](../validation/summary.json), with the corresponding [source hashes](../validation/source-hashes.json), [fresh build log](../validation/fresh-build.log), [axiom log](../validation/axioms.log), and [kernel replay log](../validation/leanchecker.log). The empty successful kernel output is retained after its command line. A successful replay does not prove the missing MV theorems.
+The most recent results are in [../validation/summary.json](../validation/summary.json), with the corresponding [source hashes](../validation/source-hashes.json), [fresh build log](../validation/fresh-build.log), [axiom log](../validation/axioms.log), and [kernel replay log](../validation/leanchecker.log). The empty successful kernel output is retained after its command line. Replay checks the supplied proof terms; concrete running-time claims remain outside the proved development.
 
 ## Trust boundary
 
 - Proof terms use ordinary Lean foundations. `propext`, `Quot.sound`, and where needed `Classical.choice` are reported explicitly. No custom mathematical axiom, admitted proof, or native-decision axiom is accepted.
-- Proof examples use kernel reduction/tactics. `DDFSExecutableExamples`, `CurrentBucketCompletionExamples`, `LevelSearchExamples`, `MatchingPathRecoveryExamples`, `ShortestAugmentingExamples` and `RecursiveRemovalExamples` additionally use guarded compiled evaluations to exercise executable search, tree reconstruction, petal/MAX processing, actual matching-path recovery and pruning; these regression checks are separate from the universal kernel-checked correctness proofs.
+- Proof examples use kernel reduction/tactics. `DDFSExecutableExamples`, `CurrentBucketCompletionExamples`, `LevelSearchExamples`, `MatchingPathRecoveryExamples`, `ShortestAugmentingExamples`, `RecursiveRemovalExamples` and `BlockingPhaseExamples` additionally use guarded compiled evaluations to exercise executable search, tree reconstruction, petal/MAX processing, actual matching-path recovery and pruning; these regression checks are separate from the universal kernel-checked correctness proofs.
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
 - Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.
@@ -54,4 +54,4 @@ with its review scope in [SEARCH_RECOVERY_REVIEW.md](SEARCH_RECOVERY_REVIEW.md).
 Independent reviewers checked actual bucket coverage, surviving-root MAX
 exclusion, the noncircular use of exhaustion to derive the strict bound for
 base restoration, and executable recovery without semantic path selection.
-The complete blocking-family phase is not certified by these reviews.
+The subsequent blocking-family proof and its independent review scope are recorded in [BLOCKING_PHASE_PROOF.md](BLOCKING_PHASE_PROOF.md). The final reproducibility pass includes its concrete phase and solver theorems.

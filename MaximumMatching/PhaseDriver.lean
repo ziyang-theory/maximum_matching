@@ -6,8 +6,8 @@ import MaximumMatching.Optimality
 Every supplied phase returns actual disjoint augmenting paths and `run` flips
 them. Termination and accounting require no completeness premise. Maximum
 cardinality additionally requires proving that this particular phase search
-returns an empty family only when there is no augmenting path. The concrete
-MV MIN/MAX search has not yet been instantiated at this interface.
+returns an empty family only when there is no augmenting path. The concrete deletion-aware MIN/MAX/DDFS search instantiates this interface
+in `BlockingPhase`.
 -/
 namespace MaximumMatching
 namespace PhaseDriver
@@ -90,7 +90,8 @@ def Complete (search : Search G) : Prop :=
 
 /-- Conditional assembly theorem: any complete augmenting-family search makes
 this executable outer loop return a maximum matching. It does not certify MV
-until its concrete phase implementation satisfies `Complete`. -/
+until its concrete phase implementation satisfies `Complete`, as proved in
+`BlockingPhase`. -/
 theorem run_isMaximum (search : Search G) (hsearch : Complete search) (M : Matching G) :
     (run search M).matching.IsMaximum := by
   rw [run]

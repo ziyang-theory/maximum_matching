@@ -320,6 +320,22 @@ def main() -> None:
         "DDFS.RecursiveRemoval.mem_prune_iff",
         "DDFS.RecursiveRemoval.remove_reachBottom",
         "Search.allCandidates_length",
+        "Search.CurrentBucketWitness.recover_coverage",
+        "Search.CurrentBucketState.augmenting_bridge_arms",
+        "Search.runCurrentBucket_bottom_arms",
+        "Search.ActiveSearchState.initial_reach",
+        "Search.ActiveSearchState.recoverLivePath",
+        "Search.ActiveSearchState.LiveBridgeArms.remove_path",
+        "Search.ActivePetalRecord.maxEvent_correct_of_current",
+        "Search.ActivePetalRecord.afterPetal_liveBridgeArms",
+        "Search.runBlockingBucket_maximalShortest",
+        "Search.locateBlockingPhase",
+        "Search.resumeBlockingPhase_maximalShortest",
+        "Search.blockingPhase_complete",
+        "Search.blockingPhase_shortestBlocking",
+        "Search.runBlockingPhases_isMaximum",
+        "Search.runBlockingPhases_positivePhases_le_two_sqrt",
+        "Search.maximumMatching_isMaximum",
     ]
     statements = "import MaximumMatching\n\n" + "\n".join(
         f"#check @MaximumMatching.{name}" for name in key_results
@@ -359,10 +375,13 @@ def main() -> None:
         "axioms": sorted(found),
         "fresh_project_build": "passed",
         "bundled_kernel_replay": "passed",
+        "blocking_phase_correctness": "passed",
+        "maximum_matching_correctness": "passed",
+        "concrete_runtime_bound": "unproved",
         "complete_mv_verification": False,
     }, indent=2) + "\n")
     print(f"Fresh build and kernel replay passed; audited {len(names)} declarations.")
-    print("This checks the supplied development, not the missing full MV algorithm.")
+    print("Blocking-phase and solver correctness checked; concrete MV runtime bound remains unproved.")
 
 
 if __name__ == "__main__":

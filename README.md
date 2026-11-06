@@ -1,6 +1,6 @@
 # Maximum matching in Lean 4
 
-**Partial formalization of the Micali–Vazirani algorithm. Full blocking-phase correctness and the MV running-time bound are not yet proved.** The development includes complete executable shortest augmenting-path search through actual MIN/MAX/DDFS levels, computed petal expansion, the general structural Theorem 6.19, blossom laminarity, and the conditional square-root phase-count argument. It does not yet contain a complete MV solver.
+**Executable maximum matching with proved deletion-aware blocking phases.** The development proves correctness of actual MIN/MAX/DDFS search, computed petal expansion, maximal shortest-path families, and the resulting maximum-matching solver. It also proves at most `2 * Nat.sqrt n` positive phases. The concrete MV running-time bound remains unproved.
 
 Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020; supplied as [max_matching.pdf](max_matching.pdf). The exact version and claim map are recorded in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
 
@@ -52,9 +52,13 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Computed shortest augmenting path, including recursive petal expansion, or certified absence | `Search.findShortestAugmenting` |
 | Executable maximal shortest-family construction for length one | `Search.freeEdgePhase_maximalShortest` |
 | Recursive predecessor pruning preserves exactly the live paths to bottom | `DDFS.RecursiveRemoval.mem_prune_iff` |
+| Restricted-graph MAX events preserve computed routes and surviving disjoint arms | `Search.ActivePetalRecord.afterPetal_liveBridgeArms` |
+| Deletion-aware continuation constructs a maximal shortest family | `Search.resumeBlockingPhase_maximalShortest` |
+| Concrete phase satisfies both outer-loop search contracts | `Search.blockingPhase_complete`, `blockingPhase_shortestBlocking` |
+| Executable maximum matching and unconditional square-root phase bound | `Search.maximumMatching_isMaximum`, `runBlockingPhases_positivePhases_le_two_sqrt` |
 | Exact size of the current MIN enumeration, including nonedges | `Search.allCandidates_length` |
 
-Remaining work is to connect path deletion and restricted-graph DDFS into a maximal shortest-family phase, then establish concrete data-structure costs. The new pruning lemmas are components of that integration, not a completed removal phase. [docs/CHECKPOINT.md](docs/CHECKPOINT.md) records the continuation points. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV blocking phase. The current MIN enumeration has exactly `n * n` candidates, so the source's sparse-graph running-time bound also needs a different concrete representation. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
+The remaining work concerns concrete time and memory costs. The current MIN enumeration has exactly `n * n` candidates, and runtime arm closures and list scans have no linear phase-cost bound. The source's `O(m sqrt(n))` RAM bound is therefore not claimed. [docs/CHECKPOINT.md](docs/CHECKPOINT.md) records that boundary; [docs/BLOCKING_PHASE_PROOF.md](docs/BLOCKING_PHASE_PROOF.md) explains safe fiber deletion and same-phase continuation. No missing result is installed as an axiom.
 
 ## Build and check
 
@@ -88,7 +92,8 @@ The verification script copies source/configuration into a fresh temporary direc
 - `CurrentBridge*`, `PetalRootExpansion`, `PetalCurrentMax`, `CurrentBucket*`: preserved same-stage paths, sound MAX events and executable bucket processing.
 - `SupportPath*`, `SupportBridge*`, `MatchingSupportComplete`, `Petal*Transport`: actual support-path compression and contraction transport, with explicit hypotheses.
 - `CurrentBucketCoverage`, `PetalBase*`, `CurrentBucketBlossoms`, `CurrentBucketStage`: complete bucket discovery, canonical bases and consecutive-level induction.
-- `Operational*Arms`, `OperationalMaxRoutes`, `MatchingPathRecovery*`, `FiberWeightedRecovery`, `RecoverableBucket`, `ShortestAugmentingSearch`: computed parity routes and complete single-path search; `RecursiveRemoval*` contains the separate pruning components.
+- `Operational*Arms`, `OperationalMaxRoutes`, `MatchingPathRecovery*`, `FiberWeightedRecovery`, `RecoverableBucket`, `ShortestAugmentingSearch`: computed parity routes and complete single-path search; `RecursiveRemoval*` supplies the pruning used by the blocking phase.
+- `ActiveSearch*`, `ActivePetal*`, `ActivePathRecovery`, `BlockingBucket*`, `BlockingPhase*`: live-graph contraction, safe path deletion, maximal shortest-family search and the concrete solver.
 - `Examples`, `DDFSExamples`: kernel-checked boundary cases and actual collision, backtracking and Barrier-restoration traces.
 - `docs/`: original step plan, source correspondence, remaining obligations and independent reviews.
 

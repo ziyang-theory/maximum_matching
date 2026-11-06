@@ -74,7 +74,7 @@ variable {cap : Nat} {h : BudGraphInvariant M cap s F}
 /-- Expand raw disjoint DDFS arms through the actual triggering edge. All
 segments and vertex maps are computed from operational arms and the supplied
 weighted representation; only their certificates are erased. -/
-def recoverBridgePath (A : OperationalArms M s F) (hs : LabelsSound M s)
+def recoverBridgePathWithCore (A : OperationalArms M s F) (hs : LabelsSound M s)
     (W : DDFS.FiberWeightedMatching M (DDFS.fixedRootGraph (predecessorGraph s F h) F) F)
     (hphase : ∀ v, W.phase v % 2 = ((s.minLabel v).getD 0 + 1) % 2)
     (hdrop : ∀ {u v} (he : (DDFS.fixedRootGraph (predecessorGraph s F h) F).Edge u v),
@@ -84,7 +84,9 @@ def recoverBridgePath (A : OperationalArms M s F) (hs : LabelsSound M s)
     (hpf : p.first = F.root u) (hqf : q.first = F.root v)
     (hqb : (predecessorGraph s F h).level q.last = 0) (hdis : p.Disjoint q) :
     { z : AltPath M // z.first = q.last ∧ z.last = p.last ∧
-      z.length + (s.minLabel p.last).getD 0 = t ∧ z.ContainsEdge u v } := by
+      z.length + (s.minLabel p.last).getD 0 = t ∧ z.ContainsEdge u v ∧
+      (∀ w, (∃ j, z.vertex j = w) → p.Contains (F.root w) ∨ q.Contains (F.root w)) ∧
+      (∀ w, p.Contains w ∨ q.Contains w → ∃ j, z.vertex j = w) } := by
   let T := A.bridgeArms hs u v t ht
   obtain ⟨hu, hv⟩ := edgeTenacity_has_minLabels s u v t ht
   have hqa : ∃ k, s.minLabel q.first = some k := by
@@ -109,7 +111,7 @@ def recoverBridgePath (A : OperationalArms M s F) (hs : LabelsSound M s)
     change _ = ((s.minLabel q.first).getD 0 + 1) % 2
     rw [hqf]
     exact T.right_end_phase
-  obtain ⟨z, hzf, hzl, hzn, _, hedge⟩ := W.recoverBridgeDetourOfPotential pr qr
+  obtain ⟨z, hzf, hzl, hzn, _, hedge, hfibers, hcore⟩ := W.recoverBridgeDetourOfPotentialWithCore pr qr
     hpfix hqfix hdis T.left T.right (T.left_last.trans hpf.symm) (T.right_last.trans hqf.symm)
     hap hbp
     (by change ∀ j, j.val < T.left.length → F.root (T.left.vertex j) = p.first
@@ -123,10 +125,52 @@ def recoverBridgePath (A : OperationalArms M s F) (hs : LabelsSound M s)
           (T.right.length + (s.minLabel q.first).getD 0) + 1 = t
         rw [hpf, hqf]; exact T.budget)
   rw [T.right_first, T.left_first] at hedge
-  exact ⟨z, hzf, hzl, hzn, (z.containsEdge_symm v u).1 hedge⟩
+  exact ⟨z, hzf, hzl, hzn, (z.containsEdge_symm v u).1 hedge, hfibers, hcore⟩
+
+/-- Compatibility interface for the same computed matching path. -/
+def recoverBridgePath (A : OperationalArms M s F) (hs : LabelsSound M s)
+    (W : DDFS.FiberWeightedMatching M (DDFS.fixedRootGraph (predecessorGraph s F h) F) F)
+    (hphase : ∀ v, W.phase v % 2 = ((s.minLabel v).getD 0 + 1) % 2)
+    (hdrop : ∀ {u v} (he : (DDFS.fixedRootGraph (predecessorGraph s F h) F).Edge u v),
+      (W.segment he).length + (s.minLabel v).getD 0 = (s.minLabel u).getD 0)
+    (u v : V) (t : Nat) (hadj : G.Adj u v) (ht : edgeTenacity M s u v = some t)
+    (p q : DDFS.Path (predecessorGraph s F h))
+    (hpf : p.first = F.root u) (hqf : q.first = F.root v)
+    (hqb : (predecessorGraph s F h).level q.last = 0) (hdis : p.Disjoint q) :
+    { z : AltPath M // z.first = q.last ∧ z.last = p.last ∧
+      z.length + (s.minLabel p.last).getD 0 = t ∧ z.ContainsEdge u v } := by
+  let z := A.recoverBridgePathWithCore hs W hphase hdrop u v t hadj ht p q hpf hqf hqb hdis
+  exact ⟨z.val, z.property.1, z.property.2.1, z.property.2.2.1, z.property.2.2.2.1⟩
 
 /-- Recover the actual shortest augmenting matching path when both computed
 DDFS arms reach free bottoms. -/
+def recoverShortestAugmentingWithCore (A : OperationalArms M s F) (hs : LabelsSound M s)
+    (W : DDFS.FiberWeightedMatching M (DDFS.fixedRootGraph (predecessorGraph s F h) F) F)
+    (hphase : ∀ v, W.phase v % 2 = ((s.minLabel v).getD 0 + 1) % 2)
+    (hdrop : ∀ {u v} (he : (DDFS.fixedRootGraph (predecessorGraph s F h) F).Edge u v),
+      (W.segment he).length + (s.minLabel v).getD 0 = (s.minLabel u).getD 0)
+    (u v : V) (t : Nat) (hadj : G.Adj u v) (ht : edgeTenacity M s u v = some t)
+    (hodd : t % 2 = 1) (hbound : AtMostShortestAugmenting M t)
+    (p q : DDFS.Path (predecessorGraph s F h))
+    (hp : p.ToBottom (F.root u)) (hq : q.ToBottom (F.root v)) (hdis : p.Disjoint q) :
+    { z : AltPath M // z.Augmenting ∧ z.first = q.last ∧ z.last = p.last ∧
+      z.length = t ∧ z.ContainsEdge u v ∧
+      (∀ r : AltPath M, r.Augmenting → z.length ≤ r.length) ∧
+      (∀ w, (∃ j, z.vertex j = w) → p.Contains (F.root w) ∨ q.Contains (F.root w)) ∧
+      (∀ w, p.Contains w ∨ q.Contains w → ∃ j, z.vertex j = w) } := by
+  obtain ⟨z, hzf, hzl, hzn, hedge, hfibers, hcore⟩ := A.recoverBridgePathWithCore hs W hphase hdrop u v t hadj ht
+    p q hp.1 hq.1 hq.2 hdis
+  have hpb : (s.minLabel p.last).getD 0 = 0 := hp.2
+  have hlen : z.length = t := by omega
+  have hpa : ∃ k, s.minLabel p.first = some k := by
+    rw [hp.1]
+    obtain ⟨⟨k, hk⟩, _⟩ := edgeTenacity_has_minLabels s u v t ht
+    exact h.rootAssigned u k hk
+  have hfree : M.Free z.last := hzl ▸ h.path_bottom_free p hpa hp.2
+  exact ⟨z, ⟨by rw [hlen]; exact hodd, hfree⟩, hzf, hzl, hlen, hedge,
+    (fun r hr => hlen ▸ hbound r hr), hfibers, hcore⟩
+
+/-- Compatibility interface retaining shortestness and the computed path. -/
 def recoverShortestAugmenting (A : OperationalArms M s F) (hs : LabelsSound M s)
     (W : DDFS.FiberWeightedMatching M (DDFS.fixedRootGraph (predecessorGraph s F h) F) F)
     (hphase : ∀ v, W.phase v % 2 = ((s.minLabel v).getD 0 + 1) % 2)
@@ -139,17 +183,10 @@ def recoverShortestAugmenting (A : OperationalArms M s F) (hs : LabelsSound M s)
     { z : AltPath M // z.Augmenting ∧ z.first = q.last ∧ z.last = p.last ∧
       z.length = t ∧ z.ContainsEdge u v ∧
       ∀ r : AltPath M, r.Augmenting → z.length ≤ r.length } := by
-  obtain ⟨z, hzf, hzl, hzn, hedge⟩ := A.recoverBridgePath hs W hphase hdrop u v t hadj ht
-    p q hp.1 hq.1 hq.2 hdis
-  have hpb : (s.minLabel p.last).getD 0 = 0 := hp.2
-  have hlen : z.length = t := by omega
-  have hpa : ∃ k, s.minLabel p.first = some k := by
-    rw [hp.1]
-    obtain ⟨⟨k, hk⟩, _⟩ := edgeTenacity_has_minLabels s u v t ht
-    exact h.rootAssigned u k hk
-  have hfree : M.Free z.last := hzl ▸ h.path_bottom_free p hpa hp.2
-  exact ⟨z, ⟨by rw [hlen]; exact hodd, hfree⟩, hzf, hzl, hlen, hedge,
-    fun r hr => hlen ▸ hbound r hr⟩
+  let z := A.recoverShortestAugmentingWithCore hs W hphase hdrop u v t hadj ht hodd hbound
+    p q hp hq hdis
+  exact ⟨z.val, z.property.1, z.property.2.1, z.property.2.2.1,
+    z.property.2.2.2.1, z.property.2.2.2.2.1, z.property.2.2.2.2.2.1⟩
 
 end OperationalArms
 
@@ -159,6 +196,26 @@ variable {n : Nat} {G : Graph (Fin n)} {M : Matching G}
 
 /-- Turn this exact raw DDFS output into a computed shortest alternating
 matching path, using the operational arms stored alongside its search state. -/
+def recoverWithCore (certificate : CurrentBucketWitness B)
+    (A : OperationalArms M B.state B.forest)
+    (_hc : cut % 2 = 1) (htop : AtMostShortestAugmenting M (cut + 2))
+    (hstageTen : cut + 2 = 2 * i + 1) :
+    { p : AltPath M // p.Augmenting ∧ p.first = certificate.green.last ∧
+      p.last = certificate.red.last ∧ p.length = 2 * i + 1 ∧
+      p.ContainsEdge certificate.left certificate.right ∧
+      (∀ q : AltPath M, q.Augmenting → p.length ≤ q.length) ∧
+      (∀ w, (∃ j, p.vertex j = w) →
+        certificate.red.Contains (B.forest.root w) ∨ certificate.green.Contains (B.forest.root w)) ∧
+      (∀ w, certificate.red.Contains w ∨ certificate.green.Contains w → ∃ j, p.vertex j = w) } := by
+  have hb := B.stage.classification.2.2 (2 * i + 1) certificate.left certificate.right certificate.queued
+  have hk := B.stage.current_bridge_known certificate.left certificate.right hb.1 hb.2
+  exact A.recoverShortestAugmentingWithCore B.stage.min.1 (A.weighted B.stage B.bud)
+    (fun _ => rfl) (fun he => A.weighted_drop B.stage B.bud he)
+    certificate.left certificate.right (2 * i + 1) hb.1.1 hk (by omega)
+    (by simpa only [hstageTen] using htop) certificate.red certificate.green
+    certificate.red_bottom certificate.green_bottom certificate.disjoint
+
+/-- Compatibility interface for the same recovered certificate path. -/
 def recover (certificate : CurrentBucketWitness B)
     (A : OperationalArms M B.state B.forest)
     (_hc : cut % 2 = 1) (htop : AtMostShortestAugmenting M (cut + 2))
@@ -167,13 +224,9 @@ def recover (certificate : CurrentBucketWitness B)
       p.last = certificate.red.last ∧ p.length = 2 * i + 1 ∧
       p.ContainsEdge certificate.left certificate.right ∧
       ∀ q : AltPath M, q.Augmenting → p.length ≤ q.length } := by
-  have hb := B.stage.classification.2.2 (2 * i + 1) certificate.left certificate.right certificate.queued
-  have hk := B.stage.current_bridge_known certificate.left certificate.right hb.1 hb.2
-  exact A.recoverShortestAugmenting B.stage.min.1 (A.weighted B.stage B.bud)
-    (fun _ => rfl) (fun he => A.weighted_drop B.stage B.bud he)
-    certificate.left certificate.right (2 * i + 1) hb.1.1 hk (by omega)
-    (by simpa only [hstageTen] using htop) certificate.red certificate.green
-    certificate.red_bottom certificate.green_bottom certificate.disjoint
+  let p := certificate.recoverWithCore A _hc htop hstageTen
+  exact ⟨p.val, p.property.1, p.property.2.1, p.property.2.2.1,
+    p.property.2.2.2.1, p.property.2.2.2.2.1, p.property.2.2.2.2.2.1⟩
 
 end CurrentBucketWitness
 end MaximumMatching.Search

@@ -8,7 +8,7 @@ variable {V : Type} {G : Graph V} {M : Matching G}
 
 /-- Construct the actual relative bridge detour without a free-boundary
 hypothesis and without choosing a semantic path witness. -/
-def recoverBridgeJoin (a b : ParitySegment M)
+def recoverBridgeJoinExact (a b : ParitySegment M)
     (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
     (hphase : a.phase % 2 = b.phase % 2)
     (hedge : G.Adj b.first a.first)
@@ -16,7 +16,7 @@ def recoverBridgeJoin (a b : ParitySegment M)
     { z : ParitySegment M // z.first = b.last ∧ z.last = a.last ∧
       z.length = b.length + 1 + a.length ∧
       z.phase = b.phase + b.length + 1 ∧
-      (∀ w, z.Contains w → a.Contains w ∨ b.Contains w) ∧
+      (∀ w, z.Contains w ↔ a.Contains w ∨ b.Contains w) ∧
       ∃ i : Fin z.length, z.vertex ⟨i.val, by omega⟩ = b.first ∧
         z.vertex ⟨i.val + 1, by omega⟩ = a.first } := by
   let e := ofEdge b.first a.first (b.phase + 1) hedge hmatch
@@ -55,17 +55,25 @@ def recoverBridgeJoin (a b : ParitySegment M)
   have hdf : d.first = b.last :=
     (c.append_first a hcp hcj hcd).trans ((b.reverse.append_first e hp hj hd).trans b.reverse_first)
   refine ⟨d, hdf, c.append_last a hcp hcj hcd, rfl, rfl, ?_, ?_⟩
-  · intro w hw
-    rcases (c.contains_append_iff a hcp hcj hcd w).1 hw with hcw | haw
-    · rcases (b.reverse.contains_append_iff e hp hj hd w).1 hcw with hbw | hew
-      · exact Or.inr ((b.contains_reverse_iff w).1 hbw)
-      · obtain ⟨i, hi⟩ := hew
-        by_cases hz : i.val = 0
-        · have hbw : b.first = w := by simpa only [e, ofEdge, hz, ite_true] using hi
-          exact Or.inr ⟨⟨0, by omega⟩, hbw⟩
-        · have haw : a.first = w := by simpa only [e, ofEdge, hz, ite_false] using hi
-          exact Or.inl ⟨⟨0, by omega⟩, haw⟩
-    · exact Or.inl haw
+  · intro w
+    constructor
+    · intro hw
+      rcases (c.contains_append_iff a hcp hcj hcd w).1 hw with hcw | haw
+      · rcases (b.reverse.contains_append_iff e hp hj hd w).1 hcw with hbw | hew
+        · exact Or.inr ((b.contains_reverse_iff w).1 hbw)
+        · obtain ⟨i, hi⟩ := hew
+          by_cases hz : i.val = 0
+          · have hbw : b.first = w := by simpa only [e, ofEdge, hz, ite_true] using hi
+            exact Or.inr ⟨⟨0, by omega⟩, hbw⟩
+          · have haw : a.first = w := by simpa only [e, ofEdge, hz, ite_false] using hi
+            exact Or.inl ⟨⟨0, by omega⟩, haw⟩
+      · exact Or.inl haw
+    · intro hw
+      apply (c.contains_append_iff a hcp hcj hcd w).2
+      rcases hw with haw | hbw
+      · exact Or.inr haw
+      · exact Or.inl ((b.reverse.contains_append_iff e hp hj hd w).2
+          (Or.inl ((b.contains_reverse_iff w).2 hbw)))
   · refine ⟨⟨b.length, by change b.length < b.length + 1 + a.length; omega⟩, ?_, ?_⟩
     · change d.vertex ⟨b.length, _⟩ = b.first
       simp only [d, append, c, reverse, e, ofEdge, show b.length ≤ b.length + 1 by omega,
@@ -75,15 +83,33 @@ def recoverBridgeJoin (a b : ParitySegment M)
         show ¬b.length + 1 ≤ b.length by omega, dite_false,
         Nat.add_sub_cancel_left, Nat.one_ne_zero, ite_false]
 
+/-- Compatibility interface for the same computed bridge join. -/
+def recoverBridgeJoin (a b : ParitySegment M)
+    (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
+    (hphase : a.phase % 2 = b.phase % 2)
+    (hedge : G.Adj b.first a.first)
+    (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
+    { z : ParitySegment M // z.first = b.last ∧ z.last = a.last ∧
+      z.length = b.length + 1 + a.length ∧
+      z.phase = b.phase + b.length + 1 ∧
+      (∀ w, z.Contains w → a.Contains w ∨ b.Contains w) ∧
+      ∃ i : Fin z.length, z.vertex ⟨i.val, by omega⟩ = b.first ∧
+        z.vertex ⟨i.val + 1, by omega⟩ = a.first } := by
+  let z := a.recoverBridgeJoinExact b hdis hphase hedge hmatch
+  exact ⟨z.val, z.property.1, z.property.2.1, z.property.2.2.1,
+    z.property.2.2.2.1, fun w hw => (z.property.2.2.2.2.1 w).1 hw,
+    z.property.2.2.2.2.2⟩
+
 /-- The same computed bridge join is an alternating path when its starting
 boundary is free. -/
-def recoverBridgeJoinFree (a b : ParitySegment M)
+def recoverBridgeJoinFreeExact (a b : ParitySegment M)
     (hfree : M.Free b.last) (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
     (hphase : a.phase % 2 = b.phase % 2)
     (hedge : G.Adj b.first a.first)
     (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
     { z : AltPath M // z.first = b.last ∧ z.last = a.last ∧
-      z.length = b.length + 1 + a.length ∧ z.ContainsEdge b.first a.first } := by
+      z.length = b.length + 1 + a.length ∧ z.ContainsEdge b.first a.first ∧
+      (∀ w, (∃ i, z.vertex i = w) ↔ a.Contains w ∨ b.Contains w) } := by
   have hend : (b.phase + b.length) % 2 = 1 := by
     by_cases hz : b.length = 0
     · have hends : b.first = b.last := congrArg b.vertex (Fin.ext (by omega))
@@ -103,12 +129,23 @@ def recoverBridgeJoinFree (a b : ParitySegment M)
         rw [hfree] at hm'
         contradiction
       omega
-  obtain ⟨z, hzf, hzl, hzn, hzp, _, hbridge⟩ :=
-    a.recoverBridgeJoin b hdis hphase hedge hmatch
+  obtain ⟨z, hzf, hzl, hzn, hzp, hcover, hbridge⟩ :=
+    a.recoverBridgeJoinExact b hdis hphase hedge hmatch
   have hzero : z.phase % 2 = 0 := by rw [hzp]; omega
   let p := (z.toAltSegment hzero).fromFree (by change M.Free z.first; rw [hzf]; exact hfree)
-  refine ⟨p, hzf, hzl, hzn, ?_⟩
+  refine ⟨p, hzf, hzl, hzn, ?_, hcover⟩
   obtain ⟨i, hi, hj⟩ := hbridge
   exact ⟨i, Or.inl ⟨hi, hj⟩⟩
+
+/-- Compatibility interface for the same computed free-boundary join. -/
+def recoverBridgeJoinFree (a b : ParitySegment M)
+    (hfree : M.Free b.last) (hdis : ∀ i j, b.vertex i ≠ a.vertex j)
+    (hphase : a.phase % 2 = b.phase % 2)
+    (hedge : G.Adj b.first a.first)
+    (hmatch : (M.mate b.first = some a.first) ↔ (b.phase + 1) % 2 = 1) :
+    { z : AltPath M // z.first = b.last ∧ z.last = a.last ∧
+      z.length = b.length + 1 + a.length ∧ z.ContainsEdge b.first a.first } := by
+  let z := a.recoverBridgeJoinFreeExact b hfree hdis hphase hedge hmatch
+  exact ⟨z.val, z.property.1, z.property.2.1, z.property.2.2.1, z.property.2.2.2.1⟩
 
 end MaximumMatching.ParitySegment

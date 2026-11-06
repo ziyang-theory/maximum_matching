@@ -1,6 +1,6 @@
 # Theorem correspondence and remaining work
 
-Complete executable single shortest-path search is now proved; CHECKPOINT.md records the remaining blocking-phase and cost obligations. Source locators refer to the supplied 43-page arXiv v1 PDF, dated 7 December 2020. The checked theorems use the definitions in this project. Their trust and reproduction limits are in VALIDATION.md.
+Complete executable deletion-aware blocking phases and maximum-matching correctness are proved; CHECKPOINT.md records the remaining concrete cost obligations. Source locators refer to the supplied 43-page arXiv v1 PDF, dated 7 December 2020. The checked theorems use the definitions in this project. Their trust and reproduction limits are in VALIDATION.md.
 
 | Source claim/component | Lean declaration/module | Status and limits |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ Complete executable single shortest-path search is now proved; CHECKPOINT.md rec
 | Same-level path representation and bucket execution | `CurrentBridgeRepresentation`, `PetalRootExpansion`, `CurrentBucket` | Actual fiber/bridge arms are preserved through petal events. The executable finite queued-list loop preserves local invariants, returns raw certified DDFS paths and records petal history; a found output implies a shortest augmentation. `CurrentBucketCoverage` proves complete current-tenacity discovery from exhaustion. |
 | Initial converse support coverage and contraction transport | `MatchingSupportComplete`, `PetalPathTransport`, `PetalDisjointTransport` | Actual semantic support witnesses give disjoint predecessor-graph arms and strict bottleneck-region membership under lower-blossom representation, including `t = l_m`. Contraction preserves actual paths, and preserves disjoint arms when the target is outside the selected region. The bottleneck-target case and full-loop composition are proved in `PetalDisjointTransport` and `CurrentBucketCoverage`. |
 | Algorithm 1 MIN p.13 | `Search.scan`, `scanCandidate`, `scanCandidates` | Local updates, exact semantic predecessor guard, label-soundness preservation and rejection-as-bridge proved under explicit earlier-level/scan invariants. Initial MIN candidate folds are unconditionally label-sound. `MinComplete` proves finite enumeration completeness, exact next-level predecessor lists, initialization and preservation. Its frontier is derived from previous MIN/MAX labels; `CurrentBucketCoverage` discharges the prior-MAX induction, and `CurrentBucketStage` composes consecutive levels. |
-| Algorithm 1 MAX p.13 | `MaxCorrectness`, `MaxBridgeRefresh` | Actual support-member/list assignment computes semantic maxlevels, deriving the subtraction bound from tenacity; duplicate and overlapping lists preserve invariants. `maxProcessVertex` assigns labels and registers every finite-known incident nonprop for inner vertices, including edges MIN has not scanned. Full current-bucket support discovery is now proved; restricted-graph continuation after deletion remains open. |
+| Algorithm 1 MAX p.13 | `MaxCorrectness`, `MaxBridgeRefresh` | Actual support-member/list assignment computes semantic maxlevels, deriving the subtraction bound from tenacity; duplicate and overlapping lists preserve invariants. `maxProcessVertex` assigns labels and registers every finite-known incident nonprop for inner vertices, including edges MIN has not scanned. Full current-bucket support discovery and restricted-graph continuation after deletion are proved in `CurrentBucketCoverage` and `ActivePetalMax`. |
 | Bridge-bucket completeness, Theorem 8.3 Task 2 | `BridgeComplete.scanLevel_current_bucket_complete` | Every bridge of tenacity `2i+1` is queued after actual MIN, including mixed/inner endpoints. Uses prior MAX labels and initialized/preserved scan/pending-event invariants; no current MAX support-completeness premise. |
 | Theorem 6.19(3), source blossom recursion and laminarity | `Blossom`, `blossom_iff_base_cut`, `blossoms_laminar` | Proved for the actual partial common-base relation, including arbitrary odd thresholds and valid high-tenacity roots. General eligible base existence is now proved independently by `GeneralStructureInduction`. |
 | Minimum-tenacity basis of Theorem 6.19(4–5) | `MinimumBlossomPaths`, `minimum_blossom_relative_paths` | Proved: shortest-path suffix bases and confinement; every shortest relative path stays in the blossom plus its base, and its edges have exactly the minimum tenacity. |
@@ -42,12 +42,13 @@ Complete executable single shortest-path search is now proved; CHECKPOINT.md rec
 | Semantic support coverage, Theorem 8.3 Task 3 first step | `tenacity_iff_bridge_support` | Proved: the union of current-tenacity bridge supports is exactly the current vertex-tenacity stratum. Supports may overlap. `CurrentBucketCoverage` proves complete current-tenacity MAX discovery by the actual DDFS bucket loop. |
 | Lemma 6.20 p.33 | `runCurrentBucket_exhausted_base`, `runCurrentBucket_exhausted_base_eq` | Proved for actual complete exhausted buckets: current-tenacity vertices' final roots are their canonical bases. Intermediate buds are allowed to have current tenacity. |
 | Lemma 8.1 pp.36–37, finite-tenacity content | `matched_bridge_levels`, `unmatched_bridge_tenacity` | Proved. Matched endpoints are inner with equal odd minlevels; unmatched outer endpoint tenacity is at most the bridge's, and inner endpoint tenacity is strictly smaller. The finite result needs no `t ≤ l_m` premise. |
-| Theorem 8.3 / Claim 8.4 pp.37–39 | `SearchStage` | Initialized stage invariants, complete MIN, all current-tenacity bridge buckets, and actual MAX assignment/refresh are proved. `CurrentBucketCoverage` derives discovery from the actual complete bridge bucket, without a supplied support list. `CurrentBucketBlossoms` proves end-of-level base correspondence, and `CurrentBucketStage` composes the next MIN/MAX level. Active-graph continuation after path deletion remains open. |
-| Lemma 8.5 p.40 | `findShortestAugmenting`, `RecursiveRemoval` | Computed single-path recovery and generic predecessor pruning are proved. Safe matching-fiber deletion, continued restricted-graph DDFS and maximality of the full shortest disjoint family remain open. |
+| Theorem 8.3 / Claim 8.4 pp.37–39 | `SearchStage` | Initialized stage invariants, complete MIN, all current-tenacity bridge buckets, and actual MAX assignment/refresh are proved. `CurrentBucketCoverage` derives discovery from the actual complete bridge bucket, without a supplied support list. `CurrentBucketBlossoms` proves end-of-level base correspondence, and `CurrentBucketStage` composes the next MIN/MAX level. Active-graph continuation after path deletion is proved separately in `ActivePetalState` and `BlockingBucket`. |
+| Lemma 8.5 p.40 | `resumeBlockingPhase_maximalShortest`, `BlockingBucket` | Proved: computed path recovery, safe fiber deletion, recursive predecessor pruning, actual restricted-graph DDFS continuation, and maximality of the resulting shortest disjoint family. See BLOCKING_PHASE_PROOF.md for the exact deletion representation. |
 | Strict progress of a maximal shortest family | `AugmentingFamily.shortest_length_increases` | Proved for actual family flips, using internally proved symmetric-difference packing. |
-| Outer-loop termination and optimality assembly | `PhaseDriver.run`, `run_isMaximum` | Termination and cardinality accounting are unconditional for a supplied family search. Maximum output explicitly requires `Complete`, still uninstantiated for concrete MV. |
-| Square-root phase count invoked by Theorem 8.6 | `PhaseDriver.run_positivePhases_le_two_sqrt` | Proved: at most `2 * Nat.sqrt n` nonempty phases when search satisfies `ShortestBlocking`. `FreeEdgePhase` finds that family for length one; the general deletion/continuation phase remains open. |
-| Theorem 8.6 p.40, complete correctness/runtime | — | Open: concrete MIN/MAX/DDFS/petal implementation satisfying both search contracts, and its edge accounting/data-structure cost. No complete MV or asymptotic runtime theorem is claimed. |
+| Outer-loop termination and optimality assembly | `PhaseDriver.run`, `run_isMaximum` | Termination and cardinality accounting are unconditional for a supplied family search. The generic theorem requires `Complete`; `blockingPhase_complete` now proves it for the concrete deletion-aware phase, and `maximumMatching_isMaximum` has no search-contract premise. |
+| Square-root phase count invoked by Theorem 8.6 | `PhaseDriver.run_positivePhases_le_two_sqrt` | Proved: at most `2 * Nat.sqrt n` nonempty phases when search satisfies `ShortestBlocking`. `blockingPhase_shortestBlocking` proves that contract for every phase, yielding `runBlockingPhases_positivePhases_le_two_sqrt` without a search-contract premise. |
+| Theorem 8.6 p.40, functional correctness | `maximumMatching_isMaximum` | Proved for the concrete MIN/MAX/DDFS/petal solver on finite simple graphs with decidable adjacency. Both phase contracts are discharged. |
+| Theorem 8.6 p.40, concrete runtime | — | Open: efficient sparse enumeration, edge accounting, compact path storage and data-structure costs. No `O(m sqrt(n))` machine-time theorem is claimed. |
 
 ## Completed search and exact boundary
 
@@ -65,20 +66,23 @@ supply the path. `RecoverableBucket` proves equality to the existing raw
 execution after erasing the additional arm data, including identical petal
 history. No semantic choice selects the runtime path.
 
-`FreeEdgePhase` constructs the full maximal family only for length one.
-`RecursiveRemoval` proves exact bottom-path preservation for generic
-predecessor pruning. Continued restricted-graph DDFS, deletion-compatible
-matching fibers and maximal shortest-family construction are still missing.
-The concrete MV phase therefore does not yet instantiate `Complete` or
-`ShortestBlocking`. `allCandidates_length` gives an exact `n * n` candidate
-count; efficient sparse enumeration, history storage and machine costs require
-additional implementation and proofs.
+`BlockingPhaseStart` retains the first actual DDFS witness and the current
+state. `resumeBlockingPhase` expands it once and continues the same bucket
+with restricted-graph searches after deletion. `ActivePetalRecord` records
+highest-bottleneck and region facts only for that live graph. `BlockingBucket`
+proves that every unselected shortest path retains contained disjoint live
+arms, contradicting trigger accounting at exhaustion. `blockingPhase_complete`
+and `blockingPhase_shortestBlocking` instantiate the outer solver contracts.
+
+`allCandidates_length` gives an exact `n * n` candidate count; efficient sparse
+enumeration, history storage and machine costs require additional implementation
+and proofs. The square-root phase bound alone is not a concrete runtime bound.
 
 ## Trust and interpretation
 
 The intended mathematical input is a finite undirected simple graph. `Matching`'s symmetry and graph-membership fields specify legal inputs. `AltPath`'s simplicity and alternating-edge fields specify a legal path. Augmentation and family execution derive legal output matchings; validity is not an assumed postcondition. `DifferencePath.other` specifies which matching supplies each alternating edge, and the Berge proof constructs finite terminal paths rather than assuming a decomposition theorem.
 
-`BudForest.decreases` is a genuine representation invariant, preserved by executable guarded merging. The DDFS region provides the guards when roots and ranks represent its layered vertices. `MatchingSearchGraph` derives these representation properties from actual MIN lists; matching-state DDFS and MIN rank updates preserve them. `PetalBaseClasses` preserves canonical blossom classes during a level, and `CurrentBucketBlossoms` identifies final current-tenacity roots with bases. DDFS's layered input and bottom-reachability properties likewise do not assert operational correctness. MIN/MAX labels are operational state, distinct from noncomputable semantic levels. `PhaseDriver.Complete` and `ShortestBlocking` are explicit specifications for the supplied search function; the assembly theorems do not prove that the unfinished MV phase satisfies them.
+`BudForest.decreases` is a genuine representation invariant, preserved by executable guarded merging. The DDFS region provides the guards when roots and ranks represent its layered vertices. `MatchingSearchGraph` derives these representation properties from actual MIN lists; matching-state DDFS and MIN rank updates preserve them. `PetalBaseClasses` preserves canonical blossom classes during a level, and `CurrentBucketBlossoms` identifies final current-tenacity roots with bases. DDFS's layered input and bottom-reachability properties likewise do not assert operational correctness. MIN/MAX labels are operational state, distinct from noncomputable semantic levels. `PhaseDriver.Complete` and `ShortestBlocking` are explicit specifications for the supplied search function; `BlockingPhase` constructs the concrete phase and proves both specifications before applying the assembly theorems.
 
 `minlevel` and `maxlevel` are harmlessly totalized to infinity for an entirely unreachable vertex; the paper only defines them when a finite level exists. Eligibility preserves strict `t < l_m` by quantifying over every augmenting path. Support includes `t ≤ l_m`. The rank-free graph theory is generic in the vertex type; finite cardinality statements use `Fin n`.
 

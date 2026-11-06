@@ -1,88 +1,67 @@
 # Proof checkpoint
 
-The development now constructs a shortest augmenting path with actual
-MIN/MAX/DDFS search and computed petal expansion, or certifies that no
-augmenting path exists. Full MV blocking-phase construction and its concrete
-running-time bound remain unfinished. No admission or new correctness axiom
-is used.
+Deletion-aware maximal blocking-phase correctness and the concrete maximum
+matching solver are now proved. The implementation uses actual MIN/MAX/DDFS
+search, computed petal expansion, path-fiber deletion and recursive predecessor
+pruning. No admission or new correctness axiom is used. The concrete MV running-time
+bound remains unfinished.
 
-## Completed since the previous checkpoint
+## Completed integration
 
-- `CurrentBucketProgress` proves exhausted-trigger equality and preservation
-  of MIN fields and known MAX labels throughout the actual loop.
-- `PetalDisjointTransport` handles both surviving targets: outside the selected
-  region and equal to its bottleneck.
-- `CurrentBucketCoverage` transports initial semantic support arms through
-  every actual contraction. Exhaustion discovers all current MAX labels and
-  establishes the next `StageInvariant`; no desired support list is assumed.
-- `CurrentBucketRootLabels`, `CurrentBucketAugmenting` and
-  `CurrentBucketEndRoots` show that roots remain MAX-unlabeled, exhaustion
-  excludes a current-length augmentation, and final roots have greater
-  tenacity. The exclusion proof uses the free endpoint of a hypothetical
-  shortest augmentation, whose current tenacity would force a forbidden MAX
-  label at a fixed root.
-- `PetalBasePaths`, `PetalBase`, `PetalBaseClasses` and
-  `CurrentBucketBlossoms` restore the next-cutoff blossom representation and
-  identify final current-tenacity roots with canonical bases. Intermediate
-  bottlenecks may still have current tenacity. The strict augmentation bound
-  needed for base existence is derived from exhaustion.
-- `CurrentBucketStage` executes MIN followed by its complete actual bucket.
-  `LevelSearch` iterates these stages with a finite stopping test and proves
-  that its maximum-matching decision is exact.
-- `OperationalArms`, `OperationalMinArms`, `OperationalPredecessorArms`,
-  `OperationalBridgeArms` and `OperationalMaxRoutes` carry actual parity
-  segments through MIN, MAX and contraction. `MatchingPathRecovery*`,
-  `ParityBridgeRecovery` and `FiberWeightedRecovery` compute paths from stored
-  parents/predecessors and concatenate those segments. Semantic choice is
-  used only in erased correctness proofs, not to select runtime paths.
-- `RecoverableBucket` erases to the same existing bucket execution and petal
-  history. `findShortestAugmenting` in `ShortestAugmentingSearch` uses these data
-  to return an actual globally shortest augmenting path or certified absence.
-  Runtime arm closures retain prior states; compact storage and extraction
-  costs are not proved.
-- `FreeEdgePhase` constructs a maximal family for the length-one case.
-  `RecursiveRemoval` implements repeated removal of live positive-layer
-  sinks and proves exact surviving-bottom-path characterization.
-  `RecursiveRemovalTransport` preserves avoidance under petal contractions.
-- `Search.allCandidates_length` in `EnumerationCost` proves that the present
-  MIN candidate enumeration has exactly `n * n` entries, including nonedges
-  and loops.
+- `RecoveryContainment` proves that each recovered path contains both compressed
+  cores and is closed under current bud lookup. This strengthens the computed
+  recovery routines while retaining their previous APIs.
+- `AugmentingPathArms` and `CurrentBucketBottomArms` retain original shortest-path
+  vertex containment through initial compression and the full search prefix.
+- `ActiveSearchGraph` and `ActiveSearchInitial` initialize live fixed roots and
+  the restricted predecessor graph with proved bottom reachability.
+- `ActivePetalRecord`, `ActivePetalPaths`, `ActivePetalMax`, `ActivePetalArms`,
+  `ActivePetalTransport` and `ActivePetalState` handle actual restricted-graph
+  events. MAX soundness uses lifted colored-tree linkages; it never assumes a
+  full-graph bottleneck from a restricted-graph output.
+- `ActivePathRecovery` computes augmentations in live fibers, with root closure
+  and both trigger roots on the recovered path.
+- `BlockingBucketRemoval` proves deletion and recursive pruning preserve the
+  contained bottom arms of every disjoint shortest augmentation.
+- `BlockingBucketAccounting`, `BlockingBucketResult` and `BlockingBucket` prove
+  actual continued-search termination, pairwise disjointness, shortest lengths,
+  persistent inactivity, trigger accounting and maximality.
+- `BlockingPhaseStart` retains the first actual witness and current state.
+  `resumeBlockingPhase` expands it once, deletes its fibers and continues the
+  same bucket without restarting MIN or searching residual matchings.
+- `blockingPhase_complete` and `blockingPhase_shortestBlocking` discharge both
+  concrete outer-loop contracts. `maximumMatching_isMaximum` proves solver
+  optimality; `runBlockingPhases_positivePhases_le_two_sqrt` proves the
+  unconditional bound of `2 * Nat.sqrt n` positive phases.
 
-## Remaining integration
+See [BLOCKING_PHASE_PROOF.md](BLOCKING_PHASE_PROOF.md) for the proof invariant,
+independent review scope, and the exact relation of fiber deletion to source
+§4.5.2 and Lemma 8.5.
 
-1. Continue the shortest-level bucket after recovering a path, with actual
-   deletion and recursive removal. Current `PetalRecord.computed`, `highest`
-   and `region` refer to the full predecessor graph. A bottleneck in a graph
-   restricted to surviving vertices is not automatically a bottleneck in the
-   full graph. Introduce an active-graph event and prove its relation to the
-   full predecessor edges; do not reuse the stronger full-graph premise.
-2. Prove that deleting the recovered path and its affected fibers preserves
-   every disjoint shortest augmentation. The generic pruning theorem preserves
-   an already-live bottom path; this does not establish the missing matching
-   path/fiber compatibility by itself. Keep the two surviving graph arms,
-   their original-path vertex containment and the computed expansion's
-   avoidance properties in the blocking-bucket invariant.
-3. Produce a maximal vertex-disjoint family of shortest paths from that
-   continued search, and instantiate `PhaseDriver.Complete` and
-   `ShortestBlocking` for the concrete MV phase. A single shortest path, or
-   rerunning searches on residual graphs, does not prove the source's
-   same-phase removal/continuation procedure or its linear phase cost.
-4. Replace all-pairs enumeration, repeated list scans and recomputed path
-   closures with an explicit efficient representation and cost model.
-   Abstract DDFS transition bounds and the conditional phase count do not
-   account for these operations. The present implementation does not have the
-   source's `O(m sqrt(n))` RAM bound merely because its proofs compile.
+## Remaining work
+
+Replace all-pairs enumeration, repeated list scans and retained runtime route
+closures with an efficient representation and an explicit cost model. The present
+MIN enumeration has exactly `n * n` candidates, including nonedges and loops.
+Path extraction has no compact-storage or linear-cost proof. The abstract DDFS
+transition bounds and square-root phase count do not account for these operations.
+The source's `O(m sqrt(n))` RAM bound and its representation refinements remain
+unproved.
+
+The live graph deletes whole touched root fibers, and may retain isolated
+level-zero roots. Safety and maximality are proved for this representation;
+exact intermediate-state equivalence to literal source vertex deletion is not
+claimed. Any future cost or representation refinement must preserve the proved
+live-arm invariant.
 
 ## Verification
 
 All delivered modules are explicitly imported by `MaximumMatching.lean`.
-Runtime regressions include multiple successive petals, shortest lengths
-one/three/five, a length-five path through an earlier triangle petal, perfect
-matchings and the empty graph. Independent reviews checked support coverage,
-the noncircular base-restoration argument, stage iteration and the distinction
-between executable path data and erased semantic witnesses.
+`BlockingPhaseExamples` includes two successive augmentations in one phase,
+a subsequent active petal contraction, recursive removal of an unused matched
+branch, recovery through an earlier petal, and full-solver boundary cases.
 
-The final source-only build, public-declaration axiom audit and bundled Lean
-kernel replay are recorded in `validation/summary.json`, with exact source
-hashes in `validation/source-hashes.json`. These checks certify the delivered
-development, not the remaining blocking-phase and implementation-cost claims.
+The source-only build, public-declaration axiom audit and bundled Lean kernel
+replay are recorded in `validation/summary.json`, with exact source hashes in
+`validation/source-hashes.json`. These checks cover phase and solver correctness;
+they do not certify the remaining machine-cost claims.

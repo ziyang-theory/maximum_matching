@@ -1,6 +1,6 @@
 {
   "lean_version": "Lean (version 4.34.0, arm64-apple-darwin24.6.0, commit 293d5d0c0c3f3dded4688b3ccd6a33939ac5102b, Release)",
-  "public_declarations_audited": 1607,
+  "public_declarations_audited": 1756,
   "axioms": [
     "Classical.choice",
     "Quot.sound",
@@ -8,5 +8,8 @@
   ],
   "fresh_project_build": "passed",
   "bundled_kernel_replay": "passed",
+  "blocking_phase_correctness": "passed",
+  "maximum_matching_correctness": "passed",
+  "concrete_runtime_bound": "unproved",
   "complete_mv_verification": false
 }
