@@ -16,6 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EXPECTED = "Lean (version 4.34.0,"
+ACTIVE_LOGS: Path | None = None
 
 
 def run(cmd: list[str], cwd: Path, log: Path) -> str:
@@ -82,14 +83,18 @@ def public_declarations(source: str) -> list[str]:
 
 
 def main() -> None:
+    global ACTIVE_LOGS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--lake", default=shutil.which("lake"))
     args = parser.parse_args()
+    logs = ROOT / "validation"
+    logs.mkdir(exist_ok=True)
+    ACTIVE_LOGS = logs
+    (logs / "source-hashes.json").unlink(missing_ok=True)
+    (logs / "summary.json").write_text(json.dumps({"status": "running"}, indent=2) + "\n")
     if not args.lake:
         parser.error("Lake not on PATH: pass --lake /absolute/path/to/Lean-4.34.0/bin/lake")
     lake = str(Path(args.lake).resolve())
-    logs = ROOT / "validation"
-    logs.mkdir(exist_ok=True)
     version = run([lake, "env", "lean", "--version"], ROOT, logs / "version.log")
     if EXPECTED not in version:
         raise SystemExit(f"Wrong Lean version: {version.strip()}")
@@ -361,6 +366,7 @@ def main() -> None:
                 for path, content in snapshot.items()}
     (logs / "source-hashes.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (logs / "summary.json").write_text(json.dumps({
+        "status": "passed",
         "lean_version": version.strip(),
         "public_declarations_audited": len(names),
         "axioms": sorted(found),
@@ -375,4 +381,13 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (Exception, KeyboardInterrupt, SystemExit) as error:
+        if ACTIVE_LOGS is not None:
+            (ACTIVE_LOGS / "source-hashes.json").unlink(missing_ok=True)
+            (ACTIVE_LOGS / "summary.json").write_text(json.dumps({
+                "status": "failed",
+                "error": f"{type(error).__name__}: {error}",
+            }, indent=2) + "\n")
+        raise

@@ -1,4 +1,4 @@
-import MaximumMatching.DDFSExecutable
+import MaximumMatching.DDFSCorrectness
 
 /-! Global colored spanning trees reconstructed from the actual bottleneck
 output. Parent functions provide globally consistent ancestry. -/

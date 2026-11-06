@@ -1,63 +1,81 @@
 # Maximum matching in Lean 4
 
-An executable maximum-matching algorithm with proved correctness and termination,
-using MIN/MAX search, double depth-first search (DDFS), petal expansion, and
-deletion-aware maximal blocking phases.
+This project implements a maximum-cardinality matching algorithm and proves its
+correctness and termination in Lean 4. Given a finite simple graph, it computes
+a largest set of edges with no shared endpoints.
 
-For every finite simple graph with decidable adjacency,
-`Search.maximumMatching_isMaximum` proves that `Search.maximumMatching` returns
-a maximum-cardinality matching. The concrete phase satisfies both `Complete`
-and `ShortestBlocking`; these are proved results, not assumptions supplied to
-the solver. This repository covers correctness and termination, not running-time
-or space-complexity bounds.
+The development follows Vijay V. Vazirani's
+[*A Proof of the MV Matching Algorithm*](https://arxiv.org/abs/2012.03582v1)
+(7 December 2020). It includes alternating paths, blossom structure, double
+depth-first search (DDFS), and the MIN/MAX search for augmenting paths. Each
+nonempty phase finds a maximal family of vertex-disjoint shortest augmenting
+paths and uses them to enlarge the matching.
 
-Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*,
-[arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020;
-supplied as [max_matching.pdf](max_matching.pdf). The exact source, theorem
-correspondence, and representation choices are in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
+## Main result
 
-## Main results
+`Search.maximumMatching G` computes the matching, and
+`Search.maximumMatching_isMaximum G` proves that no matching in `G` has more
+edges. The solver accepts an undirected graph on `Fin n` with decidable adjacency,
+without loops or parallel edges.
 
-| Result | Declaration |
-| --- | --- |
-| Augmentation preserves matching validity and increases cardinality by one | `AltPath.augment_cardinality` |
-| Maximum matching iff no augmenting path | `Matching.isMaximum_iff_noAugmentingPath` |
-| Correct, terminating DDFS with disjoint paths or a highest bottleneck | `DDFS.Machine.execute_correct`, `executeFull` |
-| General base, blossom, and unique-bridge structure | `general_unique_base`, `general_blossom_relative_confined`, `AltPath.general_maxlevel_path_unique_bridge` |
-| Computed shortest augmenting path or certified absence | `Search.findShortestAugmenting` |
-| Safe deletion and maximal shortest-path family | `Search.resumeBlockingPhase_maximalShortest` |
-| Complete concrete phase and maximum-matching solver | `Search.blockingPhase_complete`, `blockingPhase_shortestBlocking`, `maximumMatching_isMaximum` |
+```lean
+import MaximumMatching
 
-The live search removes whole touched bud fibers. Its safety and maximality
-are proved; exact intermediate-state equivalence to literal source vertex
-deletion is not claimed. See [docs/BLOCKING_PHASE_PROOF.md](docs/BLOCKING_PHASE_PROOF.md)
-and [docs/STATUS.md](docs/STATUS.md) for the precise scope.
+open MaximumMatching
 
-## Build and verify
+example {n : Nat} (G : Graph (Fin n)) [DecidableRel G.Adj] :
+    (Search.maximumMatching G).IsMaximum :=
+  Search.maximumMatching_isMaximum G
+```
 
-The project pins **Lean 4.34.0**, imports **Std only**, and has no external
-package dependencies.
+The proof includes Berge's criterion, correctness of augmentation, the base and
+blossom theorems, and completeness of the concrete search. Callers do not need
+to supply a search-completeness assumption.
+
+The scope is correctness and termination; time and space bounds are not proved.
+During a blocking phase, deletion removes whole groups of vertices with the same
+bud. Safety and maximality are proved for this representation, without claiming
+identical intermediate states to the paper's vertex-deletion procedure.
+
+## Build and check
+
+The project uses Lean **4.34.0** and its standard library (`Std`), with no external
+Lean packages. With the pinned toolchain installed, run:
 
 ```sh
 lake build
 python3 scripts/verify.py --lake "$(command -v lake)"
+lake env lean tests/IndependentChecks.lean
 ```
 
-The verification script rebuilds a source-only copy, checks theorem statements
-and transitive axioms, and replays the bundled Lean kernel. It rejects admitted
-proofs and custom axioms. Results and exact source hashes are in
-[validation/](validation/); the trust boundary is in [docs/VALIDATION.md](docs/VALIDATION.md).
+The verifier builds a fresh copy, checks theorem statements and axiom dependencies,
+and replays the proofs with the bundled Lean kernel. It accepts only `propext`,
+`Classical.choice`, and `Quot.sound`. Admitted proofs and custom axioms fail the
+check. Reports and source hashes are generated locally in `validation/`.
+Kernel replay uses Lean's own implementation, not a second independent checker.
 
-## Project structure
+The separate runtime test compares the solver with a brute-force matching
+algorithm on all 1,100 simple graphs with up to five vertices. Examples in the
+library also exercise blossoms, path recovery, and deletion.
 
-- `Basic`, `PathLemmas`, `Augmentation`, `Family`, `Optimality`: matching/path foundations, actual flips, and the Berge criterion.
-- `Levels`, `Minimum*`, `General*`, `Blossom*`: semantic levels, bases, blossom structure, and path geometry.
-- `DDFS*`: search transitions, invariants, termination, path/bottleneck correctness, and stored search trees.
-- `Min*`, `Max*`, `CurrentBucket*`, `Operational*`, `Petal*`: actual MIN/MAX search and computed path expansion.
-- `Active*`, `BlockingBucket*`, `BlockingPhase*`, `PhaseDriver`: safe deletion, maximal blocking phases, and the complete solver.
-- `docs/`: source correspondence, proof explanations, review notes, and the completed [checkpoint](docs/CHECKPOINT.md).
+## Where to start
 
-General definitions allow arbitrary vertex types; finite cardinality and solver
-statements use `Fin n`. Graphs exclude loops and parallel edges. Semantic levels
-use `none` for infinity and mathematical choice for specifications; runtime
-search and path recovery use computed data.
+[`MaximumMatching.lean`](MaximumMatching.lean) imports the whole library.
+The modules in [`MaximumMatching/`](MaximumMatching/) are grouped by topic:
+
+| Modules | Contents |
+| --- | --- |
+| `Foundations`, `Optimality`, `PhaseDriver` | Matchings, path augmentation, Berge's criterion, and the outer solver loop. |
+| `Levels`, `Structure`, `Base*`, `BlossomStructure`, `General*` | Levels, bases, and blossom proofs. |
+| `RelativePaths`, `WeightedPaths`, `WeightedRecovery` | Paths through blossoms and their expansion. |
+| `DDFS*`, `BudForest` | The search machine, its invariants, and contraction. |
+| `Min*`, `BridgeBuckets`, `MaxBridgeRefresh`, `SearchStage` | Level discovery, bridge queues, and MIN/MAX updates. |
+| `Matching*`, `Current*`, `Petal*`, `Operational*`, `Support*` | Search through contracted graphs, support discovery, and path recovery. |
+| `Active*`, `ShortestAugmentingSearch`, `BlockingPhase` | Search after deletion, blocking phases, and the complete solver. |
+| `FoundationExamples`, `DDFSExamples`, `SearchExamples` | Concrete proof and runtime examples. |
+
+Start with [`Foundations.lean`](MaximumMatching/Foundations.lean) for the
+definitions, or [`BlockingPhase.lean`](MaximumMatching/BlockingPhase.lean) for
+the solver and its final correctness theorem. The independent exhaustive test
+is in [`tests/`](tests/), and [`scripts/verify.py`](scripts/verify.py) runs the
+proof audit.
