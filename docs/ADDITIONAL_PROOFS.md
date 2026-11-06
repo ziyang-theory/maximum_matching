@@ -12,7 +12,7 @@ the authorized paper-library navigation and targeted matching search.
 | Source step | Main declarations | Actual guarantee |
 | --- | --- | --- |
 | Higher-tenacity predecessor reduction | `AltPath.equal_predecessor_parity_bases_agree`, `parity_bases_agree_of_predecessor_ge` | Handles predecessors of equal or greater tenacity. Only the equal case needs the already-established common base at a strictly smaller minlevel. Lower-tenacity vertices elsewhere are allowed. |
-| Cut a shortest path at a lower blossom's boundary | `IsBase.threshold_prefix`, `blossom_threshold_prefix`, `AltPath.predecessor_blossom_prefix` | Constructs an actual shortest even prefix and preserves every higher-threshold base value. The last theorem covers the odd minlevel path, not the unresolved opposite even path. |
+| Cut a shortest path at a lower blossom's boundary | `IsBase.threshold_prefix`, `blossom_threshold_prefix`, `AltPath.predecessor_blossom_prefix` | Constructs an actual shortest even prefix and preserves every higher-threshold base value. The last theorem covers the odd minlevel path; the general opposite-path argument is now completed below. |
 | Weighted paths, pp.31–32 | `DDFS.BlossomWeightedMatching.realize`, `realize_disjoint` | Constructs simple alternating paths of length equal to the sum of actual segment lengths; disjoint compressed paths expand disjointly. Requires actual edge segments, compatible matching phases, target-blossom interior containment and high-tenacity core vertices. |
 | Minimum-tenacity edge witnesses | `IsBase.minimum_exit_segment`, `minimum_exit_reverse` | Extends an actual shortest relative blossom path by a compatible exit edge; freshness follows from tenacity, with an explicit distinct-base condition. Reversal gives the target-blossom orientation. |
 | Lemma 8.1, pp.36–37 | `matched_bridge_levels`, `unmatched_bridge_tenacity` | For finite bridge tenacity, matched endpoints are inner with equal odd minlevels. An unmatched bridge bounds an outer endpoint's tenacity non-strictly and an inner endpoint's strictly. No shortest-augmenting-length premise is needed. |
@@ -34,7 +34,7 @@ the authorized paper-library navigation and targeted matching search.
 | Low-top weighted realization | `WeightedTopExpansion`: core realization avoids its initial blossom; prepend a real low-top segment, retaining simplicity and disjointness | Selecting all edges of the source's `H_v` and deriving its bridge length budgets remain open. |
 | Weighted bridge detour | `WeightedBridgePath`: reverse the free-ending realized arm, cross the actual bridge, append the other arm; exact potential-based length | Current-tenacity edge-budget identity remains a matching-graph construction obligation. |
 | Original low-path localization | `GeneralLowLocalization`: locate a preceding high boundary for each low vertex before an honest high endpoint | Uses the lower-threshold confinement induction hypothesis; no global avoidance is assumed. |
-| Direct base rerouting | `GeneralBaseReroute`: disjoint boundary-suffix reroute, high-prefix exclusion, strict first-hit indices, and derived full avoidance for an absent boundary with `C≤B` | The opposite boundary order and boundary-present cases remain unresolved. |
+| Direct base rerouting | `GeneralBaseReroute`: disjoint boundary-suffix reroute, high-prefix exclusion, strict first-hit indices, and derived full avoidance for an absent boundary with `C≤B` | All remaining cases are now discharged by `GeneralStructureStep`, described below. |
 
 Root and independent agents reviewed the new executable DDFS, MIN/MAX, base
 rerouting and weighted-path declarations. The weighted review checked the target
@@ -89,23 +89,34 @@ kernel replay are recorded in `validation/summary.json` and its linked logs.
 These checks validate this source snapshot under the trust limits in
 [VALIDATION.md](VALIDATION.md); they do not establish the missing full algorithm.
 
+## General base and confinement completion
+
+`GeneralStructureInduction` proves `general_unique_base` and
+`general_blossom_relative_confined` without structural oracle premises. Its
+joint tenacity induction calls the complete minlevel base induction and the
+new path-length confinement induction. [GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md)
+records the full route and actual source correspondence.
+
+Independent review covered the ordered and unordered minimal-witness cases,
+short-path closure, the two simple reverse splices, actual iterated-base joins,
+small-edge boundary equality, first-entry selection and tail replacement,
+honesty of the preceding prefix, and the final simultaneous induction. Reviewers
+checked that every lower confinement call has cutoff `t−2`, every same-tenacity
+base call has a smaller minlevel in the inner induction, and every confinement
+length call has a strictly shorter original prefix. No current-confinement
+premise or assumed rerouting conclusion remains in the public theorems.
+
+Principal target builds and axiom reports passed, using only `propext`,
+`Classical.choice` and `Quot.sound`. The complete source-only build, public
+axiom audit and kernel replay are recorded with the final source hashes in
+`validation/`.
+
 ## Still required for completion
 
-The low-predecessor case still needs a shortest path through the lower blossom's
-boundary that preserves the opposite even maxlevel path's threshold-base values.
-The source's alternative route requires constructing the actual `H_v`, selecting
-the complete higher-tenacity edge set and proving the precise semantic length
-budgets. Ordinary and low-top segment witnesses and their concatenation are now
-checked under the lower-threshold induction hypotheses. Generic weighted concatenation
-does not discharge these construction obligations.
-[GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md) records the unchanged
-targets, two investigated approaches and an independently reproduced five-vertex
-example showing why the minimum-case predecessor shortcut fails.
-
-General common-base existence, same-tenacity unique bridges, full confinement,
-mutable petal/bud correspondence, complete MIN/MAX scheduling and support
-finding, recursive expansion/removal and maximal shortest-family search remain
-unproved. DDFS now has executable edge enumeration and stored global colored trees;
-concrete data-structure costs remain unproved. Consequently the
-existing `Complete` and `ShortestBlocking` contracts remain uninstantiated for
-MV, and no full MV solver or running-time theorem is claimed.
+General same-tenacity unique bridges (including `t = l_m`), relative edge-tenacity
+bounds, and the suffix-base property remain open. Concrete matching-derived
+DDFS support, mutable petal/bud correspondence, complete MIN/MAX search,
+recursive expansion/removal and maximal shortest-family discovery also remain.
+The `Complete` and `ShortestBlocking` contracts are still uninstantiated for
+MV. Executable DDFS and its local abstract transition bounds do not establish
+the concrete representation or whole-algorithm running-time bound.

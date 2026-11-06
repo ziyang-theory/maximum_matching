@@ -1,6 +1,6 @@
 # Maximum matching in Lean 4
 
-**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes the minimum-tenacity common-base and unique-bridge theorems, recursive-blossom laminarity, finite-tenacity bridge classification, executable DDFS with colored spanning trees and local transition bounds, and the square-root phase-count argument. It does not contain a complete MV solver.
+**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes the general common-base and blossom-confinement theorems, the minimum-tenacity unique-bridge theorem, recursive-blossom laminarity, finite-tenacity bridge classification, executable DDFS with colored spanning trees and local transition bounds, and the square-root phase-count argument. It does not contain a complete MV solver.
 
 Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020; supplied as [max_matching.pdf](max_matching.pdf). The exact version and claim map are recorded in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
 
@@ -16,7 +16,9 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Both conclusions of limited BFS honesty, all parity/infinity cases (Theorem 5.3) | `AltPath.limited_bfs_honesty` |
 | Same-free-root shortest paths of both parities (Lemma 6.9) | `rooted_shortest_even_iff_odd` |
 | Common base and unique bridge at minimum eligible tenacity (Lemma 6.13) | `minimum_unique_base`, `AltPath.minimum_maxlevel_path_unique_bridge` |
-| Recursive blossoms form a laminar family; general base existence is separate | `blossoms_laminar` |
+| Common bases exist at every eligible tenacity (Theorem 6.19(1)) | `general_unique_base` |
+| Every shortest relative path stays in its blossom and boundary (Theorem 6.19(4), confinement) | `general_blossom_relative_confined` |
+| Recursive blossoms form a laminar family | `blossoms_laminar` |
 | Actual common bases split shortest paths into shortest relative segments | `IsBase.shortest_relative`, `IsBase.append_relative_shortest` |
 | DDFS disjoint-path/bottleneck dichotomy and per-vertex linkage certificate | `DDFS.bottom_dichotomy`, `DDFS.highestBottleneck_certificate` |
 | Finite DDFS transition system terminates and reports correct paths/bottleneck | `DDFS.Machine.exists_correct_run`, `maximal_trace_correct` |
@@ -33,7 +35,7 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | MAX updates compute support-member maxlevels and register newly known incident bridges | `Search.maxProcessVertex_correct` |
 | Actual MIN queues every current-tenacity bridge under preserved prior-stage invariants | `Search.scanLevel_current_bucket_complete` |
 
-Remaining work includes the higher-tenacity base/bridge induction and construction of its weighted graph; concrete DDFS data-structure costs; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
+Remaining work includes general same-tenacity unique bridges, edge-tenacity and suffix-base properties, and the matching-graph support construction; concrete DDFS data-structure costs; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
 
 ## Build and check
 
@@ -58,7 +60,7 @@ The verification script copies source/configuration into a fresh temporary direc
 - `Basic`, `PathLemmas`, `Augmentation`, `Phase`, `Family`: graph/matching representation and actual path operations.
 - `SymmetricDifference`, `DifferenceUniqueness`, `Optimality`: complete Berge proof.
 - `DifferencePacking`, `PhaseProgress`, `PhaseDriver`, `PhaseBound`: proved packing, phase progress and outer-loop accounting.
-- `Levels`, `LimitedHonesty`, `MinimumBase`, `MinimumBridgeAll`: semantic levels and the completed minimum-tenacity induction; `GeneralBase*`: proved higher-tenacity induction steps.
+- `Levels`, `LimitedHonesty`, `MinimumBase`, `MinimumBridgeAll`: semantic levels and the minimum-tenacity bridge theorem; `GeneralStructureInduction`, `GeneralConfinement`: completed general base/confinement induction.
 - `Blossom*`, `BaseTree`, `BasePaths`, `Segment*`, `Relative*`: recursive blossoms, laminarity and relative alternating paths.
 - `DDFS*`, `BridgePath`: path certificates, lifting, total correctness and local transition counts; `WeightedExpansion`, `WeightedTopExpansion`, `GeneralWeighted*`: weighted segment construction and expansion.
 - `Bud`, `Min*`, `MaxCorrectness`, `Bridge*`: finite MIN enumeration, local MAX updates and bridge scheduling.

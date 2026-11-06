@@ -1,6 +1,6 @@
 {
   "lean_version": "Lean (version 4.34.0, arm64-apple-darwin24.6.0, commit 293d5d0c0c3f3dded4688b3ccd6a33939ac5102b, Release)",
-  "public_declarations_audited": 1098,
+  "public_declarations_audited": 1153,
   "axioms": [
     "Classical.choice",
     "Quot.sound",

@@ -1,67 +1,30 @@
-# Structural proof status and remaining induction
+# Structural proof status and remaining obligations
 
-The minimum-tenacity common-base theorem and unique-bridge theorem
-(Lemma 6.13) are proved. The mathematical DDFS path certificate is proved.
-The general higher-tenacity common-base/bridge induction and its weighted
-path realization remain unproved; full MV correctness does not follow yet.
+General common-base existence and arbitrary shortest relative-path confinement
+are now proved at every eligible tenacity. The minimum-tenacity unique-bridge
+theorem, relative shortestness/decomposition and recursive-blossom laminarity
+are also proved. Full MV correctness does not follow yet.
 
 Source: the supplied *A Proof of the MV Matching Algorithm*,
-arXiv:2012.03582v1 (7 December 2020), PDF pp.21–36; SHA-256
+arXiv:2012.03582v1 (7 December 2020), Theorem 6.19, PDF pp.29–33; SHA-256
 `05f3cfcc51c12eea0537cb9892a9bc832f8f175fc507b2b0f8228b68e922996c`.
-The source PDF has not been changed.
 
-## Checked structural results
+## Completed general induction
 
-| Source claim | Checked declaration / module | Scope |
+| Conclusion | Checked declaration | Scope |
 | --- | --- | --- |
-| Limited BFS honesty, Theorem 5.3 | `AltPath.limited_bfs_honesty` | Both parity cases and infinite levels; no blossom premise. |
-| Same-free-root parity paths, Lemma 6.9 | `rooted_shortest_even_iff_odd`, `SameRoot.lean` | Globally shortest paths, with the same specified free root and eligible endpoint tenacity. |
-| Matched-endpoint transfer, Lemma 6.12 | `matched_common_base_iff`, `matched_unique_base_iff`, `matched_isBase_iff` | Transfers actual common bases; does not assume their existence. |
-| Minimum-tenacity common base, Lemma 6.13(1) | `minimum_unique_base`, `MinimumBase.lean` | Eligible `t` and `t ≤ tenacity(w)` for every vertex. |
-| Minimum-tenacity unique bridge, Lemma 6.13(2) | `AltPath.minimum_unique_bridge_maxlevel`, `MinimumBridgeAll.lean` | Both endpoint parities; actual unique edge index and bridge tenacity. |
-| Relative shortestness, Proposition 6.17 | `IsBase.shortest_relative`, `RelativeShortest.lean` | Extracted base-to-endpoint segment minimizes length over all simple relative alternating paths of its parity. |
-| Predecessor honesty, Lemma 6.18 | `AltPath.minlevel_predecessor_honest`, `PredecessorHonesty.lean` | A minlevel path's predecessor is honest when its successor has at least endpoint tenacity; stronger than the source's local premise. |
-| Blossom definition | `IsBase`, `base`, `BaseStratum`, `Blossom`, `Blossom.lean` | Actual common-base relation and source recursion. `base = none` means no common base exists, not an unresolved proof placeholder. |
-| Blossom laminarity, Theorem 6.19(3) / Proposition 7.6 | `blossoms_laminar`, `BlossomLaminar.lean` | Arbitrary odd thresholds and roots above their respective thresholds. It does not assume that every finite-tenacity vertex has a base. |
-| Minimum-tenacity path confinement and edge bounds | `minimum_blossom_relative_paths`, `MinimumRelative.lean` | Every vertex on any shortest relative path lies in its blossom or is its base; every edge has tenacity exactly `t`. Uses the genuine shortest-path concatenation in `RelativeJoin.lean`. |
-| Lower-blossom coverage | `unique_blossom_cover_of_base_existence`, `BlossomCover.lean` | Explicitly conditional on actual common-base existence below the cutoff; terminates by decreasing minlevel. |
-| Higher-tenacity predecessor steps | `GeneralBaseEqual`, `GeneralBaseChain` | The equal-tenacity predecessor case, the combined at-least-tenacity step, and higher-threshold prefix preservation along actual base chains are proved. The lower-blossom opposite-path jump remains open. |
-| Weighted high-core realizations | `DDFS.BlossomWeightedMatching.realize`, `realize_disjoint` | Constructs simple alternating realizations with exact summed edge lengths from supplied actual segments whose interiors lie in the target blossom. Both core paths must consist of vertices above the contraction threshold. |
-| Minimum-blossom exit witnesses | `IsBase.minimum_exit_segment`, `minimum_exit_reverse` | Constructs a fresh extension of an actual shortest relative path through a compatible exit edge at globally minimum tenacity, then reverses it into the target-blossom orientation. General segment selection remains open. |
-| Separation of lower-blossom expansions | `BlossomEdgeExpansion.disjoint_of_endpoints`, `blossom_hulls_disjoint` | Derives disjointness from actual segment containment and disjoint high-tenacity cores; does not construct the weighted realizations. |
+| Unique common base, Theorem 6.19(1) | `general_unique_base` | Every vertex of eligible tenacity, arbitrary vertex type; no lower/current correctness premise. |
+| Relative-path confinement, Theorem 6.19(4) | `general_blossom_relative_confined` | Every shortest relative path from the actual high boundary to any member, including iterated bases. |
+| Simultaneous induction | `general_base_and_confinement` | Supplies both conclusions by strong tenacity induction; current bases use minlevel induction and confinement uses path-length induction. |
+| Laminarity | `blossoms_laminar` | Actual source-recursive blossoms at odd thresholds with high roots. |
+| Path decomposition and joining | `blossom_shortest_relative`, `blossom_append_relative_shortest` | Exact relative lengths; joining derives simplicity rather than assuming it. |
+| Same-free-root parity paths | `rooted_shortest_even_iff_odd` | Globally shortest paths at eligible endpoint tenacity. |
 
-The minimum-base proof uses a checked induction on minlevel rather than
-formalizing the source's fixed-root Claims 3–9 verbatim. For an inner vertex,
-the predecessor on an odd minlevel path either occurs on an even maxlevel
-path at the same index, or can be appended to it. In both cases the bases
-reduce to a strictly smaller minlevel. `MinimumSuffix.lean` proves the
-required low-tenacity suffix and `BaseUnique.lean` proves the parity-base
-agreement. The outer case reduces across its matched edge.
+[GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md) explains the completed
+direct induction and its checked first-intersection constructions. This proof
+route closes bases and confinement without constructing the source's full `H_v`.
 
-Laminarity is proved by identifying the source recursion with bounded
-chains in the functional `IsBase` relation (`blossom_iff_base_cut`). This
-establishes the claim for all blossoms that exist under the actual
-relation; it does not supply the still-missing general base-existence proof.
-
-The mathematical DDFS result includes the strong per-vertex disjoint-path
-certificate; see [DDFS_CERTIFICATE.md](DDFS_CERTIFICATE.md). Separately, the
-explicit two-search stack transitions now have a total-correctness proof for
-their path/bottleneck outcomes; see [DDFS_OPERATIONAL_PROOF.md](DDFS_OPERATIONAL_PROOF.md).
-Executable globally colored parent trees are now proved in `DDFSTrees`; concrete data-structure costs remain unproved. Output-local linear abstract transition bounds are now proved in `DDFSLocalWork`.
-
-## First missing general theorem
-
-The minimum restriction must be removed from the common-base theorem:
-
-```lean
-∀ {n : Nat} (G : Graph (Fin n)) (M : Matching G) (t : Nat),
-  EligibleTenacity M t →
-  ∀ v : Fin n, tenacity M v = some t → HasUniqueBase M v t
-```
-
-This is a fully typed target proposition, not an exported theorem. The
-minimum instance is already proved. Eligibility retains the strict
-condition `t < l_m`, including `l_m = ∞`.
+## Remaining general structural conclusions
 
 The general bridge target, including the additional `t = l_m` case, is:
 
@@ -89,132 +52,38 @@ may also contain bridges of lower tenacity inside nested blossoms.
 asserts uniqueness among all bridges and must not be reused unchanged
 as the general statement.
 
-Both displayed target propositions were type-checked with Lean 4.34.0.
-No axiom or `sorry` declaration was introduced for either target.
-
-## Concrete remaining weighted-path obligation
-
-The next missing source construction is the higher-tenacity graph `H_v`
-on pp.31–32, using the already-proved lower-tenacity induction hypotheses.
-It must supply the following finite data and prove these invariants:
-
-1. Select the actual high-tenacity vertices on both shortest parities and
-   the additional top vertices `S′`. Retain an explicit map to original
-   graph vertices. Ordinary directed edges decrease the assigned layer;
-   the triggering top bridge is separate from the DDFS edge relation.
-2. Replace each maximal lower-tenacity stretch by an edge carrying an
-   actual simple alternating segment. Prove its endpoints, parity,
-   length, and containment in the specified lower blossom. These are
-   construction obligations, not fields to be assumed without witnesses.
-3. Distinguish assigned DDFS layers from segment lengths and actual
-   minlevels. In particular, the source assigns additional vertices in
-   `S′` to layer `(t-1)/2`; they may lie inside lower-tenacity blossoms.
-   A directed path's edge count is not the length of its expanded path.
-   The latter must equal the sum of the actual edge-realization lengths.
-4. Construct a simple alternating realization of each relevant directed
-   path by concatenating the witnessed segments. Prove simplicity and
-   alternation at every join. For two disjoint DDFS certificate paths,
-   construct vertex-disjoint realizations. The lower-blossom separation
-   and weighted concatenation are checked for high-tenacity core paths with
-   actual supplied edge segments (`WeightedExpansion`). The segments of
-   ordinary descending edges lie inside the target blossom. Ordinary segment witnesses are now constructed by `GeneralWeightedEdges`,
-   using lower-threshold base existence and confinement. `GeneralWeightedTop`
-   constructs the actual even low-top segment; `WeightedTopExpansion` prepends
-   it while deriving simplicity and disjointness. Full `H_v` edge selection
-   and its current-tenacity length identities remain to be proved.
-5. Add the triggering bridge and a shortest prefix to the bottleneck.
-   Prove that the resulting actual alternating path has complementary
-   parity and the exact length required for `tenacity(w)=t`. An abstract
-   DDFS certificate alone does not establish this length or alternating
-   path in the original graph.
-
-The simple minimum-tenacity predecessor induction cannot simply be
-reused: at a larger `t`, the predecessor can have tenacity below `t`, and
-an even maxlevel-path prefix at that vertex need not be shortest. The
-lower-blossom expansion is precisely the missing mechanism for that case.
-
-After this construction, the remaining semantic induction must prove the
-general bridge target, common-base existence, confinement of every
-relative shortest path, and the base-on-path conclusion of Theorem 6.19(5).
-Checked laminarity and relative shortestness can then be reused without
-assuming those conclusions again.
+The displayed bridge target was type-checked with Lean 4.34.0. No axiom or
+admitted theorem has been introduced for it.
 
 
-## Investigated direct base-chain jump
+The other missing parts of Theorem 6.19 are:
 
-A direct minlevel induction can avoid the weighted graph only if it can
-reroute through a lower blossom's boundary while preserving the original
-path's bases at threshold `t`. The strictly higher-tenacity case is
-proved in `GeneralBaseStep.lean`: `AltPath.high_predecessor_occurs` and
-`AltPath.high_predecessor_bases` show that a predecessor of tenacity
-strictly greater than `t` occurs at index `oddlevel(v)-1` on every even
-shortest path, and is the base on both parity paths. These results do not
-assume globally minimum tenacity. They use actual fresh extension when
-the predecessor is absent, and the general suffix tenacity bound.
+- Every edge of every shortest relative path inside a blossom has edge tenacity
+  at most the blossom cutoff. Vertex membership alone does not imply this bound.
+- For a shortest path to a vertex of eligible tenacity, the actual base of every
+  vertex after its base occurs somewhere on that path's base-to-endpoint suffix
+  (Statement 5). The source does not require it to occur before that vertex.
 
-`GeneralBaseEqual.lean` now also proves the equal-tenacity case and combines
-it with the higher-tenacity case. The induction hypothesis is invoked only at
-the predecessor's strictly smaller minlevel. `GeneralBaseChain.lean` proves
-that cutting a shortest path along actual common-base chains preserves all
-higher-threshold base values. In particular, `predecessor_blossom_prefix`
-constructs the boundary prefix for the odd minlevel path `q`. It does not
-reroute the opposite even maxlevel path `p`.
+## Weighted paths and concrete matching search
 
-The unresolved jump for `p` can be isolated as this type-checked target:
+The DDFS path/bottleneck certificate, executable transition system and globally
+colored parent-tree output are proved. High-core weighted paths expand into
+simple alternating paths with exact summed lengths; disjoint cores give
+disjoint expansions. Ordinary lower-blossom stretches and artificial low-top
+segments have actual witnesses. The new general base/confinement theorems can
+discharge their lower eligible-threshold premises.
 
-```lean
-∀ {n : Nat} (G : Graph (Fin n)) (M : Matching G)
-  (p q : AltPath M), p.Shortest → q.Shortest →
-  p.length % 2 = 0 → (hqo : q.length % 2 = 1) →
-  q.last = p.last → q.length < p.length →
-  EligibleTenacity M (p.length + q.length) →
-  let t := p.length + q.length
-  let u := q.vertex ⟨q.length - 1, by omega⟩
-  ∀ c : Fin n, Blossom M (t - 2) c u →
-    levelLT (some (t - 2)) (tenacity M c) →
-    ∃ r : AltPath M, r.last = c ∧ r.Shortest ∧
-      ∀ b : Fin n, p.BaseOnPath t b ↔ r.BaseOnPath t b
-```
-
-This is not an exported theorem or an added correctness assumption.
-Lower-blossom coverage supplies `c`, and its occurrence on the honest
-prefix to `u` makes `minlevel(c) < minlevel(v)`. The target asks for an
-actual shortest path to `c` preserving all threshold-base values of `p`;
-merely producing some path to `c` is insufficient.
-
-The present first-intersection results do not establish that preservation.
-Write `E = p.length`, `O = q.length`, and `τ = tenacity(u) < t = E+O`.
-Lemma 6.18 gives `evenlevel(u)=O-1`. If `u` is absent from `p`, appending
-`(v,u)` produces an odd path of length `E+1`, while
-`oddlevel(u)=τ-(O-1)<E+1`. Consequently the extension is not shortest,
-and the proved common-base/relative-join theorems do not apply to it.
-If `u` occurs on `p`, its prefix may instead be dishonest; the
-minimum-case index-alignment contradiction also disappears.
-
-Reversing the lower-blossom segment from `u` to `c` after that extension
-would have the desired complementary length `t-evenlevel(c)`, but the
-segment may intersect `p` internally. At such an intersection, the prefix
-of `p` ending at a low-tenacity vertex is not known to be shortest.
-Current splice lemmas require a proved avoidance premise and do not
-preserve the last vertex above `t` after arbitrary rerouting. The checked
-relative-join theorem starts with a shortest even prefix to an actual
-base, so it does not fill this missing premise. No counterexample to the
-jump statement has been established; this is an exact remaining proof
-obligation for the direct approach.
-
-A reproducible five-vertex obstruction to the minimum-case index argument and
-a precise sufficient rerouting lemma are recorded in
-[GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md). This is an obstruction
-to the investigated proof strategies, not a counterexample to the target.
+Selecting the complete matching-derived layered graph and identifying its DDFS
+region with actual bridge support remain construction obligations. Assigned
+DDFS layers and expanded segment lengths must stay distinct, especially for
+artificial top vertices. Generic path certificates and weighted concatenation
+do not supply the support correspondence by themselves.
 
 ## Separate algorithm obligations
 
-Even completing the semantic induction would not complete the requested
-MV verification. The DDFS transition, coverage and path/bottleneck correctness
-proofs are now checked. Its colored-tree output and deterministic finite adjacency enumeration are now
-proved; concrete data-structure cost accounting remains. Petal/bud correspondence
-(Lemma 6.20), synchronized MIN/MAX refinement
-(Theorem 8.3), exact support discovery, expansion/removal of a maximal
-shortest augmenting-path family, and the concrete algorithm's work bound
-must still be connected. Generic supplied-family or supplied-phase
-correctness results do not construct these MV operations.
+Still required are mutable petal/bud correspondence (Lemma 6.20), contracted
+DDFS support discovery, complete synchronized MIN/MAX refinement (Theorem 8.3),
+recursive expansion/removal of a maximal shortest augmenting-path family, and
+concrete operation/data-structure costs. The generic supplied-family and
+supplied-phase theorems do not construct these operations. No full MV solver
+or asymptotic running-time theorem is claimed.
