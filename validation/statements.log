@@ -1,0 +1,51 @@
+$ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/.cache/lean-4.34.0-darwin_aarch64/bin/lake env lean Statements.lean
+@MaximumMatching.AltPath.augment_cardinality : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (hp : p.Augmenting),
+  (p.augment hp).cardinality = M.cardinality + 1
+@MaximumMatching.Matching.twice_cardinality : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  (M : MaximumMatching.Matching G), 2 * M.cardinality = M.matchedCount
+@MaximumMatching.Matching.isMaximum_iff_noAugmentingPath : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  (M : MaximumMatching.Matching G), M.IsMaximum ↔ M.NoAugmentingPath
+@MaximumMatching.AugmentingFamily.run_cardinality : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  {M : MaximumMatching.Matching G} (f : MaximumMatching.AugmentingFamily M), f.run.cardinality = M.cardinality + f.count
+@MaximumMatching.matched_tenacity : ∀ {V : Type} {G : MaximumMatching.Graph V} (M : MaximumMatching.Matching G)
+  {u v : V},
+  M.mate u = some v →
+    MaximumMatching.tenacity M u = MaximumMatching.tenacity M v ∧
+      MaximumMatching.tenacity M v = MaximumMatching.matchedEdgeTenacity M u v
+@MaximumMatching.AltPath.limited_bfs_honesty : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M),
+  p.Shortest →
+    ∀ (i : Fin (p.length + 1)),
+      MaximumMatching.levelLE (MaximumMatching.tenacity M p.last) (MaximumMatching.tenacity M (p.vertex i)) →
+        p.BFSHonest i ∧
+          (MaximumMatching.levelLT (MaximumMatching.tenacity M p.last) (MaximumMatching.tenacity M (p.vertex i)) →
+            MaximumMatching.minlevel M (p.vertex i) = some ↑i)
+@MaximumMatching.AltPath.baseOnPath_exists_of_eligible : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  MaximumMatching.EligibleTenacity M t → ∃ b, p.BaseOnPath t b
+@MaximumMatching.AltPath.baseOnPath_outer : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (p : MaximumMatching.AltPath M),
+  p.Shortest →
+    ∀ (t : Nat) {b : V}, MaximumMatching.tenacity M p.last = some t → p.BaseOnPath t b → MaximumMatching.Outer M b
+@MaximumMatching.matched_base_values_iff : ∀ {V : Type} {G : MaximumMatching.Graph V} (M : MaximumMatching.Matching G)
+  {u v : V},
+  M.mate u = some v →
+    ∀ (t : Nat),
+      MaximumMatching.tenacity M u = some t →
+        ∀ (b : V), (∃ p, p.last = u ∧ p.Shortest ∧ p.BaseOnPath t b) ↔ ∃ q, q.last = v ∧ q.Shortest ∧ q.BaseOnPath t b
+@MaximumMatching.DDFS.highestBottleneck_exists : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V) (r g : V),
+  (∃ p, p.ToBottom r) →
+    (∃ b, MaximumMatching.DDFS.Bottleneck H r g b) → ∃ b, MaximumMatching.DDFS.HighestBottleneck H r g b
+@MaximumMatching.DDFS.highestBottleneck_unique : ∀ {V : Type} (H : MaximumMatching.DDFS.LayeredGraph V) (r g b c : V),
+  (∃ p, p.ToBottom r) →
+    MaximumMatching.DDFS.HighestBottleneck H r g b → MaximumMatching.DDFS.HighestBottleneck H r g c → b = c
+@MaximumMatching.BudForest.compressMany_root : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
+  (xs : List V) (v : V), (F.compressMany xs).root v = F.root v
+@MaximumMatching.Search.scan_tie_adds_predecessor : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (i : Nat) (u v : V) (s : MaximumMatching.Search.State V),
+  MaximumMatching.Search.seen s u v = false →
+    s.minLabel v = some (i + 1) → (MaximumMatching.Search.scan M i u v s).predecessors v = u :: s.predecessors v
+@MaximumMatching.Search.scan_reverse_noop : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (i j : Nat) (u v : V) (s : MaximumMatching.Search.State V),
+  MaximumMatching.Search.scan M j v u (MaximumMatching.Search.scan M i u v s) = MaximumMatching.Search.scan M i u v s

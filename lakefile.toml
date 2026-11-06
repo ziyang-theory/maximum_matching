@@ -1,0 +1,6 @@
+name = "maximumMatching"
+version = "0.1.0"
+defaultTargets = ["MaximumMatching"]
+
+[[lean_lib]]
+name = "MaximumMatching"
