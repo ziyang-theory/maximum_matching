@@ -226,6 +226,20 @@ def main() -> None:
         "lower_endpoint_blossom_relative_confined",
         "blossom_low_crossing_bridge",
         "AltPath.late_low_stretch_mem",
+        "general_suffix_base",
+        "general_blossom_relative_base",
+        "general_blossom_edge_bounds",
+        "general_blossom_relative_edge_bound",
+        "AltPath.general_maxlevel_path_unique_bridge",
+        "AltPath.unique_bridge_maxlevel_of_lower",
+        "vertex_in_bridge_support",
+        "tenacity_iff_bridge_support",
+        "BudForest.mergeInto_root",
+        "BudForest.mergeManyInto_source",
+        "DDFS.ColoredTrees.mem_vertices",
+        "DDFS.Machine.executeAndContract",
+        "DDFS.Machine.executeAndContract_bottleneck",
+        "DDFS.Machine.FullOutput.contract_root_congr",
     ]
     statements = "import MaximumMatching\n\n" + "\n".join(
         f"#check @MaximumMatching.{name}" for name in key_results

@@ -5,7 +5,7 @@ Source: Definitions 3.1, 3.3--3.9 and 6.1--6.4, pp.8--10 and 20--21.
 
 These are mathematical definitions, independent of operational MIN/MAX state.
 `BaseOnPath` does not assert that different shortest paths have the same base;
-that path-independence assertion is the open Claim 6.4 / Theorem 6.19 obligation.
+that path-independence assertion is proved separately in GeneralStructureInduction.
 -/
 namespace MaximumMatching
 

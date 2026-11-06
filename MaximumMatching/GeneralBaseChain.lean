@@ -4,7 +4,7 @@ import MaximumMatching.PredecessorHonesty
 
 /-! Higher-threshold path-relative bases along established common-base chains.
 These lemmas concern the actual partial base relation and do not assume general
-base existence or the missing lower-blossom rerouting construction. -/
+base existence or the separate lower-blossom rerouting construction. -/
 namespace MaximumMatching
 variable {V : Type} {G : Graph V} {M : Matching G}
 

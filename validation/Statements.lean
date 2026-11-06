@@ -121,3 +121,17 @@ import MaximumMatching
 #check @MaximumMatching.lower_endpoint_blossom_relative_confined
 #check @MaximumMatching.blossom_low_crossing_bridge
 #check @MaximumMatching.AltPath.late_low_stretch_mem
+#check @MaximumMatching.general_suffix_base
+#check @MaximumMatching.general_blossom_relative_base
+#check @MaximumMatching.general_blossom_edge_bounds
+#check @MaximumMatching.general_blossom_relative_edge_bound
+#check @MaximumMatching.AltPath.general_maxlevel_path_unique_bridge
+#check @MaximumMatching.AltPath.unique_bridge_maxlevel_of_lower
+#check @MaximumMatching.vertex_in_bridge_support
+#check @MaximumMatching.tenacity_iff_bridge_support
+#check @MaximumMatching.BudForest.mergeInto_root
+#check @MaximumMatching.BudForest.mergeManyInto_source
+#check @MaximumMatching.DDFS.ColoredTrees.mem_vertices
+#check @MaximumMatching.DDFS.Machine.executeAndContract
+#check @MaximumMatching.DDFS.Machine.executeAndContract_bottleneck
+#check @MaximumMatching.DDFS.Machine.FullOutput.contract_root_congr

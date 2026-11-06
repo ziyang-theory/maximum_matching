@@ -204,7 +204,7 @@ theorem matched_common_base_iff (M : Matching G) {u v : V}
     exact (hbase b).2 (hv q hqend hq)
 
 /-- A verified reduction of base uniqueness between matched endpoints. The
-nontrivial global assertion that either endpoint has a unique base remains open. -/
+global common-base theorem is proved separately in GeneralStructureInduction. -/
 theorem matched_unique_base_iff (M : Matching G) {u v : V}
     (hm : M.mate u = some v) (t : Nat) (hut : tenacity M u = some t) :
     HasUniqueBase M u t ↔ HasUniqueBase M v t := by

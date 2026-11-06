@@ -111,10 +111,36 @@ Principal target builds and axiom reports passed, using only `propext`,
 axiom audit and kernel replay are recorded with the final source hashes in
 `validation/`.
 
+## General structural completion and actual bud contraction
+
+`GeneralSuffixBase` proves that the actual base of each suffix vertex occurs
+somewhere on the original suffix. `GeneralRelativeBaseTransfer` transfers the
+property to every shortest relative path through the proved simple join.
+`GeneralEdgeBounds` proves the relative edge-tenacity bound by strong cutoff
+induction and the honest-prefix/first-entry decomposition. Neither theorem
+retains lower-cutoff structure as an assumption.
+
+`GeneralBridge` uses strong path-length induction: an honest terminal edge is
+either the unique bridge of current tenacity or a prop leaving a shorter
+maxlevel prefix. A dishonest predecessor is handled at the first lower-blossom
+entry; all later edges have lower tenacity. Lower eligible-cutoff facts suffice,
+so the public theorem includes `t = l_m`. Its uniqueness concerns current-tenacity
+bridges, not every bridge. `GeneralSupport` derives an actual maxlevel witness
+and proves semantic support coverage without asserting disjoint supports or
+concrete discovery.
+
+Independent reviewers checked the first-entry transport, reversed-tail edge
+indices, recursive decreases, threshold equality and public hypotheses.
+`BudLink` additionally implements guarded root merging with exact class behavior;
+`DDFSBud.executeAndContract` runs DDFS and contracts its actual computed region.
+Strict layered paths supply rank guards under explicit representation premises.
+Executable regressions cover pre-existing descendants, unselected classes,
+abandoned search branches and the disjoint outcome. These operation proofs do
+not identify the region with matching-specific bridge support.
+
 ## Still required for completion
 
-General same-tenacity unique bridges (including `t = l_m`), relative edge-tenacity
-bounds, and the suffix-base property remain open. Concrete matching-derived
+Concrete matching-derived
 DDFS support, mutable petal/bud correspondence, complete MIN/MAX search,
 recursive expansion/removal and maximal shortest-family discovery also remain.
 The `Complete` and `ShortestBlocking` contracts are still uninstantiated for

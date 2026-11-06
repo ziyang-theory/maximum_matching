@@ -2,7 +2,7 @@ import MaximumMatching.GeneralSuffix
 import MaximumMatching.BaseUnique
 
 /-! A general-tenacity common-base step that needs no global minimum premise.
-The remaining predecessor case is the one inside a lower-tenacity blossom. -/
+The lower-tenacity predecessor case is completed in GeneralStructureStep. -/
 namespace MaximumMatching
 namespace AltPath
 variable {V : Type} {G : Graph V} {M : Matching G}

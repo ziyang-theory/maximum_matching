@@ -17,8 +17,11 @@ import MaximumMatching.BridgePath
 import MaximumMatching.BridgePending
 import MaximumMatching.BridgeSchedule
 import MaximumMatching.Bud
+import MaximumMatching.BudLink
 import MaximumMatching.DDFS
 import MaximumMatching.DDFSAltPath
+import MaximumMatching.DDFSBud
+import MaximumMatching.DDFSBudExamples
 import MaximumMatching.DDFSCertificate
 import MaximumMatching.DDFSCorrectness
 import MaximumMatching.DDFSCut
@@ -49,7 +52,15 @@ import MaximumMatching.GeneralBlossomFirstEntry
 import MaximumMatching.GeneralBlossomJoin
 import MaximumMatching.GeneralBlossomMembership
 import MaximumMatching.GeneralBlossomProps
+import MaximumMatching.GeneralBridge
+import MaximumMatching.GeneralBridgeAbsence
+import MaximumMatching.GeneralBridgeFirstEntry
+import MaximumMatching.GeneralBridgeSplit
+import MaximumMatching.GeneralBridgeTerminal
 import MaximumMatching.GeneralConfinement
+import MaximumMatching.GeneralEdgeBoundStep
+import MaximumMatching.GeneralEdgeBounds
+import MaximumMatching.GeneralEdgeHelpers
 import MaximumMatching.GeneralFirstEntryPrefix
 import MaximumMatching.GeneralHighGeometry
 import MaximumMatching.GeneralLongLocalization
@@ -57,6 +68,7 @@ import MaximumMatching.GeneralLowLocalization
 import MaximumMatching.GeneralLowerConfinement
 import MaximumMatching.GeneralMaxCapPredecessor
 import MaximumMatching.GeneralPredecessorBlossom
+import MaximumMatching.GeneralRelativeBaseTransfer
 import MaximumMatching.GeneralShortConfinement
 import MaximumMatching.GeneralStructureBase
 import MaximumMatching.GeneralStructureCandidate
@@ -68,6 +80,8 @@ import MaximumMatching.GeneralStructureMinimize
 import MaximumMatching.GeneralStructureOrdered
 import MaximumMatching.GeneralStructureStep
 import MaximumMatching.GeneralSuffix
+import MaximumMatching.GeneralSuffixBase
+import MaximumMatching.GeneralSupport
 import MaximumMatching.GeneralWeightedEdges
 import MaximumMatching.GeneralWeightedTop
 import MaximumMatching.Honesty

@@ -1139,3 +1139,129 @@ MaximumMatching.Examples.DeferredBridge.max_registers_deferred_bridge : (2, 5) �
                                   ↑k < ↑J →
                                     MaximumMatching.levelLE (MaximumMatching.tenacity M (p.vertex k)) (some (t - 2))) →
                               MaximumMatching.Blossom M (t - 2) (p.vertex J) (p.vertex K)
+@MaximumMatching.general_suffix_base : ∀ {V : Type} {G : MaximumMatching.Graph V} (M : MaximumMatching.Matching G)
+  (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    ∀ (p : MaximumMatching.AltPath M),
+      p.Shortest →
+        MaximumMatching.tenacity M p.last = some t →
+          ∀ (b : V),
+            MaximumMatching.IsBase M p.last b →
+              ∀ (i j : Fin (p.length + 1)),
+                p.vertex i = b → ↑i < ↑j → ∃ k, ↑i ≤ ↑k ∧ MaximumMatching.base M (p.vertex j) = some (p.vertex k)
+@MaximumMatching.general_blossom_relative_base : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    ∀ (b v : V),
+      MaximumMatching.Blossom M t b v →
+        MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+          ∀ (q : MaximumMatching.AltSegment M),
+            q.Shortest →
+              q.first = b →
+                q.last = v →
+                  ∀ (j : Fin (q.length + 1)), 0 < ↑j → ∃ a, MaximumMatching.IsBase M (q.vertex j) a ∧ q.Contains a
+@MaximumMatching.general_blossom_edge_bounds : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    (∀ (p : MaximumMatching.AltPath M),
+        p.Shortest →
+          ∀ (b : V),
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+              MaximumMatching.Blossom M t b p.last →
+                ∀ (i : Fin (p.length + 1)),
+                  p.vertex i = b →
+                    ∀ (k : Fin p.length),
+                      ↑i ≤ ↑k →
+                        MaximumMatching.levelLE
+                          (MaximumMatching.edgeTenacity M (p.vertex ⟨↑k, ⋯⟩) (p.vertex ⟨↑k + 1, ⋯⟩)) (some t)) ∧
+      ∀ (b v : V),
+        MaximumMatching.Blossom M t b v →
+          MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+            ∀ (q : MaximumMatching.AltSegment M),
+              q.Shortest →
+                q.first = b →
+                  q.last = v →
+                    ∀ (k : Fin q.length),
+                      MaximumMatching.levelLE (MaximumMatching.edgeTenacity M (q.vertex ⟨↑k, ⋯⟩) (q.vertex ⟨↑k + 1, ⋯⟩))
+                        (some t)
+@MaximumMatching.general_blossom_relative_edge_bound : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  (M : MaximumMatching.Matching G) (t : Nat),
+  MaximumMatching.EligibleTenacity M t →
+    ∀ (b v : V),
+      MaximumMatching.Blossom M t b v →
+        MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+          ∀ (q : MaximumMatching.AltSegment M),
+            q.Shortest →
+              q.first = b →
+                q.last = v →
+                  ∀ (k : Fin q.length),
+                    MaximumMatching.levelLE (MaximumMatching.edgeTenacity M (q.vertex ⟨↑k, ⋯⟩) (q.vertex ⟨↑k + 1, ⋯⟩))
+                      (some t)
+@MaximumMatching.AltPath.general_maxlevel_path_unique_bridge : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  MaximumMatching.AtMostShortestAugmenting M t →
+    MaximumMatching.tenacity M p.last = some t →
+      MaximumMatching.maxlevel M p.last = some p.length → p.UniqueBridgeOfTenacity t
+@MaximumMatching.AltPath.unique_bridge_maxlevel_of_lower : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (t : Nat),
+  t % 2 = 1 →
+    (∀ (v : V) (s : Nat), MaximumMatching.tenacity M v = some s → s ≤ t - 2 → ∃ b, MaximumMatching.IsBase M v b) →
+      (∀ (b v : V),
+          MaximumMatching.Blossom M (t - 2) b v →
+            MaximumMatching.levelLT (some (t - 2)) (MaximumMatching.tenacity M b) →
+              ∀ (q : MaximumMatching.AltSegment M),
+                q.Shortest →
+                  q.first = b → q.last = v → ∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M (t - 2) b w) →
+        (∀ (b v : V),
+            MaximumMatching.Blossom M (t - 2) b v →
+              MaximumMatching.levelLT (some (t - 2)) (MaximumMatching.tenacity M b) →
+                ∀ (q : MaximumMatching.AltSegment M),
+                  q.Shortest →
+                    q.first = b →
+                      q.last = v →
+                        ∀ (i : Fin q.length),
+                          MaximumMatching.levelLE
+                            (MaximumMatching.edgeTenacity M (q.vertex ⟨↑i, ⋯⟩) (q.vertex ⟨↑i + 1, ⋯⟩)) (some (t - 2))) →
+          ∀ (p : MaximumMatching.AltPath M),
+            MaximumMatching.tenacity M p.last = some t →
+              MaximumMatching.maxlevel M p.last = some p.length → p.UniqueBridgeOfTenacity t
+@MaximumMatching.vertex_in_bridge_support : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (v : V) (t : Nat),
+  MaximumMatching.AtMostShortestAugmenting M t →
+    MaximumMatching.tenacity M v = some t →
+      ∃ u w, MaximumMatching.edgeTenacity M u w = some t ∧ MaximumMatching.InSupport M u w v
+@MaximumMatching.tenacity_iff_bridge_support : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (v : V) (t : Nat),
+  MaximumMatching.AtMostShortestAugmenting M t →
+    (MaximumMatching.tenacity M v = some t ↔
+      ∃ u w, MaximumMatching.edgeTenacity M u w = some t ∧ MaximumMatching.InSupport M u w v)
+@MaximumMatching.BudForest.mergeInto_root : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
+  (x b v : V),
+  (F.mergeInto x b).root v = if F.rank (F.root b) < F.rank (F.root x) ∧ F.root v = F.root x then F.root b else F.root v
+@MaximumMatching.BudForest.mergeManyInto_source : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
+  (xs : List V) (x b : V),
+  x ∈ xs → F.rank (F.root b) < F.rank (F.root x) ∨ F.root x = F.root b → (F.mergeManyInto xs b).root x = F.root b
+@MaximumMatching.DDFS.ColoredTrees.mem_vertices : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  {S : Fin n → Prop} {r g b : Fin n} (T : MaximumMatching.DDFS.ColoredTrees H S r g b) (v : Fin n), v ∈ T.vertices ↔ S v
+@MaximumMatching.DDFS.Machine.executeAndContract : {n : Nat} →
+  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} →
+    [DecidableRel H.Edge] →
+      MaximumMatching.DDFS.ReachBottom H →
+        (r g : Fin n) →
+          MaximumMatching.BudForest (Fin n) →
+            MaximumMatching.DDFS.Machine.FullOutput H r g × MaximumMatching.BudForest (Fin n)
+@MaximumMatching.DDFS.Machine.executeAndContract_bottleneck : ∀ {n : Nat}
+  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} [inst : DecidableRel H.Edge]
+  (hreach : MaximumMatching.DDFS.ReachBottom H) (r g : Fin n) (F : MaximumMatching.BudForest (Fin n)) (b : Fin n)
+  (S : Fin n → Prop) (trees : MaximumMatching.DDFS.ColoredTrees H S r g b)
+  (highest : MaximumMatching.DDFS.HighestBottleneck H r g b)
+  (region : ∀ (v : Fin n), S v ↔ MaximumMatching.DDFS.OnRootTo r g b v),
+  MaximumMatching.DDFS.Machine.executeFull hreach r g =
+      MaximumMatching.DDFS.Machine.FullOutput.bottleneck b S trees highest region →
+    (∀ (v : Fin n), F.rank v = H.level v) →
+      (∀ (v : Fin n), S v → F.parent v = v) →
+        ∀ (v : Fin n), S (F.root v) → (MaximumMatching.DDFS.Machine.executeAndContract hreach r g F).snd.root v = b
+@MaximumMatching.DDFS.Machine.FullOutput.contract_root_congr : ∀ {n : Nat}
+  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} {r g : Fin n} (out : MaximumMatching.DDFS.Machine.FullOutput H r g)
+  (F : MaximumMatching.BudForest (Fin n)) (u v : Fin n),
+  F.root u = F.root v → (out.contract F).root u = (out.contract F).root v

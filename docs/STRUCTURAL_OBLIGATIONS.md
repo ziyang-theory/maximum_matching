@@ -1,9 +1,9 @@
 # Structural proof status and remaining obligations
 
-General common-base existence and arbitrary shortest relative-path confinement
-are now proved at every eligible tenacity. The minimum-tenacity unique-bridge
-theorem, relative shortestness/decomposition and recursive-blossom laminarity
-are also proved. Full MV correctness does not follow yet.
+All structural conclusions of Theorem 6.19 are now proved: common bases,
+unique same-tenacity bridges, laminarity, relative-path decomposition and
+confinement, relative edge-tenacity bounds, and the suffix-base property.
+The bridge theorem also covers `t = l_m`. Full MV correctness does not follow yet.
 
 Source: the supplied *A Proof of the MV Matching Algorithm*,
 arXiv:2012.03582v1 (7 December 2020), Theorem 6.19, PDF pp.29–33; SHA-256
@@ -24,45 +24,31 @@ arXiv:2012.03582v1 (7 December 2020), Theorem 6.19, PDF pp.29–33; SHA-256
 direct induction and its checked first-intersection constructions. This proof
 route closes bases and confinement without constructing the source's full `H_v`.
 
-## Remaining general structural conclusions
+## General bridge, relative edges and suffix bases
 
-The general bridge target, including the additional `t = l_m` case, is:
+`AltPath.general_maxlevel_path_unique_bridge` proves the general bridge result
+for arbitrary vertex types with premises `AtMostShortestAugmenting M t`, endpoint
+tenacity `t`, and `maxlevel M p.last = some p.length`. Shortestness is derived.
+Its conclusion `p.UniqueBridgeOfTenacity t` says exactly one path edge is both
+a bridge and of tenacity `t`. Lower-tenacity bridges may also occur. The older
+minimum-case `UniqueTenacityBridge` asserts uniqueness among all bridges and
+is deliberately kept separate.
 
-```lean
-∀ {n : Nat} (G : Graph (Fin n)) (M : Matching G) (t : Nat),
-  AtMostShortestAugmenting M t →
-  ∀ p : AltPath M, p.Shortest → tenacity M p.last = some t →
-  maxlevel M p.last = some p.length →
-  ∃ i : Fin p.length,
-    Bridge M (p.vertex ⟨i.val, by omega⟩)
-      (p.vertex ⟨i.val + 1, by omega⟩) ∧
-    edgeTenacity M (p.vertex ⟨i.val, by omega⟩)
-      (p.vertex ⟨i.val + 1, by omega⟩) = some t ∧
-    ∀ j : Fin p.length,
-      Bridge M (p.vertex ⟨j.val, by omega⟩)
-        (p.vertex ⟨j.val + 1, by omega⟩) →
-      edgeTenacity M (p.vertex ⟨j.val, by omega⟩)
-        (p.vertex ⟨j.val + 1, by omega⟩) = some t →
-      j = i
-```
+`general_blossom_relative_edge_bound` proves every edge of every shortest
+relative path has tenacity at most the eligible blossom cutoff. This uses an
+additional edge argument; vertex membership alone is insufficient.
 
-The final equality premise is essential: a higher-tenacity maxlevel path
-may also contain bridges of lower tenacity inside nested blossoms.
-`AltPath.UniqueTenacityBridge`, currently used for the minimum case,
-asserts uniqueness among all bridges and must not be reused unchanged
-as the general statement.
+`general_suffix_base` proves that the actual base of every vertex after the
+path's base occurs somewhere on that original base-to-endpoint suffix.
+It need not occur before the chosen vertex. `general_blossom_relative_base`
+provides the companion result for arbitrary shortest relative paths.
 
-The displayed bridge target was type-checked with Lean 4.34.0. No axiom or
-admitted theorem has been introduced for it.
-
-
-The other missing parts of Theorem 6.19 are:
-
-- Every edge of every shortest relative path inside a blossom has edge tenacity
-  at most the blossom cutoff. Vertex membership alone does not imply this bound.
-- For a shortest path to a vertex of eligible tenacity, the actual base of every
-  vertex after its base occurs somewhere on that path's base-to-endpoint suffix
-  (Statement 5). The source does not require it to occur before that vertex.
+The public theorems have no unproved structural oracle premises. Strong cutoff
+induction supplies the lower-blossom statements; the bridge proof only needs
+cutoffs strictly below `t`, preserving the equality case `t = l_m`.
+`tenacity_iff_bridge_support` then identifies the current vertex-tenacity
+stratum with the union of the corresponding semantic bridge supports.
+Supports may overlap; this is not a claim about computing them by DDFS.
 
 ## Weighted paths and concrete matching search
 
@@ -73,8 +59,10 @@ disjoint expansions. Ordinary lower-blossom stretches and artificial low-top
 segments have actual witnesses. The new general base/confinement theorems can
 discharge their lower eligible-threshold premises.
 
-Selecting the complete matching-derived layered graph and identifying its DDFS
-region with actual bridge support remain construction obligations. Assigned
+The executable `DDFSBud.executeAndContract` now merges the computed bottleneck
+region under explicit fixed-root/rank representation. Selecting the complete
+matching-derived layered graph and identifying its DDFS region with actual
+bridge support remain construction obligations. Assigned
 DDFS layers and expanded segment lengths must stay distinct, especially for
 artificial top vertices. Generic path certificates and weighted concatenation
 do not supply the support correspondence by themselves.

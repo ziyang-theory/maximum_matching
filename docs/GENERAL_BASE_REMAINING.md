@@ -3,7 +3,7 @@
 The original higher-tenacity common-base target is now proved, together with
 confinement of arbitrary shortest relative paths, in
 `GeneralStructureInduction.lean`. This file retains its original name for
-existing links. The remaining structural obligations are listed in
+existing links. The completed structural results and remaining algorithm obligations are listed in
 [STRUCTURAL_OBLIGATIONS.md](STRUCTURAL_OBLIGATIONS.md).
 
 The source is the supplied [Vazirani manuscript](../max_matching.pdf),
@@ -21,7 +21,8 @@ There is no lower-tenacity correctness or base-existence premise.
 that every vertex of an arbitrary shortest relative path from the actual
 high boundary `b` to a member `v` lies in `Blossom M t b` or equals `b`.
 It covers iterated-base members, both path parities, and all eligible cutoffs.
-It does not yet prove the source's edge-tenacity bound or suffix-base property.
+The source's edge-tenacity bound and suffix-base property are proved separately
+in `GeneralEdgeBounds` and `GeneralSuffixBase`, using this completed induction.
 
 ## Proof route
 

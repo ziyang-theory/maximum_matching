@@ -53,8 +53,8 @@ theorem low_predecessor_bases_eq_of_minlevel_le (p q : AltPath M)
     hexists hconf hcurrent d hmember hdhigh D hDd B hBe hBhigh hDB
   exact hBb.symm.trans heq.symm
 
-/-- All predecessor cases are included in this ordered step. The remaining
-order is when the odd path's base has strictly larger minimum level. -/
+/-- All predecessor cases are included in this ordered step. The opposite
+order is handled in GeneralStructureStep using the even-witness minimization. -/
 theorem parity_bases_eq_of_minlevel_le (p q : AltPath M)
     (hp : p.Shortest) (hq : q.Shortest) (hpe : p.length % 2 = 0)
     (hqo : q.length % 2 = 1) (hend : q.last = p.last) (hinner : q.length < p.length)
