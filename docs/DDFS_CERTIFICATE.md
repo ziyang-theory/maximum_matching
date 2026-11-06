@@ -78,7 +78,7 @@ particular matching-layer graph; they are not assumed MV correctness.
 These existence theorems are separate from the operational proof now recorded
 in [DDFS_OPERATIONAL_PROOF.md](DDFS_OPERATIONAL_PROOF.md). The stack transition
 system has checked coverage, collision/Barrier recovery, progress, finite
-termination and correct path/bottleneck outcomes. Its remaining globally
-colored tree output and executable representation/cost refinement are
+termination and correct path/bottleneck outcomes. `DDFSExecutable` and `DDFSTrees` now provide deterministic execution and stored
+global parent trees. The remaining concrete representation/cost obligations are
 listed in [DDFS_OBLIGATIONS.md](DDFS_OBLIGATIONS.md). Mathematical choice in
 the existence proof is not an efficient search implementation.

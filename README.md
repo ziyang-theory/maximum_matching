@@ -1,6 +1,6 @@
 # Maximum matching in Lean 4
 
-**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes the minimum-tenacity common-base and unique-bridge theorems, recursive-blossom laminarity, finite-tenacity bridge classification, DDFS path certificates and local transition bounds, and the square-root phase-count argument. It does not contain a complete MV solver.
+**Partial formalization of the Micali–Vazirani algorithm. Full MV correctness and its running-time bound are not yet proved.** The checked development now includes the minimum-tenacity common-base and unique-bridge theorems, recursive-blossom laminarity, finite-tenacity bridge classification, executable DDFS with colored spanning trees and local transition bounds, and the square-root phase-count argument. It does not contain a complete MV solver.
 
 Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.03582v1](https://arxiv.org/abs/2012.03582v1), 7 December 2020; supplied as [max_matching.pdf](max_matching.pdf). The exact version and claim map are recorded in [docs/SOURCE_MAP.md](docs/SOURCE_MAP.md).
 
@@ -20,6 +20,7 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | Actual common bases split shortest paths into shortest relative segments | `IsBase.shortest_relative`, `IsBase.append_relative_shortest` |
 | DDFS disjoint-path/bottleneck dichotomy and per-vertex linkage certificate | `DDFS.bottom_dichotomy`, `DDFS.highestBottleneck_certificate` |
 | Finite DDFS transition system terminates and reports correct paths/bottleneck | `DDFS.Machine.exists_correct_run`, `maximal_trace_correct` |
+| Deterministic DDFS constructs either disjoint bottom paths or colored parent trees | `DDFS.Machine.executeFull` |
 | Final DDFS visited region equals the root-to-bottleneck path region | `DDFS.Machine.visited_iff_on_root_to_bottleneck` |
 | DDFS uses at most `4 * m + 3` abstract transitions, counting edges in its output region | `DDFS.Machine.trace_bottleneck_local_bound`, `trace_disjoint_local_bound` |
 | Finite-tenacity bridge endpoint classification (Lemma 8.1) | `matched_bridge_levels`, `unmatched_bridge_tenacity` |
@@ -28,9 +29,11 @@ Source: Vijay V. Vazirani, *A Proof of the MV Matching Algorithm*, [arXiv:2012.0
 | At most `2 * Nat.sqrt n` nonempty phases, given the shortest-family search contract | `PhaseDriver.run_positivePhases_le_two_sqrt` |
 | Bud lookup terminates; compression preserves roots under a rank invariant | `BudForest.root`, `BudForest.compressMany_root` |
 | MIN scans retain tied predecessors and never rescan an undirected edge | `Search.scan_tie_adds_predecessor`, `Search.scan_reverse_noop` |
-| MIN candidate folds preserve correct labels under the earlier-level invariant | `Search.scanCandidates_preserves` |
+| Finite MIN enumerates every next-level predecessor; initial invariants are proved | `Search.scanLevel_complete`, `initial_scanLevel_complete` |
+| MAX updates compute support-member maxlevels and register newly known incident bridges | `Search.maxProcessVertex_correct` |
+| Actual MIN queues every current-tenacity bridge under preserved prior-stage invariants | `Search.scanLevel_current_bucket_complete` |
 
-Remaining work includes the higher-tenacity base/bridge induction and construction of its weighted graph; DDFS certificate-tree output and concrete data-structure costs; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
+Remaining work includes the higher-tenacity base/bridge induction and construction of its weighted graph; concrete DDFS data-structure costs; and the complete MIN/MAX phase with support discovery, path expansion and removal. The outer-loop optimality and phase-count theorems expose `Complete` and `ShortestBlocking` as search contracts; these have **not** been proved for a concrete MV phase. [docs/STATUS.md](docs/STATUS.md) records the exact boundary. No missing MV result is installed as an axiom.
 
 ## Build and check
 
@@ -57,9 +60,9 @@ The verification script copies source/configuration into a fresh temporary direc
 - `DifferencePacking`, `PhaseProgress`, `PhaseDriver`, `PhaseBound`: proved packing, phase progress and outer-loop accounting.
 - `Levels`, `LimitedHonesty`, `MinimumBase`, `MinimumBridgeAll`: semantic levels and the completed minimum-tenacity induction; `GeneralBase*`: proved higher-tenacity induction steps.
 - `Blossom*`, `BaseTree`, `BasePaths`, `Segment*`, `Relative*`: recursive blossoms, laminarity and relative alternating paths.
-- `DDFS*`, `BridgePath`: path certificates, lifting, total correctness and local transition counts; `WeightedExpansion`, `MinimumWeightedExpansion`: witnessed segment expansion.
-- `Bud`, `Min*`, `BridgeClassification`: local updates, semantic MIN preservation and finite bridge classification.
+- `DDFS*`, `BridgePath`: path certificates, lifting, total correctness and local transition counts; `WeightedExpansion`, `WeightedTopExpansion`, `GeneralWeighted*`: weighted segment construction and expansion.
+- `Bud`, `Min*`, `MaxCorrectness`, `Bridge*`: finite MIN enumeration, local MAX updates and bridge scheduling.
 - `Examples`, `DDFSExamples`: kernel-checked boundary cases and actual collision, backtracking and Barrier-restoration traces.
 - `docs/`: original step plan, source correspondence, remaining obligations and independent reviews.
 
-Semantic levels use `none` for infinity and mathematical choice to select minima; they are specifications, not the operational MIN/MAX implementation. Augmentation, disjoint-family execution, bud lookup/compression and local MIN updates are executable. General definitions allow any vertex type; cardinality and the Berge criterion use `Fin n`. Loops and parallel edges are excluded; no normalization theorem for multigraphs is claimed.
+Semantic levels use `none` for infinity and mathematical choice to select minima; they are specifications, not the operational MIN/MAX implementation. Augmentation, disjoint-family execution, bud lookup/compression, finite MIN scans, MAX label updates and full layered DDFS are executable. The current finite enumerations do not have the MV linear-time cost bound. General definitions allow any vertex type; cardinality and the Berge criterion use `Fin n`. Loops and parallel edges are excluded; no normalization theorem for multigraphs is claimed.

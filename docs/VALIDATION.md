@@ -23,7 +23,7 @@ The most recent results are in [../validation/summary.json](../validation/summar
 ## Trust boundary
 
 - Proof terms use ordinary Lean foundations. `propext`, `Quot.sound`, and where needed `Classical.choice` are reported explicitly. No custom mathematical axiom, admitted proof, or native-decision axiom is accepted.
-- Small examples use kernel reduction/tactics, not an external Boolean test presented as a universal proof.
+- Proof examples use kernel reduction/tactics. `DDFSExecutableExamples` additionally uses guarded compiled evaluations to exercise the executable search and tree reconstruction; these regression checks are separate from the universal kernel-checked correctness proofs.
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
 - Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.

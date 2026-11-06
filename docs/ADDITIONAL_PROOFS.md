@@ -20,6 +20,29 @@ the authorized paper-library navigation and targeted matching search.
 | Executable MIN scans | `Search.scan_assigns_semantic`, `scan_rejects_bridge`, `scanCandidates_preserves` | Under explicit earlier-level and scan invariants, admitted scans assign real minlevels/props, rejected unseen edges are bridges, and candidate folds preserve label soundness and earlier assignments. `initial_scanCandidates_labelsSound` establishes initial-level soundness unconditionally for any enumeration. |
 | Theorem 2.1 abstract work, pp.6–8 | `DDFS.Machine.trace_scanned_bound`, `trace_bottleneck_local_bound`, `trace_disjoint_local_bound` | Every initialized trace uses at most four transitions per scanned edge plus three; terminal traces are bounded by `4 * |E_b| + 3` or `4 * |E_p| + 3`, counting distinct directed edges in the union of root-to-output paths. |
 
+## Subsequent goal progress
+
+| Source step | Checked additions | Remaining boundary |
+| --- | --- | --- |
+| Full layered DDFS output | `DDFSExecutable`, `DDFSTrees`: deterministic execution, global parent trees, exact color coverage and overlap | All-pair/vertex enumeration and forest postprocessing are executable; their concrete costs are separate from the transition bound. |
+| Complete finite MIN | `MinComplete`: initialized/preserved record invariants, all next minlabels and exact predecessor lists, prior-level frontier derivation | Later frontiers depend on the preceding MAX labels, not a same-stage completeness assumption. |
+| MAX and bridge buckets | `MaxCorrectness`, `MaxBridgeRefresh`, `BridgeComplete`: semantic assignment, actual previously-unregistered incident-edge refresh, and all current-tenacity bridge buckets under initialized/preserved state invariants | DDFS support discovery and the synchronized complete phase remain open. |
+| Stage assembly | `SearchStage`: initializes every state invariant and executes MIN plus MAX label/refresh lists while preserving them | The complete current-tenacity vertex list remains an explicit support-discovery input; this is not a concrete complete MV phase. |
+| Established blossom chains | `BlossomRelative`: each boundary is the last high vertex on a shortest path; its suffix is relatively shortest | Suffix tenacity is bounded; blossom membership is not inferred from that bound alone. |
+| Higher-tenacity geometry | `GeneralHighGeometry`: triangular minlevels and exact midpoint bridge tenacity for adjacent high vertices | Edges involving lower-tenacity vertices still need the simultaneous structural induction. |
+| Actual compressed segments | `GeneralWeightedEdges`, `GeneralWeightedTop`: ordinary low stretches and even low-top paths with exact expanded lengths | Base existence and confinement are explicit hypotheses at the lower contraction threshold. They are not established at the current induction threshold. |
+| Low-top weighted realization | `WeightedTopExpansion`: core realization avoids its initial blossom; prepend a real low-top segment, retaining simplicity and disjointness | Selecting all edges of the source's `H_v` and deriving its bridge length budgets remain open. |
+| Weighted bridge detour | `WeightedBridgePath`: reverse the free-ending realized arm, cross the actual bridge, append the other arm; exact potential-based length | Current-tenacity edge-budget identity remains a matching-graph construction obligation. |
+| Original low-path localization | `GeneralLowLocalization`: locate a preceding high boundary for each low vertex before an honest high endpoint | Uses the lower-threshold confinement induction hypothesis; no global avoidance is assumed. |
+| Direct base rerouting | `GeneralBaseReroute`: disjoint boundary-suffix reroute, high-prefix exclusion, strict first-hit indices, and derived full avoidance for an absent boundary with `C≤B` | The opposite boundary order and boundary-present cases remain unresolved. |
+
+Root and independent agents reviewed the new executable DDFS, MIN/MAX, base
+rerouting and weighted-path declarations. The weighted review checked the target
+orientation, even top-edge phase, exact segment lengths, and lower-threshold
+scope of the induction hypotheses. The DDFS review checked saturation coverage,
+fixed parent functions, and either root equal to the bottleneck. No additional
+logical or assumption-hiding issue was found within that scope.
+
 The finite premise in the bridge theorem is intentional. A literal reading that
 allows infinite-tenacity unreachable matched edges does not justify classifying
 their endpoints as inner. The checked result covers the finite bridge buckets
@@ -71,8 +94,9 @@ These checks validate this source snapshot under the trust limits in
 The low-predecessor case still needs a shortest path through the lower blossom's
 boundary that preserves the opposite even maxlevel path's threshold-base values.
 The source's alternative route requires constructing the actual `H_v`, selecting
-higher-tenacity segment witnesses, handling low-tenacity artificial top vertices
-and proving the precise semantic length budgets. Generic weighted concatenation
+the complete higher-tenacity edge set and proving the precise semantic length
+budgets. Ordinary and low-top segment witnesses and their concatenation are now
+checked under the lower-threshold induction hypotheses. Generic weighted concatenation
 does not discharge these construction obligations.
 [GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md) records the unchanged
 targets, two investigated approaches and an independently reproduced five-vertex
@@ -81,7 +105,7 @@ example showing why the minimum-case predecessor shortcut fails.
 General common-base existence, same-tenacity unique bridges, full confinement,
 mutable petal/bud correspondence, complete MIN/MAX scheduling and support
 finding, recursive expansion/removal and maximal shortest-family search remain
-unproved. DDFS still lacks a stored global colored-tree output and an executable
-adjacency/data-structure refinement with concrete costs. Consequently the
+unproved. DDFS now has executable edge enumeration and stored global colored trees;
+concrete data-structure costs remain unproved. Consequently the
 existing `Complete` and `ShortestBlocking` contracts remain uninstantiated for
 MV, and no full MV solver or running-time theorem is claimed.

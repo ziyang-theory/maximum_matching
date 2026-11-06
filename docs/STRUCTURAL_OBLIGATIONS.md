@@ -47,7 +47,7 @@ The mathematical DDFS result includes the strong per-vertex disjoint-path
 certificate; see [DDFS_CERTIFICATE.md](DDFS_CERTIFICATE.md). Separately, the
 explicit two-search stack transitions now have a total-correctness proof for
 their path/bottleneck outcomes; see [DDFS_OPERATIONAL_PROOF.md](DDFS_OPERATIONAL_PROOF.md).
-Globally colored spanning-tree output and concrete data-structure costs remain unproved. Output-local linear abstract transition bounds are now proved in `DDFSLocalWork`.
+Executable globally colored parent trees are now proved in `DDFSTrees`; concrete data-structure costs remain unproved. Output-local linear abstract transition bounds are now proved in `DDFSLocalWork`.
 
 ## First missing general theorem
 
@@ -117,9 +117,11 @@ It must supply the following finite data and prove these invariants:
    construct vertex-disjoint realizations. The lower-blossom separation
    and weighted concatenation are checked for high-tenacity core paths with
    actual supplied edge segments (`WeightedExpansion`). The segments of
-   ordinary descending edges lie inside the target blossom. General segment
-   selection and the artificial low-tenacity `S′` vertices remain unhandled;
-   the theorem must not be applied to those vertices using its high-core premise.
+   ordinary descending edges lie inside the target blossom. Ordinary segment witnesses are now constructed by `GeneralWeightedEdges`,
+   using lower-threshold base existence and confinement. `GeneralWeightedTop`
+   constructs the actual even low-top segment; `WeightedTopExpansion` prepends
+   it while deriving simplicity and disjointness. Full `H_v` edge selection
+   and its current-tenacity length identities remain to be proved.
 5. Add the triggering bridge and a shortest prefix to the bottleneck.
    Prove that the resulting actual alternating path has complementary
    parity and the exact length required for `tenacity(w)=t`. An abstract
@@ -209,8 +211,8 @@ to the investigated proof strategies, not a counterexample to the target.
 
 Even completing the semantic induction would not complete the requested
 MV verification. The DDFS transition, coverage and path/bottleneck correctness
-proofs are now checked. Its colored-tree output, executable adjacency
-refinement and concrete data-structure cost accounting remain. Petal/bud correspondence
+proofs are now checked. Its colored-tree output and deterministic finite adjacency enumeration are now
+proved; concrete data-structure cost accounting remains. Petal/bud correspondence
 (Lemma 6.20), synchronized MIN/MAX refinement
 (Theorem 8.3), exact support discovery, expansion/removal of a maximal
 shortest augmenting-path family, and the concrete algorithm's work bound

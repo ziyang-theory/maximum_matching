@@ -61,8 +61,9 @@ penultimate vertex. Here `E` is even, `O` is odd, and `O < E`.
 - `WeightedExpansion` concatenates supplied actual edge segments and derives
   simplicity and disjointness from disjoint high-tenacity cores and local
   target-blossom containment. It neither selects the source's `H_v` nor
-  supplies the required segment witnesses for that graph. Its high-core
-  premise also excludes the artificial low-tenacity top vertices `S′`.
+  supplies the required segment witnesses for that graph. The later `WeightedTopExpansion` results add low top vertices using actual
+  confined initial segments and prove that the remaining core realization
+  avoids the initial blossom. Full `H_v` selection remains separate.
 
 ## Two investigated direct routes
 
@@ -88,8 +89,8 @@ Its length is `E + 1 + (O - 1 - C) = t - C`, and its parity is odd.
 The phase at both joins is correct: `q[c to u]` has even length, so its
 reverse begins with the matched edge required after `(v,u)`.
 
-If this walk is simple, there is a complete mathematical argument for this
-subcase. The boundary has tenacity at least `t` (finite tenacities are odd,
+If this walk is simple, `AltPath.disjoint_lower_boundary_reroute` in
+`GeneralBaseReroute.lean` now gives a complete Lean proof of this subcase. The boundary has tenacity at least `t` (finite tenacities are odd,
 and the boundary is above `t - 2`), while the even prefix of length `C` and
 the constructed odd path bound its tenacity by `t`. Hence
 `tenacity(c) = t`, the odd path is shortest, and appending vertices of
@@ -105,6 +106,25 @@ A subsequent first-intersection splice can meet the earlier lower-blossom
 segment again. The checked weighted concatenation theorem does not supply
 avoidance for this situation: `p` is not yet represented as a disjoint
 high-core path with witnessed edge realizations.
+
+### Checked intersection reductions
+
+`higher_base_absent` and `base_prefix_avoids_opposite_suffix` compare distinct
+actual threshold bases `b` and `c` at honest even indices `B ≥ C`. They prove
+that `b` is absent from the opposite path and that the opposite prefix through
+`C` avoids the original suffix starting at `B`. First-intersection splices and
+shortestness derive these exclusions; they are not supplied avoidance premises.
+
+`first_lower_boundary_hit_strict` assumes that the lower boundary `c` is absent
+from the even maxlevel path. Its first hit on the other path's boundary-to-
+predecessor suffix must occur at odd indices on both paths, and the even
+maxlevel path's index is strictly larger. Equal indices would construct a
+shortest predecessor path omitting its established boundary. Together with original-path low-blossom localization,
+`absent_lower_boundary_disjoint` now eliminates all intersections when `c` is
+absent from `p` and its boundary index `C` is at most an even high index `B`
+on `p` whose vertex is absent from `q`. This theorem uses base existence and
+confinement only at `t−2`; it derives the early-intersection exclusion. The
+case `C>B` and the cases where `c` occurs on `p` remain open.
 
 ### Search in the parity-state graph and erase loops
 

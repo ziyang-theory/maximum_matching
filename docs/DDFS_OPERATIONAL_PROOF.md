@@ -1,6 +1,6 @@
 # Operational DDFS path and bottleneck outcomes
 
-The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. Output-local linear abstract transition bounds are also proved. Globally colored spanning-tree output and a concrete executable adjacency/data-structure refinement with running-time costs remain open.
+The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. Output-local linear abstract transition bounds are also proved. Deterministic edge enumeration and globally colored spanning-tree output are also executable and proved. Concrete representation costs remain open.
 
 ## Interface and outcome
 
@@ -53,7 +53,7 @@ The saved collision paths establish highestness. Extend each with any bottom-rea
 
 The proof derives discovery provenance from every actual transition: a newly visited vertex is reached by extending an active rooted stack. It also derives closure and recovery depth at the actual terminating transition. For a visited vertex `u` above `b`, extend its root-to-`u` discovery path by any bottom-reaching path. The proved bottleneck property forces this extension through `b`; depth excludes `b` from the discovery prefix, so truncation supplies a root-to-`b` path containing `u`. Conversely, closure propagates membership along any root-to-`b` path, because every vertex before the endpoint differs from `b`.
 
-No discovery-provenance, visited-region, or coverage hypothesis is supplied by the caller. This exact searched region is a prerequisite for later MAX support integration; it does not itself identify the corresponding contracted matching graph or construct its coloring.
+No discovery-provenance, visited-region, or coverage hypothesis is supplied by the caller. This exact searched region is a prerequisite for later MAX support integration; it does not itself identify the corresponding contracted matching graph. The coloring is now constructed from this region as described below.
 
 ## Termination and cost boundary
 
@@ -63,8 +63,33 @@ The original potential is retained as a coarse termination proof. `DDFSWork.lean
 
 `DDFSLocalWork.lean` proves the source's output-local edge inclusion. Scanned sources have root-discovery paths. Scanned targets have continuations to the bottleneck using the exact visited-region theorem. In the disjoint case, a new invariant keeps every visited bottom at an activity center; coverage and layer descent then supply a continuation to a reported bottom from every visited vertex. Concatenation gives an actual path containing each scanned edge. The resulting bounds are `4 * |E_b| + 3` and `4 * |E_p| + 3`, with edge sets interpreted as unions of root-to-output paths. `DDFSWorkExamples` checks both outcomes on an edgeless graph, where a control transition is still needed.
 
-These count abstract transitions. The development still needs a costed finite adjacency implementation and costs for exhaustion tests, stack/path updates and restoration. It also needs construction and verification of a globally consistent red/green partition and spanning trees if that full §2 output representation is required. The previously checked per-vertex semantic certificate does not by itself provide those data structures.
+These count abstract transitions. The development still needs a costed finite adjacency implementation and costs for exhaustion tests, stack/path updates and restoration. The new colored-tree postprocessing is a separate finite pass and is not charged by this transition bound.
+
+## Executable search and colored trees
+
+`DDFSExecutable.lean` carries decidable visited/explored predicates with each
+state and selects the first unscanned outgoing neighbor in increasing `Fin n`
+order. `next` returns an actual transition or terminal proof. `execute` recurses
+on the proved decreasing rank; reachability and rank are used only in erased
+proofs. Its result includes the counted trace and correct final outcome.
+
+`DDFSTrees.lean` seeds one parent/color forest from the two saved collision
+paths, excluding their shared bottleneck. It then repeatedly attaches an
+uncolored visited vertex through an edge from a colored vertex. Every attachment
+preserves the existing colors and parents and decreases the uncolored count.
+At saturation, the exact visited-region theorem supplies a root-to-vertex
+prefix avoiding the bottleneck; closure colors that whole prefix, proving
+coverage. Each tree then adds its own saved final edge into the bottleneck.
+The parent functions are globally consistent, not independently selected paths.
+`ColoredTrees.cover` and `overlap` prove union and exact intersection.
+
+`executeFull` returns either actual disjoint bottom paths or the highest
+bottleneck with these stored trees. Equal roots and either root equal to the
+bottleneck are supported. Permanent examples exercise an abandoned visited
+branch absent from both final saved paths, as well as zero-length root trees.
+The selector enumerates vertices and reconstruction searches vertex pairs;
+neither is claimed to implement the source's linear-time data structures.
 
 ## Trust
 
-The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice appears in abstract witness, termination and potential definitions and does not certify an executable or efficient edge-selection implementation.
+The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice appears in abstract witness, termination and potential definitions and does not imply an efficient representation. Executability of the new definitions is separately checked through compiled fixtures.

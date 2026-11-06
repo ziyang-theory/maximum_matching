@@ -420,3 +420,459 @@ MaximumMatching.exists_differenceFamily : ∀ (n : Nat) (G : MaximumMatching.Gra
   [inst : DecidableEq V] [inst_1 : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (candidates : List (V × V)),
   MaximumMatching.Search.LabelsSound M
     (MaximumMatching.Search.scanCandidates M 0 candidates (MaximumMatching.Search.initial M))
+@MaximumMatching.blossom_baseOnPath : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (t : Nat) (b v : V),
+  MaximumMatching.Blossom M t b v →
+    MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+      ∀ (p : MaximumMatching.AltPath M), p.last = v → p.Shortest → p.BaseOnPath t b
+@MaximumMatching.blossom_shortest_relative : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (t : Nat) (b v : V),
+  MaximumMatching.Blossom M t b v →
+    MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+      ∀ (p : MaximumMatching.AltPath M),
+        p.last = v → p.Shortest → ∃ i hie, p.vertex i = b ∧ (p.take ↑i ⋯).Shortest ∧ (p.segment ↑i ⋯ hie).Shortest
+@MaximumMatching.AltPath.disjoint_lower_boundary_reroute : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      p.length % 2 = 0 →
+        ∀ (hqo : q.length % 2 = 1),
+          q.last = p.last →
+            q.length < p.length →
+              ∀ (c : V),
+                MaximumMatching.Blossom M (p.length + q.length - 2) c (q.vertex ⟨q.length - 1, ⋯⟩) →
+                  MaximumMatching.levelLT (some (p.length + q.length - 2)) (MaximumMatching.tenacity M c) →
+                    ∀ (i : Fin (q.length + 1)),
+                      q.vertex i = c →
+                        (∀ (a : Fin (p.length + 1)) (j : Fin (q.length + 1)),
+                            ↑i ≤ ↑j → ↑j < q.length → p.vertex a ≠ q.vertex j) →
+                          ∃ r,
+                            r.last = c ∧
+                              r.Shortest ∧
+                                r.length % 2 = 1 ∧
+                                  r.length = p.length + q.length - ↑i ∧
+                                    MaximumMatching.tenacity M c = some (p.length + q.length) ∧
+                                      ∀ (b : V),
+                                        p.BaseOnPath (p.length + q.length) b ↔ r.BaseOnPath (p.length + q.length) b
+@MaximumMatching.AltPath.base_prefix_avoids_opposite_suffix : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      p.length % 2 = 0 →
+        q.length % 2 = 1 →
+          q.last = p.last →
+            ∀ (b c : V),
+              p.BaseOnPath (p.length + q.length) b →
+                q.BaseOnPath (p.length + q.length) c →
+                  ∀ (i : Fin (p.length + 1)),
+                    p.vertex i = b →
+                      ∀ (j : Fin (q.length + 1)),
+                        q.vertex j = c →
+                          ↑j ≤ ↑i →
+                            b ≠ c →
+                              ∀ (a : Fin (q.length + 1)) (d : Fin (p.length + 1)),
+                                ↑a ≤ ↑j → ↑i ≤ ↑d → q.vertex a ≠ p.vertex d
+@MaximumMatching.AltPath.first_lower_boundary_hit_strict : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      p.length % 2 = 0 →
+        ∀ (hqo : q.length % 2 = 1),
+          q.last = p.last →
+            q.length < p.length →
+              ∀ (c : V),
+                MaximumMatching.Blossom M (p.length + q.length - 2) c (q.vertex ⟨q.length - 1, ⋯⟩) →
+                  MaximumMatching.levelLT (some (p.length + q.length - 2)) (MaximumMatching.tenacity M c) →
+                    ∀ (i : Fin (q.length + 1)),
+                      q.vertex i = c →
+                        (∀ (a : Fin (p.length + 1)), p.vertex a ≠ c) →
+                          ∀ (h : p.FirstHit (q.take (q.length - 1) ⋯) (↑i + 1)),
+                            ↑h.qi % 2 = 1 ∧ ↑h.pi % 2 = 1 ∧ ↑h.pi < ↑h.qi
+@MaximumMatching.AltPath.absent_lower_boundary_disjoint : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      p.length % 2 = 0 →
+        ∀ (hqo : q.length % 2 = 1),
+          q.last = p.last →
+            q.length < p.length →
+              MaximumMatching.EligibleTenacity M (p.length + q.length) →
+                (∀ (v : V) (s : Nat),
+                    MaximumMatching.tenacity M v = some s →
+                      s ≤ p.length + q.length - 2 → ∃ b, MaximumMatching.IsBase M v b) →
+                  (∀ (b v : V),
+                      MaximumMatching.Blossom M (p.length + q.length - 2) b v →
+                        MaximumMatching.levelLT (some (p.length + q.length - 2)) (MaximumMatching.tenacity M b) →
+                          ∀ (r : MaximumMatching.AltSegment M),
+                            r.Shortest →
+                              r.first = b →
+                                r.last = v →
+                                  ∀ (w : V),
+                                    r.Contains w → w = b ∨ MaximumMatching.Blossom M (p.length + q.length - 2) b w) →
+                    ∀ (c : V),
+                      MaximumMatching.Blossom M (p.length + q.length - 2) c (q.vertex ⟨q.length - 1, ⋯⟩) →
+                        MaximumMatching.levelLT (some (p.length + q.length - 2)) (MaximumMatching.tenacity M c) →
+                          ∀ (i : Fin (q.length + 1)),
+                            q.vertex i = c →
+                              (∀ (a : Fin (p.length + 1)), p.vertex a ≠ c) →
+                                ∀ (B : Fin (p.length + 1)),
+                                  ↑B % 2 = 0 →
+                                    MaximumMatching.levelLT (some (p.length + q.length))
+                                        (MaximumMatching.tenacity M (p.vertex B)) →
+                                      (∀ (a : Fin (q.length + 1)), q.vertex a ≠ p.vertex B) →
+                                        ↑i ≤ ↑B →
+                                          ∀ (a : Fin (p.length + 1)) (j : Fin (q.length + 1)),
+                                            ↑i ≤ ↑j → ↑j < q.length → p.vertex a ≠ q.vertex j
+@MaximumMatching.AltPath.high_edge_bridge_iff : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      ∀ (hpe : p.length % 2 = 0),
+        q.length % 2 = 1 →
+          q.last = p.last →
+            q.length < p.length →
+              ∀ (i : Fin p.length),
+                MaximumMatching.levelLE (some (p.length + q.length)) (MaximumMatching.tenacity M (p.vertex ⟨↑i, ⋯⟩)) →
+                  MaximumMatching.levelLE (some (p.length + q.length))
+                      (MaximumMatching.tenacity M (p.vertex ⟨↑i + 1, ⋯⟩)) →
+                    (MaximumMatching.Bridge M (p.vertex ⟨↑i, ⋯⟩) (p.vertex ⟨↑i + 1, ⋯⟩) ↔
+                      2 * ↑i + 1 = p.length + q.length)
+@MaximumMatching.AltPath.high_middle_edge_tenacity : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p q : MaximumMatching.AltPath M),
+  p.Shortest →
+    q.Shortest →
+      ∀ (hpe : p.length % 2 = 0) (hqo : q.length % 2 = 1),
+        q.last = p.last →
+          ∀ (hinner : q.length < p.length) (i : Fin p.length) (hi : 2 * ↑i + 1 = p.length + q.length),
+            MaximumMatching.levelLE (some (p.length + q.length)) (MaximumMatching.tenacity M (p.vertex ⟨↑i, ⋯⟩)) →
+              MaximumMatching.levelLE (some (p.length + q.length)) (MaximumMatching.tenacity M (p.vertex ⟨↑i + 1, ⋯⟩)) →
+                MaximumMatching.edgeTenacity M (p.vertex ⟨↑i, ⋯⟩) (p.vertex ⟨↑i + 1, ⋯⟩) = some (p.length + q.length)
+@MaximumMatching.AltPath.low_stretch_reverse_expansion : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  t % 2 = 1 →
+    (∀ (v : V) (s : Nat), MaximumMatching.tenacity M v = some s → s ≤ t → ∃ b, MaximumMatching.IsBase M v b) →
+      (∀ (b v : V),
+          MaximumMatching.Blossom M t b v →
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+              ∀ (q : MaximumMatching.AltSegment M),
+                q.Shortest →
+                  q.first = b → q.last = v → ∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M t b w) →
+        ∀ (i j : Fin (p.length + 1)),
+          ↑i + 1 < ↑j →
+            MaximumMatching.minlevel M (p.vertex j) = some ↑j →
+              MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex i)) →
+                MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex j)) →
+                  (∀ (k : Fin (p.length + 1)),
+                      ↑i < ↑k → ↑k < ↑j → MaximumMatching.levelLE (MaximumMatching.tenacity M (p.vertex k)) (some t)) →
+                    ∃ s,
+                      s.first = p.vertex j ∧
+                        s.last = p.vertex i ∧
+                          s.length = ↑j - ↑i ∧
+                            s.phase % 2 = (↑j - ↑i + 1) % 2 ∧
+                              (∀ (k : Fin (s.length + 1)),
+                                  0 < ↑k → ↑k < s.length → MaximumMatching.Blossom M t (p.vertex i) (s.vertex k)) ∧
+                                MaximumMatching.minlevel M (p.vertex i) = some ↑i
+@MaximumMatching.blossom_even_top_segment : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (t : Nat) (b v : V),
+  MaximumMatching.Blossom M t b v →
+    MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+      (∀ (q : MaximumMatching.AltSegment M),
+          q.Shortest → q.first = b → q.last = v → ∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M t b w) →
+        ∀ (e c : Nat),
+          MaximumMatching.evenlevel M v = some e →
+            MaximumMatching.minlevel M b = some c →
+              ∃ a,
+                a.first = v ∧
+                  a.last = b ∧
+                    a.length = e - c ∧
+                      a.phase % 2 = 1 ∧
+                        (a.phase + a.length) % 2 = 1 ∧
+                          ∀ (i : Fin (a.length + 1)), ↑i < a.length → MaximumMatching.Blossom M t b (a.vertex i)
+@MaximumMatching.DDFS.BlossomWeightedMatching.weight_add_potential : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V} {t : Nat}
+  (W : MaximumMatching.DDFS.BlossomWeightedMatching M H t) (height : V → Nat),
+  (∀ {u v : V} (he : H.Edge u v), (W.segment he).length + height v = height u) →
+    ∀ (q : MaximumMatching.DDFS.Path H), W.weight q + height q.last = height q.first
+@MaximumMatching.DDFS.BlossomWeightedMatching.realize_disjoint_low_starts : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V} {t : Nat}
+  (W : MaximumMatching.DDFS.BlossomWeightedMatching M H t) (p q : MaximumMatching.DDFS.Path H),
+  (∀ (v : V), p.Contains v → MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M v)) →
+    (∀ (v : V), q.Contains v → MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M v)) →
+      p.Disjoint q →
+        ∀ (a b : MaximumMatching.ParitySegment M),
+          a.last = p.first →
+            b.last = q.first →
+              (a.phase + a.length) % 2 = W.phase p.first % 2 →
+                (b.phase + b.length) % 2 = W.phase q.first % 2 →
+                  (∀ (i : Fin (a.length + 1)), ↑i < a.length → MaximumMatching.Blossom M t p.first (a.vertex i)) →
+                    (∀ (i : Fin (b.length + 1)), ↑i < b.length → MaximumMatching.Blossom M t q.first (b.vertex i)) →
+                      ∃ s r,
+                        s.first = a.first ∧
+                          s.last = p.last ∧
+                            s.length = a.length + W.weight p ∧
+                              r.first = b.first ∧
+                                r.last = q.last ∧
+                                  r.length = b.length + W.weight q ∧
+                                    s.phase = a.phase ∧
+                                      r.phase = b.phase ∧
+                                        ∀ (i : Fin (s.length + 1)) (j : Fin (r.length + 1)), s.vertex i ≠ r.vertex j
+@MaximumMatching.DDFS.Machine.execute_correct : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  [inst : DecidableRel H.Edge] (hreach : MaximumMatching.DDFS.ReachBottom H) (r g : Fin n),
+  MaximumMatching.DDFS.Machine.CorrectOutcome r g (MaximumMatching.DDFS.Machine.execute hreach r g).finalState.state
+@MaximumMatching.DDFS.Machine.execute_steps_bound : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  [inst : DecidableRel H.Edge] (hreach : MaximumMatching.DDFS.ReachBottom H) (r g : Fin n),
+  (MaximumMatching.DDFS.Machine.execute hreach r g).steps ≤ 4 * MaximumMatching.DDFS.Machine.edgeCount H + 3
+@MaximumMatching.DDFS.Machine.reconstructTrees : {n : Nat} →
+  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} →
+    [DecidableRel H.Edge] →
+      MaximumMatching.DDFS.ReachBottom H →
+        (r g : Fin n) →
+          (s : MaximumMatching.DDFS.Machine.ExecutableState H) →
+            MaximumMatching.DDFS.Machine.Reachable r g s.state →
+              (b : Fin n) →
+                (p q : MaximumMatching.DDFS.Path H) →
+                  s.state.mode = MaximumMatching.DDFS.Machine.Mode.bottleneck b p q →
+                    MaximumMatching.DDFS.ColoredTrees H s.state.frame.visited r g b
+@MaximumMatching.DDFS.Machine.executeFull : {n : Nat} →
+  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} →
+    [DecidableRel H.Edge] →
+      MaximumMatching.DDFS.ReachBottom H → (r g : Fin n) → MaximumMatching.DDFS.Machine.FullOutput H r g
+@MaximumMatching.DDFS.ColoredTrees.cover : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  {S : Fin n → Prop} {r g b : Fin n} (T : MaximumMatching.DDFS.ColoredTrees H S r g b) (v : Fin n),
+  S v ↔ (v = b ∨ T.color v = some false) ∨ v = b ∨ T.color v = some true
+@MaximumMatching.DDFS.ColoredTrees.overlap : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
+  {S : Fin n → Prop} {r g b : Fin n} (T : MaximumMatching.DDFS.ColoredTrees H S r g b) (v : Fin n),
+  (v = b ∨ T.color v = some false) ∧ (v = b ∨ T.color v = some true) ↔ v = b
+@MaximumMatching.Search.scanLevel_complete_of_prior_levels : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.MinInvariant M i s →
+    MaximumMatching.Search.MaxCompleteBelowTenacity M (2 * i + 1) s →
+      MaximumMatching.Search.MinInvariant M (i + 1) (MaximumMatching.Search.scanLevel M i s) ∧
+        ∀ (u v : Fin n),
+          MaximumMatching.minlevel M v = some (i + 1) →
+            (u ∈ (MaximumMatching.Search.scanLevel M i s).predecessors v ↔ MaximumMatching.Predecessor M u v)
+@MaximumMatching.Search.initial_scanLevel_complete : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
+  MaximumMatching.Search.MinInvariant M 1 (MaximumMatching.Search.scanLevel M 0 (MaximumMatching.Search.initial M)) ∧
+    ∀ (u v : Fin n),
+      MaximumMatching.minlevel M v = some 1 →
+        (u ∈ (MaximumMatching.Search.scanLevel M 0 (MaximumMatching.Search.initial M)).predecessors v ↔
+          MaximumMatching.Predecessor M u v)
+@MaximumMatching.Search.initial_scanLevel_classificationSound : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
+  MaximumMatching.Search.ClassificationSound M (MaximumMatching.Search.scanLevel M 0 (MaximumMatching.Search.initial M))
+@MaximumMatching.Search.assignMax_support_member : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} [inst : DecidableEq V] (s : MaximumMatching.Search.State V) (i : Nat) (u v w : V),
+  MaximumMatching.Search.MinCompleteBelow M i s →
+    MaximumMatching.edgeTenacity M u v = some (2 * i + 1) →
+      MaximumMatching.InSupport M u v w →
+        (MaximumMatching.Search.assignMax s (2 * i + 1) w).maxLabel w = MaximumMatching.maxlevel M w
+@MaximumMatching.Search.assignMaxList_member_correct : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} [inst : DecidableEq V] (s : MaximumMatching.Search.State V) (i : Nat) (vs : List V),
+  MaximumMatching.Search.MinInvariant M i s →
+    (∀ (v : V), v ∈ vs → MaximumMatching.tenacity M v = some (2 * i + 1)) →
+      ∀ (v : V),
+        v ∈ vs → (MaximumMatching.Search.assignMaxList (2 * i + 1) vs s).maxLabel v = MaximumMatching.maxlevel M v
+@MaximumMatching.Search.scanLevel_matched_bridge_queued : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (s : MaximumMatching.Search.State (Fin n)) (i : Nat)
+  (u v : Fin n),
+  MaximumMatching.Search.MinInvariant M i s →
+    MaximumMatching.Search.FrontierAvailable M i s →
+      MaximumMatching.Search.ScannedBefore M i s →
+        MaximumMatching.Bridge M u v →
+          M.mate u = some v →
+            MaximumMatching.edgeTenacity M u v = some (2 * i + 1) →
+              MaximumMatching.Search.EdgeInBucket (MaximumMatching.Search.scanLevel M i s) (2 * i + 1) u v
+@MaximumMatching.Search.scanLevel_outer_bridge_queued : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (s : MaximumMatching.Search.State (Fin n)) (i : Nat)
+  (u v : Fin n),
+  MaximumMatching.Search.MinInvariant M i s →
+    MaximumMatching.Search.FrontierAvailable M i s →
+      MaximumMatching.Search.ScannedBefore M i s →
+        MaximumMatching.Bridge M u v →
+          M.mate u ≠ some v →
+            MaximumMatching.Outer M u →
+              MaximumMatching.Outer M v →
+                MaximumMatching.edgeTenacity M u v = some (2 * i + 1) →
+                  MaximumMatching.Search.EdgeInBucket (MaximumMatching.Search.scanLevel M i s) (2 * i + 1) u v
+@MaximumMatching.Search.refreshIncidentAll_sound : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (w : Fin n) (s : MaximumMatching.Search.State (Fin n))
+  (k : Nat),
+  MaximumMatching.Search.MinInvariant M k s →
+    MaximumMatching.Search.MinLabelsBound k s →
+      MaximumMatching.Search.ClassificationSound M s →
+        MaximumMatching.Search.ClassificationSound M (MaximumMatching.Search.refreshIncidentAll M w s)
+@MaximumMatching.Search.refreshIncidentAll_complete : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (w u v : Fin n)
+  (s : MaximumMatching.Search.State (Fin n)) (k t : Nat),
+  MaximumMatching.Search.MinInvariant M k s →
+    MaximumMatching.Bridge M u v →
+      u = w ∨ v = w →
+        MaximumMatching.Search.edgeTenacity M s u v = some t →
+          (u, v) ∈ (MaximumMatching.Search.refreshIncidentAll M w s).bucket t
+@MaximumMatching.Search.maxProcessVertex_correct : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (v : Fin n)
+  (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.MinInvariant M (i + 1) s →
+    MaximumMatching.Search.MinLabelsBound (i + 1) s →
+      MaximumMatching.Search.ClassificationSound M s →
+        MaximumMatching.tenacity M v = some (2 * i + 1) →
+          MaximumMatching.Search.MinInvariant M (i + 1) (MaximumMatching.Search.maxProcessVertex M i v s) ∧
+            MaximumMatching.Search.MinLabelsBound (i + 1) (MaximumMatching.Search.maxProcessVertex M i v s) ∧
+              MaximumMatching.Search.ClassificationSound M (MaximumMatching.Search.maxProcessVertex M i v s) ∧
+                (MaximumMatching.Search.maxProcessVertex M i v s).maxLabel v = MaximumMatching.maxlevel M v
+@MaximumMatching.Search.maxProcessVertex_queues_incident : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (w u v : Fin n)
+  (s : MaximumMatching.Search.State (Fin n)) (t : Nat),
+  MaximumMatching.Search.MinInvariant M (i + 1) s →
+    MaximumMatching.Inner M w →
+      MaximumMatching.tenacity M w = some (2 * i + 1) →
+        MaximumMatching.Bridge M u v →
+          u = w ∨ v = w →
+            MaximumMatching.Search.edgeTenacity M (MaximumMatching.Search.assignMax s (2 * i + 1) w) u v = some t →
+              (u, v) ∈ (MaximumMatching.Search.maxProcessVertex M i w s).bucket t
+@MaximumMatching.Search.scanLevel_current_bucket_complete : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (s : MaximumMatching.Search.State (Fin n)) (i : Nat),
+  MaximumMatching.Search.MinInvariant M i s →
+    MaximumMatching.Search.MaxCompleteBelowTenacity M (2 * i + 1) s →
+      MaximumMatching.Search.MaxLabelsHaveMin s →
+        MaximumMatching.Search.ScannedBefore M i s →
+          MaximumMatching.Search.UnmatchedPending M i s →
+            ∀ (u v : Fin n),
+              MaximumMatching.Bridge M u v →
+                MaximumMatching.edgeTenacity M u v = some (2 * i + 1) →
+                  MaximumMatching.Search.EdgeInBucket (MaximumMatching.Search.scanLevel M i s) (2 * i + 1) u v
+@MaximumMatching.Search.initial_stageInvariant : ∀ {V : Type} {G : MaximumMatching.Graph V} [inst : DecidableEq V]
+  (M : MaximumMatching.Matching G), MaximumMatching.Search.StageInvariant M 0 (MaximumMatching.Search.initial M)
+@MaximumMatching.Search.scanLevel_stageState : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.StageInvariant M i s →
+    MaximumMatching.Search.StageState M (i + 1) (2 * i + 1) (MaximumMatching.Search.scanLevel M i s)
+@MaximumMatching.Search.scanLevel_stage_bucket_complete : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.StageInvariant M i s →
+    ∀ (u v : Fin n),
+      MaximumMatching.Bridge M u v →
+        MaximumMatching.edgeTenacity M u v = some (2 * i + 1) →
+          MaximumMatching.Search.EdgeInBucket (MaximumMatching.Search.scanLevel M i s) (2 * i + 1) u v
+@MaximumMatching.Search.searchLevel_stageInvariant : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i : Nat) (vs : List (Fin n))
+  (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.StageInvariant M i s →
+    (∀ (v : Fin n), v ∈ vs → MaximumMatching.tenacity M v = some (2 * i + 1)) →
+      (∀ (v : Fin n), MaximumMatching.tenacity M v = some (2 * i + 1) → v ∈ vs) →
+        MaximumMatching.Search.StageInvariant M (i + 1)
+          (MaximumMatching.Search.maxProcessVertices M i vs (MaximumMatching.Search.scanLevel M i s))
+@MaximumMatching.Search.maxProcessVertex_stageState : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i cutoff : Nat) (u : Fin n)
+  (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.StageState M (i + 1) cutoff s →
+    MaximumMatching.tenacity M u = some (2 * i + 1) →
+      MaximumMatching.Search.StageState M (i + 1) cutoff (MaximumMatching.Search.maxProcessVertex M i u s)
+@MaximumMatching.Search.maxProcessVertices_member_correct : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (i cutoff : Nat) (vs : List (Fin n))
+  (s : MaximumMatching.Search.State (Fin n)),
+  MaximumMatching.Search.StageState M (i + 1) cutoff s →
+    (∀ (v : Fin n), v ∈ vs → MaximumMatching.tenacity M v = some (2 * i + 1)) →
+      ∀ (v : Fin n),
+        v ∈ vs → (MaximumMatching.Search.maxProcessVertices M i vs s).maxLabel v = MaximumMatching.maxlevel M v
+MaximumMatching.Examples.DeferredBridge.max_registers_deferred_bridge : (2, 5) ∈
+    MaximumMatching.Examples.DeferredBridge.afterRightMax.bridges ∧
+  (2, 5) ∈ MaximumMatching.Examples.DeferredBridge.afterRightMax.bucket 5 ∧
+    MaximumMatching.Search.edgeTenacity MaximumMatching.Examples.DeferredBridge.matching
+          MaximumMatching.Examples.DeferredBridge.afterRightMax 2 5 =
+        some 5 ∧
+      MaximumMatching.Search.seen MaximumMatching.Examples.DeferredBridge.afterRightMax 2 5 = false
+@MaximumMatching.Search.scanLevel_unmatchedPending : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (s : MaximumMatching.Search.State (Fin n)) (i : Nat),
+  MaximumMatching.Search.MinInvariant M i s →
+    MaximumMatching.Search.FrontierAvailable M i s →
+      MaximumMatching.Search.MaxLabelsHaveMin s →
+        MaximumMatching.Search.ScannedBefore M i s →
+          MaximumMatching.Search.UnmatchedPending M i s →
+            MaximumMatching.Search.UnmatchedPending M (i + 1) (MaximumMatching.Search.scanLevel M i s)
+@MaximumMatching.Search.maxProcessVertex_unmatchedPending : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
+  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G) (s : MaximumMatching.Search.State (Fin n)) (i k : Nat)
+  (w : Fin n),
+  MaximumMatching.Search.MinInvariant M k s →
+    MaximumMatching.tenacity M w = some (2 * i + 1) →
+      MaximumMatching.Search.UnmatchedPending M k s →
+        MaximumMatching.Search.UnmatchedPending M k (MaximumMatching.Search.maxProcessVertex M i w s)
+@MaximumMatching.AltPath.low_vertex_boundary_before : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  t % 2 = 1 →
+    (∀ (v : V) (s : Nat), MaximumMatching.tenacity M v = some s → s ≤ t → ∃ b, MaximumMatching.IsBase M v b) →
+      (∀ (b v : V),
+          MaximumMatching.Blossom M t b v →
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+              ∀ (q : MaximumMatching.AltSegment M),
+                q.Shortest →
+                  q.first = b → q.last = v → ∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M t b w) →
+        ∀ (k B : Fin (p.length + 1)),
+          ↑k < ↑B →
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M p.first) →
+              MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex B)) →
+                MaximumMatching.levelLE (MaximumMatching.tenacity M (p.vertex k)) (some t) →
+                  (∀ (j : Fin (p.length + 1)),
+                      ↑j ≤ ↑B →
+                        MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex j)) →
+                          MaximumMatching.minlevel M (p.vertex j) = some ↑j) →
+                    ∃ i,
+                      ↑i < ↑k ∧
+                        MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex i)) ∧
+                          MaximumMatching.Blossom M t (p.vertex i) (p.vertex k)
+@MaximumMatching.AltPath.blossom_member_before_high_forces_boundary : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} (p : MaximumMatching.AltPath M) (t : Nat),
+  t % 2 = 1 →
+    (∀ (v : V) (s : Nat), MaximumMatching.tenacity M v = some s → s ≤ t → ∃ b, MaximumMatching.IsBase M v b) →
+      (∀ (b v : V),
+          MaximumMatching.Blossom M t b v →
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M b) →
+              ∀ (q : MaximumMatching.AltSegment M),
+                q.Shortest →
+                  q.first = b → q.last = v → ∀ (w : V), q.Contains w → w = b ∨ MaximumMatching.Blossom M t b w) →
+        ∀ (k B : Fin (p.length + 1)),
+          ↑k < ↑B →
+            MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M p.first) →
+              MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex B)) →
+                (∀ (j : Fin (p.length + 1)),
+                    ↑j ≤ ↑B →
+                      MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M (p.vertex j)) →
+                        MaximumMatching.minlevel M (p.vertex j) = some ↑j) →
+                  ∀ (c : V),
+                    MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M c) →
+                      MaximumMatching.Blossom M t c (p.vertex k) → ∃ i, ↑i < ↑k ∧ p.vertex i = c
+@MaximumMatching.DDFS.BlossomWeightedMatching.bridge_detour_of_potential : ∀ {V : Type} {G : MaximumMatching.Graph V}
+  {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V} {t : Nat}
+  (W : MaximumMatching.DDFS.BlossomWeightedMatching M H t) (p q : MaximumMatching.DDFS.Path H),
+  (∀ (v : V), p.Contains v → MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M v)) →
+    (∀ (v : V), q.Contains v → MaximumMatching.levelLT (some t) (MaximumMatching.tenacity M v)) →
+      p.Disjoint q →
+        ∀ (a b : MaximumMatching.ParitySegment M),
+          a.last = p.first →
+            b.last = q.first →
+              (a.phase + a.length) % 2 = W.phase p.first % 2 →
+                (b.phase + b.length) % 2 = W.phase q.first % 2 →
+                  (∀ (i : Fin (a.length + 1)), ↑i < a.length → MaximumMatching.Blossom M t p.first (a.vertex i)) →
+                    (∀ (i : Fin (b.length + 1)), ↑i < b.length → MaximumMatching.Blossom M t q.first (b.vertex i)) →
+                      M.Free q.last →
+                        a.phase % 2 = b.phase % 2 →
+                          G.Adj b.first a.first →
+                            (M.mate b.first = some a.first ↔ (b.phase + 1) % 2 = 1) →
+                              ∀ (height : V → Nat),
+                                (∀ {u v : V} (he : H.Edge u v), (W.segment he).length + height v = height u) →
+                                  height q.last = 0 →
+                                    ∀ (budget : Nat),
+                                      a.length + height p.first + (b.length + height q.first) + 1 = budget →
+                                        ∃ z,
+                                          z.first = q.last ∧
+                                            z.last = p.last ∧
+                                              z.length + height p.last = budget ∧ z.length = budget - height p.last
+@MaximumMatching.ParitySegment.bridge_join : ∀ {V : Type} {G : MaximumMatching.Graph V} {M : MaximumMatching.Matching G}
+  (a b : MaximumMatching.ParitySegment M),
+  M.Free b.last →
+    (∀ (i : Fin (b.length + 1)) (j : Fin (a.length + 1)), b.vertex i ≠ a.vertex j) →
+      a.phase % 2 = b.phase % 2 →
+        G.Adj b.first a.first →
+          (M.mate b.first = some a.first ↔ (b.phase + 1) % 2 = 1) →
+            ∃ z, z.first = b.last ∧ z.last = a.last ∧ z.length = b.length + 1 + a.length
