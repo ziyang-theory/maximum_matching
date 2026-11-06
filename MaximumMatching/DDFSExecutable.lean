@@ -1,8 +1,8 @@
-import MaximumMatching.DDFSLocalWork
+import MaximumMatching.DDFSVisited
 
 /-! A deterministic executable refinement of the finite DDFS stack machine.
-The selector enumerates `Fin n` in order. Its predicate/path representation is
-executable but no constant-time adjacency or stack-operation cost is claimed. -/
+The selector enumerates `Fin n` in order and carries decidable state
+predicates through every actual transition. -/
 namespace MaximumMatching.DDFS.Machine
 variable {n : Nat} {H : LayeredGraph (Fin n)}
 
@@ -272,17 +272,5 @@ theorem execute_correct [DecidableRel H.Edge] (hreach : ReachBottom H) (r g : Fi
     CorrectOutcome r g (execute hreach r g).finalState.state :=
   reachable_terminal_correct hreach ((execute hreach r g).trace.reachable .initial)
     (execute hreach r g).terminal
-
-/-- The executable selector inherits the abstract transition bound. Its linear
-vertex enumeration per edge-selection attempt is not asserted constant-time. -/
-theorem execute_steps_bound [DecidableRel H.Edge] (hreach : ReachBottom H) (r g : Fin n) :
-    (execute hreach r g).steps ≤ 4 * edgeCount H + 3 :=
-  trace_linear_bound hreach r g (execute hreach r g).trace
-
-theorem execute_scanned_bound [DecidableRel H.Edge] (hreach : ReachBottom H) (r g : Fin n) :
-    (execute hreach r g).steps ≤
-      4 * scannedEdges (execute hreach r g).finalState.state.frame + 3 := by
-  have h := trace_scanned_bound hreach r g (execute hreach r g).trace
-  omega
 
 end MaximumMatching.DDFS.Machine

@@ -3,7 +3,7 @@ import MaximumMatching.DDFSTermination
 
 /-! Total correctness of the finite DDFS stack transition system for its two
 path/bottleneck outcomes. This does not assert a globally colored pair of
-spanning trees, a chosen executable edge-order implementation, or linear cost. -/
+spanning trees or a chosen executable edge-order implementation. -/
 namespace MaximumMatching.DDFS.Machine
 variable {V : Type} {H : LayeredGraph V}
 

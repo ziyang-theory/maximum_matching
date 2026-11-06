@@ -407,9 +407,8 @@ theorem frontierAvailable_of_prior_levels (s : State V) (i : Nat)
         have hh := (hmax v (e + i) ht (by omega)).trans hx
         simp [parityLabel, hl, hh, hio, hep]
 
-/-- A concrete finite enumeration, including both orientations. The semantic
-proof imposes no edge order. This definition does not claim linear enumeration
-cost: all vertex pairs are generated. -/
+/-- Enumerate all ordered vertex pairs, including both orientations. The
+semantic correctness proof imposes no edge order. -/
 def allCandidates (n : Nat) : List (Fin n × Fin n) :=
   (List.finRange n).flatMap fun u => (List.finRange n).map fun v => (u, v)
 

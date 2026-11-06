@@ -2,7 +2,7 @@ import MaximumMatching.Optimality
 import MaximumMatching.Family
 
 /-! Disjoint augmenting components of the union of two matchings.
-This is the combinatorial packing ingredient for shortest-path phase bounds. -/
+These components establish strict shortest-path progress after a blocking phase. -/
 namespace MaximumMatching
 
 namespace Matching
@@ -390,11 +390,6 @@ theorem vertices_nodup (f : AugmentingFamily M) : f.vertices.Nodup := by
     obtain ⟨b, _, rfl⟩ := List.mem_map.mp hy
     exact f.disjoint i j hij a b
 
-theorem vertices_length_le (f : AugmentingFamily M) : f.vertices.length ≤ n := by
-  have h := f.vertices_nodup.length_le_of_subset
-    (l₂ := List.finRange n) (fun x _ => List.mem_finRange x)
-  simpa only [List.length_finRange] using h
-
 /-- Every disjoint augmenting path of length at least `l` consumes `l+1` distinct
 vertices, giving a packing bound independently of any algorithmic phase. -/
 theorem vertices_length_lower (f : AugmentingFamily M) (l : Nat)
@@ -412,20 +407,6 @@ theorem vertices_length_lower (f : AugmentingFamily M) (l : Nat)
   simp only [List.length_finRange] at hl
   exact hl
 
-theorem packing_bound (f : AugmentingFamily M) (l : Nat)
-    (h : ∀ i, l ≤ (f.path i).length) : f.count * (l + 1) ≤ n :=
-  Nat.le_trans (f.vertices_length_lower l h) f.vertices_length_le
-
 end AugmentingFamily
-
-/-- The cardinality deficit to any comparison matching is small once every
-augmenting path is long. This is the packing half of the square-root phase bound. -/
-theorem deficit_of_long_paths {n : Nat} {G : Graph (Fin n)} (M N : Matching G)
-    (l : Nat) (h : ∀ p : AltPath M, p.Augmenting → l ≤ p.length) :
-    (N.cardinality - M.cardinality) * (l + 1) ≤ n := by
-  obtain ⟨f, hf⟩ := exists_differenceFamily n G M N
-  have hb := f.toAugmentingFamily.packing_bound l (fun i => h _ (f.augmenting i))
-  change f.count * (l + 1) ≤ n at hb
-  rwa [hf] at hb
 
 end MaximumMatching

@@ -1,8 +1,8 @@
 # Search and recovery review
 
-This review covers the resumed development recorded in `CHECKPOINT.md`.
-Exact checked source hashes and machine results are in `validation/`.
-It does not certify the unfinished full MV blocking phase or cost bound.
+This historical review covers the single-path search and recovery development.
+The subsequent full blocking-phase review is recorded in BLOCKING_PHASE_PROOF.md.
+Exact current source hashes and machine results are in `validation/`.
 
 ## Independent statement and implementation checks
 
@@ -41,7 +41,7 @@ tree recovery after an abandoned DDFS branch, and recursive deletion cascades.
 The triangle-with-tail example recovers a real length-five matching path after
 one earlier petal and executes its augmentation to cardinality three.
 
-## Unresolved review boundary
+## Boundary at the time of review
 
 `PetalRecord` certifies full-predecessor-graph DDFS. It cannot certify a
 restricted-graph bottleneck after deletion without new active-graph invariants.
@@ -49,5 +49,6 @@ Generic pruning preserves live bottom paths, but matching-fiber avoidance and
 maximal-family exhaustion are additional obligations. In particular, the
 current weighted recovery API supplies expanded-vertex-to-core containment;
 the converse core-in-recovered-path fact needed for a root-closure deletion
-argument has not been added. Runtime closures and all-pairs enumeration also
-have no efficient storage or machine-cost refinement.
+argument had not yet been added at this review snapshot. These obligations
+are now discharged by `RecoveryContainment`, `ActivePetalState`,
+`BlockingBucketRemoval` and `BlockingPhase`, as recorded in BLOCKING_PHASE_PROOF.md.

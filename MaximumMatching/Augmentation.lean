@@ -90,8 +90,7 @@ theorem indexOf_vertex (p : AltPath M) (i : Fin (p.length + 1)) :
     subst j
     rfl
 
-/-- This linear scan implements the mathematical path flip; no MV search or
-linear-time path-expansion cost is asserted here. -/
+/-- Look up the vertex on the path and return its mate after the path flip. -/
 def flipMate (p : AltPath M) (hp : p.Augmenting) (v : V) : Option V :=
   match p.indexOf v with
   | some i => some (p.vertex (p.flipIndex hp.1 i))

@@ -1,5 +1,9 @@
 # Follow-up proof review
 
+This is a historical component-review record. Its open obligations describe
+that review's source snapshot; the completed solver and current validation
+are recorded in [CHECKPOINT.md](CHECKPOINT.md) and [VALIDATION.md](VALIDATION.md).
+
 This review covers the new mathematical and operational developments added
 after the initial project snapshot. The final reproducibility manifest in
 `validation/source-hashes.json` records the delivered source versions.
@@ -12,11 +16,11 @@ Successful checks below do not establish the remaining full MV theorem.
   required. The per-vertex linkage permits its orientation to depend on
   the vertex. It does not assert a globally colored spanning-tree output.
   The detour derives simplicity and its exact alternating-path length.
-- The DDFS agent reviewed `PhaseProgress`, `PhaseDriver`, and `PhaseBound`.
+- The DDFS agent reviewed `PhaseProgress` and `PhaseDriver`.
   The strict-progress proof uses actual flips and a proved decomposition.
   Empty families and `n=0` are covered. `Complete` is needed for maximum
-  output; `ShortestBlocking` is needed for the square-root bound. Neither
-  contract is asserted for the unfinished concrete MV phase.
+  output. At that snapshot the concrete phase had not yet discharged the
+  search contracts; `BlockingPhase` now supplies that connection.
 - The coordinating agent checked the minimum-tenacity common-base proof's
   induction and read `BaseUnique` and `MinimumBase`. The smaller-minlevel
   premise is discharged by strong induction. The final theorem has no
@@ -39,8 +43,7 @@ Successful checks below do not establish the remaining full MV theorem.
   Restoration after failed red recovery is paid for by the mode-credit
   decrease. Every scan consumes an unexplored ordered pair; every pop
   requires a nonempty stack. Well-foundedness applies to the actual
-  transition relation. Its potential proves a coarse bound, not linear
-  work or constant-time execution of the functional state updates.
+  transition relation and excludes infinite executions.
 - The coordinating agent read the mode invariant, double-exhaustion cut
   argument, progress case split and `DDFSCorrectness` assembly. Output
   correctness is derived from initialization and preservation of every
@@ -76,7 +79,6 @@ Central theorem audits reported only `propext`, `Classical.choice`, and
 `Quot.sound`. The final source-only build and kernel replay cover all public
 declarations, including dependencies of private helper proofs.
 
-The outstanding higher-tenacity induction and weighted path construction
-are specified in `STRUCTURAL_OBLIGATIONS.md`. The concrete MV phase and its
-machine-cost proof remain separate from the verified mathematical phase
-progress and phase-count arguments.
+The subsequent structural induction is recorded in `STRUCTURAL_OBLIGATIONS.md`.
+The concrete phase and solver correctness are covered separately in
+`BLOCKING_PHASE_PROOF.md`.

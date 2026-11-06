@@ -654,8 +654,8 @@ inductive FullOutput (H : LayeredGraph (Fin n)) (r g : Fin n) where
       (region : ∀ v, S v ↔ OnRootTo (H := H) r g b v)
 
 /-- Execute DDFS and reconstruct the full colored-tree output when needed.
-The finite reconstruction is a separate postprocessing pass; its concrete
-running time is not identified with the earlier abstract transition bound. -/
+The finite reconstruction is a separate postprocessing pass that returns
+certified paths or colored trees. -/
 def executeFull [DecidableRel H.Edge] (hreach : ReachBottom H) (r g : Fin n) :
     FullOutput H r g := by
   let out := execute hreach r g

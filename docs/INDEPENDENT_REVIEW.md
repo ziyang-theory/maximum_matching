@@ -1,5 +1,9 @@
 # Independent statement and assumption review
 
+This is a historical component-review record. Its open obligations describe
+that review's source snapshot; the completed solver and current validation
+are recorded in [CHECKPOINT.md](CHECKPOINT.md) and [VALIDATION.md](VALIDATION.md).
+
 **Final source-review conclusion:** the complete Berge criterion and both conclusions of the paper's Theorem 5.3 are faithfully formalized in the reviewed sources. Full MV correctness remains open. No substantive mathematical defect was found.
 
 Review date: 5 November 2026. The reviewer read `Basic`, `PathLemmas`, `Levels`, `Augmentation`, `Phase`, `Optimality`, `Bud`, `Min`, `Examples`, and the then-current `Honesty` source against the supplied paper's definitions and relevant proof passages. These files were written by other agents. The reviewer authored `DDFS`; its build and axiom results below are checks, **not an independent review of that module's mathematical design**.
@@ -33,7 +37,7 @@ Concrete executable:
 
 `lake build` exited 0 and built all 11 source modules plus aggregate (14 jobs), without warnings. An [audit module](review/Audit.lean) inspected 27 substantive declarations with `#print axioms`; all reports contain only subsets of `propext`, `Classical.choice`, and `Quot.sound`. None uses `sorryAx` or a custom axiom for a missing matching/DDFS claim. These reports concern logical dependencies, not proof of correspondence to the paper.
 
-The development still lacks a concrete MV implementation with proved DDFS collision/coverage invariants, Theorem 6.19, MIN/MAX refinement, path expansion/removal and full maximum-matching correctness. The checked partial development cannot substantiate Theorem 8.6's correctness or running-time conclusion.
+The development still lacks a concrete MV implementation with proved DDFS collision/coverage invariants, Theorem 6.19, MIN/MAX refinement, path expansion/removal and full maximum-matching correctness. That reviewed partial development did not establish Theorem 8.6's functional-correctness conclusion.
 
 `lake env leanchecker --fresh MaximumMatching` also exited 0 on the source-only snapshot. This replays declarations using Lean's bundled kernel checker; it is not a second independently implemented kernel or a rebuilt toolchain. The [empty-graph boundary fixture](review/Boundary.lean) compiled with exit 0 and establishes zero cardinality, maximum cardinality, and absence of an augmenting path on `Fin 0`.
 

@@ -4,7 +4,7 @@ import MaximumMatching.DDFSPaths
 predecessor graph. This is the predecessor-pruning operation of source §4.5.2:
 vertices removed by a recovered augmentation are omitted from the input live
 list, and each subsequent removal has no live predecessor. The implementation
-uses finite list scans; no linear-time representation cost is asserted. -/
+uses finite list scans to remove vertices and detect predecessor exhaustion. -/
 namespace MaximumMatching.DDFS.RecursiveRemoval
 variable {n : Nat} (H : LayeredGraph (Fin n)) [DecidableRel H.Edge]
 

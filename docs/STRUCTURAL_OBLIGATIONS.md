@@ -3,7 +3,8 @@
 All structural conclusions of Theorem 6.19 are now proved: common bases,
 unique same-tenacity bridges, laminarity, relative-path decomposition and
 confinement, relative edge-tenacity bounds, and the suffix-base property.
-The bridge theorem also covers `t = l_m`. Full MV correctness does not follow yet.
+The bridge theorem also covers `t = l_m`. These results are integrated into
+the proved solver in `BlockingPhase`.
 
 Source: the supplied *A Proof of the MV Matching Algorithm*,
 arXiv:2012.03582v1 (7 December 2020), Theorem 6.19, PDF pp.29–33; SHA-256
@@ -70,17 +71,17 @@ same-level petals; `CurrentBucket` executes the actual fixed queued list.
 it with actual path transport is now proved in `CurrentBucketCoverage`.
 `CurrentBucketBlossoms` restores the next-cutoff representation and canonical
 bases, and `ShortestAugmentingSearch` computes a shortest path or certified
-absence. The remaining phase/cost obligations are in `CHECKPOINT.md`.
-Assigned
-DDFS layers and expanded segment lengths must stay distinct, especially for
+absence. The completed phase integration is recorded in `CHECKPOINT.md`.
+Assigned DDFS layers and expanded segment lengths must stay distinct, especially for
 artificial top vertices. Generic path certificates and weighted concatenation
 do not supply the support correspondence by themselves.
 
-## Separate algorithm obligations
+## Algorithm integration
 
-Still required are mutable petal/bud correspondence (Lemma 6.20), contracted
-DDFS support discovery, complete synchronized MIN/MAX refinement (Theorem 8.3),
-recursive expansion/removal of a maximal shortest augmenting-path family, and
-concrete operation/data-structure costs. The generic supplied-family and
-supplied-phase theorems do not construct these operations. No full MV solver
-or asymptotic running-time theorem is claimed.
+`CurrentBucketBlossoms` proves the end-of-level petal/bud correspondence.
+`CurrentBucketCoverage` and `CurrentBucketStage` compose support discovery with
+successive MIN/MAX stages. `ActivePetalState` and `BlockingBucket` handle actual
+restricted-graph continuation, safe removal and maximal shortest-family discovery.
+`BlockingPhase` then discharges both search contracts and proves correctness of
+the terminating maximum-matching solver. See `BLOCKING_PHASE_PROOF.md` for the
+precise deletion representation.

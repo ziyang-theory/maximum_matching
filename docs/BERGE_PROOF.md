@@ -32,7 +32,7 @@ This is an internal derivation. The existence, termination, endpoint-injection, 
 
 The supplied paper, *A Proof of the MV Matching Algorithm*, arXiv:2012.03582v1 (December 7, 2020), Section 4, physical PDF page 11, uses the equivalence between no augmenting path and maximum cardinality. The development proves that equivalence independently for the graph representation used here. It also supplies the path-flipping fact used by the paper's phases.
 
-It does not show that MIN/MAX/DDFS finds a shortest augmenting path, that the phase finds a maximal vertex-disjoint family, or that the number or cost of phases meets Theorem 8.6. Those obligations cannot be inferred from Berge's criterion.
+The Berge criterion alone does not show that MIN/MAX/DDFS finds a shortest augmenting path or that the phase finds a maximal vertex-disjoint family. These properties are proved separately in `ShortestAugmentingSearch` and `BlockingPhase`.
 
 ## Trust and checks
 

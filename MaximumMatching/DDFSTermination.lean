@@ -2,8 +2,8 @@ import MaximumMatching.DDFSMachine
 
 /-! Finite termination of the explicit DDFS transition relation.
 The potential counts still-unexplored ordered vertex pairs and finite stack/mode
-credit. This is a coarse termination argument, not the source's linear work bound
-or a machine-cost analysis of the functional state representation.
+credit. Strict decrease of this natural-valued rank proves that every
+execution terminates.
 -/
 namespace MaximumMatching.DDFS
 
@@ -179,20 +179,6 @@ theorem no_infinite_run (states : Nat → State H)
 inductive Trace : Nat → State H → State H → Prop where
   | refl (s : State H) : Trace 0 s s
   | cons {k : Nat} {s t u : State H} : Step s t → Trace k t u → Trace (k + 1) s u
-
-theorem trace_rank_bound {k : Nat} {s t : State H} (h : Trace k s t) :
-    rank t + k ≤ rank s := by
-  induction h with
-  | refl s => simp
-  | cons hs ht ih =>
-    have hh := step_rank_lt hs
-    omega
-
-/-- A search cannot take more steps than its initial potential. This bound is
-deliberately coarse; it does not replace the unproved linear edge/retirement bound. -/
-theorem trace_length_bound {k : Nat} {s t : State H} (h : Trace k s t) : k ≤ rank s := by
-  have hh := trace_rank_bound h
-  omega
 
 theorem step_wellFounded : WellFounded (fun t s : State H => Step s t) :=
   Subrelation.wf (fun h => step_rank_lt h) (measure rank).wf

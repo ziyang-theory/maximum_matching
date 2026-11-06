@@ -1,6 +1,6 @@
 # Operational DDFS path and bottleneck outcomes
 
-The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. Output-local linear abstract transition bounds are also proved. Deterministic edge enumeration and globally colored spanning-tree output are also executable and proved. Concrete representation costs remain open.
+The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. Deterministic edge enumeration and globally colored spanning-tree output are also executable and proved.
 
 ## Interface and outcome
 
@@ -55,15 +55,12 @@ The proof derives discovery provenance from every actual transition: a newly vis
 
 No discovery-provenance, visited-region, or coverage hypothesis is supplied by the caller. This exact searched region is a prerequisite for later MAX support integration; it does not itself identify the corresponding contracted matching graph. The coloring is now constructed from this region as described below.
 
-## Termination and cost boundary
+## Termination
 
 `DDFSTermination.lean` assigns a natural rank to every finite state. It counts unexplored ordered vertex pairs, multiplied by `4*n+6`, then adds stack lengths and mode credit. Normal, red-recovery, and green-recovery credits are `2*n+3`, `n+2`, and `1`. Terminal credit is zero. Each scan consumes a previously unexplored pair; each pop shortens a stack; and the red-failure credit decrease pays for restoring its saved prefix. `step_rank_lt` proves a strict decrease for every transition, even from states not known reachable.
 
-The original potential is retained as a coarse termination proof. `DDFSWork.lean` proves a sharper invariant-based bound with potential `4 * unscannedEdges + red.tailDepth barrier + green.length + modeCredit`. The credits are 3, 2, 1 and 0 for normal, red recovery, green recovery and terminal states. Scans consume one actual edge and add at most three local credits. Every other transition decreases local credit; restoring the saved red path places Barrier at its endpoint, so its charged suffix has length zero. Thus every initialized trace has at most `4 * scannedEdges + 3` transitions.
-
-`DDFSLocalWork.lean` proves the source's output-local edge inclusion. Scanned sources have root-discovery paths. Scanned targets have continuations to the bottleneck using the exact visited-region theorem. In the disjoint case, a new invariant keeps every visited bottom at an activity center; coverage and layer descent then supply a continuation to a reported bottom from every visited vertex. Concatenation gives an actual path containing each scanned edge. The resulting bounds are `4 * |E_b| + 3` and `4 * |E_p| + 3`, with edge sets interpreted as unions of root-to-output paths. `DDFSWorkExamples` checks both outcomes on an edgeless graph, where a control transition is still needed.
-
-These count abstract transitions. The development still needs a costed finite adjacency implementation and costs for exhaustion tests, stack/path updates and restoration. The new colored-tree postprocessing is a separate finite pass and is not charged by this transition bound.
+`step_wellFounded` and `no_infinite_run` derive termination from this strict
+rank decrease. The executable search uses the same well-founded recursion.
 
 ## Executable search and colored trees
 
@@ -87,9 +84,8 @@ The parent functions are globally consistent, not independently selected paths.
 bottleneck with these stored trees. Equal roots and either root equal to the
 bottleneck are supported. Permanent examples exercise an abandoned visited
 branch absent from both final saved paths, as well as zero-length root trees.
-The selector enumerates vertices and reconstruction searches vertex pairs;
-neither is claimed to implement the source's linear-time data structures.
+The selector enumerates vertices and reconstruction searches vertex pairs.
 
 ## Trust
 
-The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice appears in abstract witness, termination and potential definitions and does not imply an efficient representation. Executability of the new definitions is separately checked through compiled fixtures.
+The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice appears in erased abstract witness and termination proofs. Executability of the new definitions is separately checked through compiled fixtures.

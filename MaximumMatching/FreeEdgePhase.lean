@@ -145,8 +145,8 @@ theorem freeEdgeScan_covers (es : List (Fin n × Fin n))
           · exact False.elim (h ⟨ha, hu, hv, huf, hvf⟩)
       · exact ih he
 
-/-- The actual finite tenacity-one phase. Enumeration cost is separate from
-the correctness and maximal-shortest-family theorem below. -/
+/-- The actual finite tenacity-one phase, with correctness and maximality
+proved below. -/
 def freeEdgePhase (M : Matching G) : AugmentingFamily M :=
   freeEdgeScan M (allCandidates n)
 

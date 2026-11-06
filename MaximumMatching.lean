@@ -40,7 +40,6 @@ import MaximumMatching.DDFSExamples
 import MaximumMatching.DDFSExecutable
 import MaximumMatching.DDFSExecutableExamples
 import MaximumMatching.DDFSInvariant
-import MaximumMatching.DDFSLocalWork
 import MaximumMatching.DDFSMachine
 import MaximumMatching.DDFSPathCompression
 import MaximumMatching.DDFSPathMap
@@ -51,8 +50,6 @@ import MaximumMatching.DDFSStack
 import MaximumMatching.DDFSTermination
 import MaximumMatching.DDFSTrees
 import MaximumMatching.DDFSVisited
-import MaximumMatching.DDFSWork
-import MaximumMatching.DDFSWorkExamples
 import MaximumMatching.DifferencePacking
 import MaximumMatching.DifferenceUniqueness
 import MaximumMatching.Examples
@@ -141,7 +138,6 @@ import MaximumMatching.PetalPathTransport
 import MaximumMatching.PetalRecord
 import MaximumMatching.PetalRootExpansion
 import MaximumMatching.Phase
-import MaximumMatching.PhaseBound
 import MaximumMatching.PhaseDriver
 import MaximumMatching.PhaseProgress
 import MaximumMatching.PredecessorExpansion
@@ -195,7 +191,6 @@ import MaximumMatching.PetalBasePaths
 import MaximumMatching.RecursiveRemoval
 import MaximumMatching.RecursiveRemovalExamples
 import MaximumMatching.RecursiveRemovalTransport
-import MaximumMatching.EnumerationCost
 import MaximumMatching.OperationalRepresentation
 import MaximumMatching.RecoverableBucket
 import MaximumMatching.ShortestAugmentingExamples

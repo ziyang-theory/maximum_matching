@@ -38,19 +38,13 @@ import MaximumMatching
 #check @MaximumMatching.DDFS.Machine.exists_correct_run
 #check @MaximumMatching.DDFS.Machine.maximal_trace_correct
 #check @MaximumMatching.DDFS.Machine.visited_iff_on_root_to_bottleneck
-#check @MaximumMatching.DDFS.Machine.trace_scanned_bound
-#check @MaximumMatching.DDFS.Machine.exists_correct_run_linear
-#check @MaximumMatching.DDFS.Machine.trace_bottleneck_local_bound
-#check @MaximumMatching.DDFS.Machine.trace_disjoint_local_bound
 #check @MaximumMatching.DDFS.BlossomWeightedMatching.realize
 #check @MaximumMatching.DDFS.BlossomWeightedMatching.realize_disjoint
 #check @MaximumMatching.IsBase.minimum_exit_segment
 #check @MaximumMatching.IsBase.minimum_exit_reverse
 #check @MaximumMatching.exists_differenceFamily
-#check @MaximumMatching.deficit_of_long_paths
 #check @MaximumMatching.AugmentingFamily.shortest_length_increases
 #check @MaximumMatching.PhaseDriver.run_isMaximum
-#check @MaximumMatching.PhaseDriver.run_positivePhases_le_two_sqrt
 #check @MaximumMatching.BudForest.compressMany_root
 #check @MaximumMatching.Search.scan_tie_adds_predecessor
 #check @MaximumMatching.Search.scan_reverse_noop
@@ -73,7 +67,6 @@ import MaximumMatching
 #check @MaximumMatching.DDFS.BlossomWeightedMatching.weight_add_potential
 #check @MaximumMatching.DDFS.BlossomWeightedMatching.realize_disjoint_low_starts
 #check @MaximumMatching.DDFS.Machine.execute_correct
-#check @MaximumMatching.DDFS.Machine.execute_steps_bound
 #check @MaximumMatching.DDFS.Machine.reconstructTrees
 #check @MaximumMatching.DDFS.Machine.executeFull
 #check @MaximumMatching.DDFS.ColoredTrees.cover
@@ -211,7 +204,6 @@ import MaximumMatching
 #check @MaximumMatching.Search.ShortestAugmentingOutcome.hasPath_iff
 #check @MaximumMatching.DDFS.RecursiveRemoval.mem_prune_iff
 #check @MaximumMatching.DDFS.RecursiveRemoval.remove_reachBottom
-#check @MaximumMatching.Search.allCandidates_length
 #check @MaximumMatching.Search.CurrentBucketWitness.recover_coverage
 #check @MaximumMatching.Search.CurrentBucketState.augmenting_bridge_arms
 #check @MaximumMatching.Search.runCurrentBucket_bottom_arms
@@ -226,5 +218,4 @@ import MaximumMatching
 #check @MaximumMatching.Search.blockingPhase_complete
 #check @MaximumMatching.Search.blockingPhase_shortestBlocking
 #check @MaximumMatching.Search.runBlockingPhases_isMaximum
-#check @MaximumMatching.Search.runBlockingPhases_positivePhases_le_two_sqrt
 #check @MaximumMatching.Search.maximumMatching_isMaximum

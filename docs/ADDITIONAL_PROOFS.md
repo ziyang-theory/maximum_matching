@@ -1,5 +1,9 @@
 # Additional checked proofs and remaining boundary
 
+This is a historical component-review record. Its open obligations describe
+that review's source snapshot; the completed solver and current validation
+are recorded in [CHECKPOINT.md](CHECKPOINT.md) and [VALIDATION.md](VALIDATION.md).
+
 This extension adds proofs to the existing partial MV formalization. It does
 not complete Theorems 6.19, 8.3 or 8.6, or instantiate the phase search contracts.
 Source correspondence uses the supplied arXiv v1 PDF (7 December 2020), SHA-256
@@ -18,13 +22,12 @@ the authorized paper-library navigation and targeted matching search.
 | Lemma 8.1, pp.36–37 | `matched_bridge_levels`, `unmatched_bridge_tenacity` | For finite bridge tenacity, matched endpoints are inner with equal odd minlevels. An unmatched bridge bounds an outer endpoint's tenacity non-strictly and an inner endpoint's strictly. No shortest-augmenting-length premise is needed. |
 | Theorem 8.3, Task 1 ingredients, p.38 | `AltPath.minlevel_last_predecessor_honest`, `predecessor_iff_level_guard` | The final predecessor of any minlevel path is honest, including infinite endpoint tenacity; characterizes exactly which oriented edges can assign the next minlevel. Earlier prefixes may be dishonest. |
 | Executable MIN scans | `Search.scan_assigns_semantic`, `scan_rejects_bridge`, `scanCandidates_preserves` | Under explicit earlier-level and scan invariants, admitted scans assign real minlevels/props, rejected unseen edges are bridges, and candidate folds preserve label soundness and earlier assignments. `initial_scanCandidates_labelsSound` establishes initial-level soundness unconditionally for any enumeration. |
-| Theorem 2.1 abstract work, pp.6–8 | `DDFS.Machine.trace_scanned_bound`, `trace_bottleneck_local_bound`, `trace_disjoint_local_bound` | Every initialized trace uses at most four transitions per scanned edge plus three; terminal traces are bounded by `4 * |E_b| + 3` or `4 * |E_p| + 3`, counting distinct directed edges in the union of root-to-output paths. |
 
 ## Subsequent goal progress
 
 | Source step | Checked additions | Remaining boundary |
 | --- | --- | --- |
-| Full layered DDFS output | `DDFSExecutable`, `DDFSTrees`: deterministic execution, global parent trees, exact color coverage and overlap | All-pair/vertex enumeration and forest postprocessing are executable; their concrete costs are separate from the transition bound. |
+| Full layered DDFS output | `DDFSExecutable`, `DDFSTrees`: deterministic execution, global parent trees, exact color coverage and overlap | Finite enumeration and forest postprocessing construct the actual global tree output. |
 | Complete finite MIN | `MinComplete`: initialized/preserved record invariants, all next minlabels and exact predecessor lists, prior-level frontier derivation | Later frontiers depend on the preceding MAX labels, not a same-stage completeness assumption. |
 | MAX and bridge buckets | `MaxCorrectness`, `MaxBridgeRefresh`, `BridgeComplete`: semantic assignment, actual previously-unregistered incident-edge refresh, and all current-tenacity bridge buckets under initialized/preserved state invariants | DDFS support discovery and the synchronized complete phase remain open. |
 | Stage assembly | `SearchStage`: initializes every state invariant and executes MIN plus MAX label/refresh lists while preserving them | The complete current-tenacity vertex list remains an explicit support-discovery input; this is not a concrete complete MV phase. |
@@ -57,15 +60,6 @@ path concatenation is replaced by a simple-path case split. An existing
 occurrence gives an odd prefix or lies in the proved low-tenacity suffix;
 otherwise the extension is fresh.
 
-The DDFS bounds assume the source's layered input and bottom reachability.
-The DDFS potential charges only the red stack below Barrier, together with the
-green stack and constant mode credit. Restoring a saved red path places Barrier
-at its endpoint and therefore does not restore charged stack depth. Scanned
-sources have root-discovery paths. Scanned targets have continuations to the
-reported outputs, including after abandoned branches in the disjoint outcome.
-This connects the transition bound to the source's output-local edge regions.
-It does not price adjacency selection, exhaustion tests or stored-path updates.
-
 Weighted expansion separates matching phase from assigned DDFS layer and from
 actual segment length. Independent review caught an initial source-blossom
 orientation mismatch; the final interface places interiors in the target's
@@ -76,14 +70,13 @@ path prefixes and derives separation from blossom laminarity.
 
 Independent agents inspected the new statements, assumptions and source
 correspondence. Separate reviewers checked the base steps, MIN/bridge proofs,
-weighted concatenation, minimum exit witnesses, global DDFS work and output-local
-DDFS work. The orientation issue above was repaired and rechecked. No other
+weighted concatenation, minimum exit witnesses, and executable DDFS. The orientation issue above was repaired and rechecked. No other
 mathematical or assumption-hiding issue was found in that review scope.
 
 Targeted builds and principal-theorem axiom reports passed. Kernel-checked
-boundary examples include both edgeless DDFS outcomes, odd-prefix segment joins,
-reversal phase and zero-length cases. Permanent DDFS examples are in
-`DDFSWorkExamples.lean`; the segment checks were separate scratch examples.
+boundary examples include odd-prefix segment joins, reversal phase and
+zero-length cases. Permanent search examples are in `DDFSExecutableExamples`;
+the segment checks were separate scratch examples.
 The final source-only build, complete public-declaration axiom audit and bundled
 kernel replay are recorded in `validation/summary.json` and its linked logs.
 These checks validate this source snapshot under the trust limits in
@@ -146,8 +139,8 @@ executable recursive expansion/removal and maximal shortest-family discovery
 remain. Initial converse coverage and same-level path expansion preservation
 are now proved, as recorded below.
 The `Complete` and `ShortestBlocking` contracts are still uninstantiated for
-MV. Executable DDFS and its local abstract transition bounds do not establish
-the concrete representation or whole-algorithm running-time bound.
+MV in this historical snapshot. Their later completion is recorded in
+`BLOCKING_PHASE_PROOF.md`.
 
 ## Matching-state search connection
 
@@ -182,5 +175,5 @@ orientations, endpoint budgets, old/new fiber identities, proof erasure,
 computed-output provenance, MAX preservation and recursive loop branches.
 Review explicitly identified the unhandled transport case where the target
 is the bottleneck and the still-missing exhaustion/completeness composition.
-No complete phase or concrete running-time claim was added. CHECKPOINT.md
-records the paused continuation tasks; final validation covers this snapshot.
+This historical increment did not yet prove the complete phase. CHECKPOINT.md
+records its subsequent completion; current validation covers the final sources.

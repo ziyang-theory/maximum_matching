@@ -1,13 +1,13 @@
-import MaximumMatching.Family
+import MaximumMatching.PhaseProgress
 import MaximumMatching.Optimality
 
 /-! The executable outer augmentation loop, separated from the phase search.
 
 Every supplied phase returns actual disjoint augmenting paths and `run` flips
-them. Termination and accounting require no completeness premise. Maximum
+them. Termination and cardinality gain require no completeness premise. Maximum
 cardinality additionally requires proving that this particular phase search
-returns an empty family only when there is no augmenting path. The concrete deletion-aware MIN/MAX/DDFS search instantiates this interface
-in `BlockingPhase`.
+returns an empty family only when there is no augmenting path. The concrete
+deletion-aware MIN/MAX/DDFS search instantiates this interface in `BlockingPhase`.
 -/
 namespace MaximumMatching
 namespace PhaseDriver
@@ -55,38 +55,15 @@ decreasing_by
   have hb := (search M).run.cardinality_le
   omega
 
-/-- Each nonempty phase consumes at least one unit of the cardinality deficit. -/
-theorem run_positivePhases_le_augmentations (search : Search G) (M : Matching G) :
-    (run search M).positivePhases ≤ (run search M).augmentations := by
-  rw [run]
-  split
-  · simp
-  · dsimp only
-    have ih := run_positivePhases_le_augmentations search (search M).run
-    omega
-termination_by n / 2 - M.cardinality
-decreasing_by
-  have hg := (search M).run_cardinality
-  have hb := (search M).run.cardinality_le
-  omega
-
-theorem run_augmentations_le (search : Search G) (M : Matching G) :
-    (run search M).augmentations ≤ n / 2 - M.cardinality := by
-  have hg := run_cardinality search M
-  have hb := (run search M).matching.cardinality_le
-  omega
-
-/-- A coarse bound for the outer loop. The sharper MV phase bound additionally
-needs shortest-path progress; this theorem makes no runtime claim. -/
-theorem run_positivePhases_le (search : Search G) (M : Matching G) :
-    (run search M).positivePhases ≤ n / 2 - M.cardinality :=
-  Nat.le_trans (run_positivePhases_le_augmentations search M)
-    (run_augmentations_le search M)
-
 /-- Independent specification of the search's stopping condition. This is an
 obligation for the actual MV phase, not a field assumed of its implementation. -/
 def Complete (search : Search G) : Prop :=
   ∀ M, (search M).count = 0 → M.NoAugmentingPath
+
+/-- Every positive search result is a maximal family of shortest augmenting
+paths. A concrete blocking-phase implementation proves this specification. -/
+def ShortestBlocking (search : Search G) : Prop :=
+  ∀ M, (search M).count ≠ 0 → ∃ l, (search M).MaximalShortest l
 
 /-- Conditional assembly theorem: any complete augmenting-family search makes
 this executable outer loop return a maximum matching. It does not certify MV

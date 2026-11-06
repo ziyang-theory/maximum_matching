@@ -8,7 +8,7 @@ loop retains these invariants, and a disjoint output certifies a shortest
 augmenting path. Converse support coverage now composes through the loop,
 restoring the next blossom representation. Successive levels and computed
 petal expansion form a complete single shortest-path search. The full blocking
-phase and its running-time theorem remain unproved; see CHECKPOINT.md.
+phase is proved separately in BLOCKING_PHASE_PROOF.md.
 
 The source is the supplied arXiv:2012.03582v1 (7 December 2020), pp.13–19,
 33 and 37–40. Exact source hash and locators are in SOURCE_MAP.md.
@@ -159,21 +159,16 @@ proofs. `RecoverableBucket` has exactly the original loop's outcome and petal
 history after erasure. `findShortestAugmenting` returns the computed shortest
 matching path, or certifies no augmentation.
 
-## Remaining proof obligations
+## Blocking-phase integration
 
-- Connect actual path deletion and recursive pruning to continued DDFS in a
-  restricted graph. Full-graph `PetalRecord.highest`, `region` and `computed`
-  cannot simply be reused for the restricted graph.
-- Preserve the live expansion routes and every disjoint shortest augmentation
-  through removal. The generic `RecursiveRemoval` theorem proves bottom-path
-  preservation only once its avoidance/live hypotheses have been supplied.
-- Construct a maximal shortest family at general length and instantiate
-  `PhaseDriver.Complete` and `ShortestBlocking`. The length-one case is
-  completed in `FreeEdgePhase`.
-- Establish efficient representation and machine costs. MIN enumerates
-  exactly `n * n` ordered pairs; runtime arm closures also retain prior states
-  and can recompute expansions. Neither is covered by the abstract linear
-  DDFS transition bound.
+`ActivePetalRecord` records actual restricted-graph DDFS events; its highest
+bottleneck and region claims are explicitly restricted to the live graph.
+`ActivePetalState` preserves computed parity routes and live bottom reachability.
+`RecoveryContainment` proves closure of a recovered path under current bud lookup,
+and `BlockingBucketRemoval` uses it to preserve contained disjoint shortest-path
+arms through actual deletion and recursive pruning. Trigger accounting at
+exhaustion establishes maximality. `BlockingPhase` discharges `Complete` and
+`ShortestBlocking` for the concrete phase and proves solver optimality.
 
 Independent statement/proof reviews and runtime regressions cover the new
 search and recovery modules. The complete source-only build, public axiom

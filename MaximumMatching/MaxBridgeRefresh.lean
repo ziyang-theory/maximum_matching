@@ -182,8 +182,8 @@ theorem refreshKnownEdges_complete [DecidableRel G.Adj]
     · exact ih _ (refreshKnownEdge_minInvariant s k e.1 e.2 hi) he
         ((refreshKnownEdge_edgeTenacity s e.1 e.2 u v).trans ht)
 
-/-- A concrete finite incident enumeration for the MAX step. Pair enumeration
-cost is not asserted to be MV's desired adjacency-list running time. -/
+/-- Enumerate incident vertex pairs and refresh their known bridge labels
+for the MAX step. -/
 def refreshIncidentAll {n : Nat} {G : Graph (Fin n)} [DecidableRel G.Adj]
     (M : Matching G) (w : Fin n) (s : State (Fin n)) : State (Fin n) :=
   refreshKnownEdges M ((allCandidates n).filter fun e => decide (e.1 = w ∨ e.2 = w)) s

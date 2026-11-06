@@ -260,35 +260,6 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
       MaximumMatching.DDFS.Machine.Reachable r g s →
         s.mode = MaximumMatching.DDFS.Machine.Mode.bottleneck b p q →
           ∀ (u : V), s.frame.visited u ↔ MaximumMatching.DDFS.OnRootTo r g b u
-@MaximumMatching.DDFS.Machine.trace_scanned_bound : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
-  MaximumMatching.DDFS.ReachBottom H →
-    ∀ (r g : Fin n) {k : Nat} {s : MaximumMatching.DDFS.Machine.State H},
-      MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s →
-        k + MaximumMatching.DDFS.Machine.workLocal s ≤ 4 * MaximumMatching.DDFS.Machine.scannedEdges s.frame + 3
-@MaximumMatching.DDFS.Machine.exists_correct_run_linear : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
-  MaximumMatching.DDFS.ReachBottom H →
-    ∀ (r g : Fin n),
-      ∃ k s,
-        MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s ∧
-          MaximumMatching.DDFS.Machine.Terminal s ∧
-            MaximumMatching.DDFS.Machine.CorrectOutcome r g s ∧ k ≤ 4 * MaximumMatching.DDFS.Machine.edgeCount H + 3
-@MaximumMatching.DDFS.Machine.trace_bottleneck_local_bound : ∀ {n : Nat}
-  {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
-  MaximumMatching.DDFS.ReachBottom H →
-    ∀ (r g : Fin n) {k : Nat} {s : MaximumMatching.DDFS.Machine.State H} {b : Fin n}
-      {p q : MaximumMatching.DDFS.Path H},
-      MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s →
-        s.mode = MaximumMatching.DDFS.Machine.Mode.bottleneck b p q →
-          k ≤ (4 * MaximumMatching.DDFS.Machine.outputEdges H r g fun w => w = b) + 3
-@MaximumMatching.DDFS.Machine.trace_disjoint_local_bound : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)},
-  MaximumMatching.DDFS.ReachBottom H →
-    ∀ (r g : Fin n) {k : Nat} {s : MaximumMatching.DDFS.Machine.State H},
-      MaximumMatching.DDFS.Machine.Trace k (MaximumMatching.DDFS.Machine.initial H r g) s →
-        s.mode = MaximumMatching.DDFS.Machine.Mode.disjoint →
-          k ≤
-            (4 *
-                MaximumMatching.DDFS.Machine.outputEdges H r g fun w => w = s.frame.red.last ∨ w = s.frame.green.last) +
-              3
 @MaximumMatching.DDFS.BlossomWeightedMatching.realize : ∀ {V : Type} {G : MaximumMatching.Graph V}
   {M : MaximumMatching.Matching G} {H : MaximumMatching.DDFS.LayeredGraph V} {t : Nat}
   (W : MaximumMatching.DDFS.BlossomWeightedMatching M H t) (q : MaximumMatching.DDFS.Path H),
@@ -358,9 +329,6 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
                                         0 < ↑i → ↑i < s.length → MaximumMatching.Blossom M t b (s.vertex i)
 MaximumMatching.exists_differenceFamily : ∀ (n : Nat) (G : MaximumMatching.Graph (Fin n))
   (M N : MaximumMatching.Matching G), ∃ f, f.count = N.cardinality - M.cardinality
-@MaximumMatching.deficit_of_long_paths : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
-  (M N : MaximumMatching.Matching G) (l : Nat),
-  (∀ (p : MaximumMatching.AltPath M), p.Augmenting → l ≤ p.length) → (N.cardinality - M.cardinality) * (l + 1) ≤ n
 @MaximumMatching.AugmentingFamily.shortest_length_increases : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
   {M : MaximumMatching.Matching G} (f : MaximumMatching.AugmentingFamily M) (l : Nat),
   f.MaximalShortest l → ∀ (q : MaximumMatching.AltPath f.run), q.Augmenting → l < q.length
@@ -368,10 +336,6 @@ MaximumMatching.exists_differenceFamily : ∀ (n : Nat) (G : MaximumMatching.Gra
   (search : MaximumMatching.PhaseDriver.Search G),
   MaximumMatching.PhaseDriver.Complete search →
     ∀ (M : MaximumMatching.Matching G), (MaximumMatching.PhaseDriver.run search M).matching.IsMaximum
-@MaximumMatching.PhaseDriver.run_positivePhases_le_two_sqrt : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
-  (search : MaximumMatching.PhaseDriver.Search G),
-  MaximumMatching.PhaseDriver.ShortestBlocking search →
-    ∀ (M : MaximumMatching.Matching G), (MaximumMatching.PhaseDriver.run search M).positivePhases ≤ 2 * n.sqrt
 @MaximumMatching.BudForest.compressMany_root : ∀ {V : Type} [inst : DecidableEq V] (F : MaximumMatching.BudForest V)
   (xs : List V) (v : V), (F.compressMany xs).root v = F.root v
 @MaximumMatching.Search.scan_tie_adds_predecessor : ∀ {V : Type} [inst : DecidableEq V] {G : MaximumMatching.Graph V}
@@ -619,9 +583,6 @@ MaximumMatching.exists_differenceFamily : ∀ (n : Nat) (G : MaximumMatching.Gra
 @MaximumMatching.DDFS.Machine.execute_correct : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
   [inst : DecidableRel H.Edge] (hreach : MaximumMatching.DDFS.ReachBottom H) (r g : Fin n),
   MaximumMatching.DDFS.Machine.CorrectOutcome r g (MaximumMatching.DDFS.Machine.execute hreach r g).finalState.state
-@MaximumMatching.DDFS.Machine.execute_steps_bound : ∀ {n : Nat} {H : MaximumMatching.DDFS.LayeredGraph (Fin n)}
-  [inst : DecidableRel H.Edge] (hreach : MaximumMatching.DDFS.ReachBottom H) (r g : Fin n),
-  (MaximumMatching.DDFS.Machine.execute hreach r g).steps ≤ 4 * MaximumMatching.DDFS.Machine.edgeCount H + 3
 @MaximumMatching.DDFS.Machine.reconstructTrees : {n : Nat} →
   {H : MaximumMatching.DDFS.LayeredGraph (Fin n)} →
     [DecidableRel H.Edge] →
@@ -2144,7 +2105,6 @@ MaximumMatching.Examples.DeferredBridge.max_registers_deferred_bridge : (2, 5) �
   [inst : DecidableRel H.Edge] (live forbidden : List (Fin n)),
   MaximumMatching.DDFS.ReachBottom
     (MaximumMatching.DDFS.RecursiveRemoval.restricted H (MaximumMatching.DDFS.RecursiveRemoval.remove H live forbidden))
-MaximumMatching.Search.allCandidates_length : ∀ (n : Nat), (MaximumMatching.Search.allCandidates n).length = n * n
 @MaximumMatching.Search.CurrentBucketWitness.recover_coverage : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
   {M : MaximumMatching.Matching G} {i cut : Nat} {B : MaximumMatching.Search.CurrentBucketState M i cut}
   (certificate : MaximumMatching.Search.CurrentBucketWitness B)
@@ -2263,8 +2223,5 @@ MaximumMatching.Search.allCandidates_length : ∀ (n : Nat), (MaximumMatching.Se
 @MaximumMatching.Search.runBlockingPhases_isMaximum : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
   [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
   (MaximumMatching.Search.runBlockingPhases M).matching.IsMaximum
-@MaximumMatching.Search.runBlockingPhases_positivePhases_le_two_sqrt : ∀ {n : Nat} {G : MaximumMatching.Graph (Fin n)}
-  [inst : DecidableRel G.Adj] (M : MaximumMatching.Matching G),
-  (MaximumMatching.Search.runBlockingPhases M).positivePhases ≤ 2 * n.sqrt
 @MaximumMatching.Search.maximumMatching_isMaximum : ∀ {n : Nat} (G : MaximumMatching.Graph (Fin n))
   [inst : DecidableRel G.Adj], (MaximumMatching.Search.maximumMatching G).IsMaximum

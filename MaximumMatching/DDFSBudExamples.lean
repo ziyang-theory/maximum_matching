@@ -66,7 +66,7 @@ def oldForest : BudForest (Fin 4) where
 -- A disjoint-path output requests no contraction.
 /-- info: true -/
 #guard_msgs in
-#eval roots (executeAndContract WorkExamples.edgeless_reaches 0 1
-  (identityForest WorkExamples.edgeless)).2 == [0, 1]
+#eval roots (executeAndContract ExecutableExamples.edgeless_reaches 0 1
+  (identityForest ExecutableExamples.edgeless)).2 == [0, 1]
 
 end MaximumMatching.DDFS.BudExamples

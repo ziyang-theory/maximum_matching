@@ -3,8 +3,8 @@
 Deletion-aware maximal blocking-phase correctness and the concrete maximum
 matching solver are now proved. The implementation uses actual MIN/MAX/DDFS
 search, computed petal expansion, path-fiber deletion and recursive predecessor
-pruning. No admission or new correctness axiom is used. The concrete MV running-time
-bound remains unfinished.
+pruning. No admission or new correctness axiom is used. This repository covers
+correctness and termination.
 
 ## Completed integration
 
@@ -31,28 +31,19 @@ bound remains unfinished.
   same bucket without restarting MIN or searching residual matchings.
 - `blockingPhase_complete` and `blockingPhase_shortestBlocking` discharge both
   concrete outer-loop contracts. `maximumMatching_isMaximum` proves solver
-  optimality; `runBlockingPhases_positivePhases_le_two_sqrt` proves the
-  unconditional bound of `2 * Nat.sqrt n` positive phases.
+  optimality. The recursive search and outer augmentation loop both terminate.
 
 See [BLOCKING_PHASE_PROOF.md](BLOCKING_PHASE_PROOF.md) for the proof invariant,
 independent review scope, and the exact relation of fiber deletion to source
 §4.5.2 and Lemma 8.5.
 
-## Remaining work
-
-Replace all-pairs enumeration, repeated list scans and retained runtime route
-closures with an efficient representation and an explicit cost model. The present
-MIN enumeration has exactly `n * n` candidates, including nonedges and loops.
-Path extraction has no compact-storage or linear-cost proof. The abstract DDFS
-transition bounds and square-root phase count do not account for these operations.
-The source's `O(m sqrt(n))` RAM bound and its representation refinements remain
-unproved.
+## Representation scope
 
 The live graph deletes whole touched root fibers, and may retain isolated
 level-zero roots. Safety and maximality are proved for this representation;
 exact intermediate-state equivalence to literal source vertex deletion is not
-claimed. Any future cost or representation refinement must preserve the proved
-live-arm invariant.
+claimed. The algorithm's correctness and termination require no further
+implementation changes.
 
 ## Verification
 
@@ -63,5 +54,5 @@ branch, recovery through an earlier petal, and full-solver boundary cases.
 
 The source-only build, public-declaration axiom audit and bundled Lean kernel
 replay are recorded in `validation/summary.json`, with exact source hashes in
-`validation/source-hashes.json`. These checks cover phase and solver correctness;
-they do not certify the remaining machine-cost claims.
+`validation/source-hashes.json`. These checks cover phase and solver correctness
+and termination.

@@ -1,12 +1,12 @@
 import MaximumMatching.BlockingPhaseStart
 import MaximumMatching.ActiveSearchInitial
 import MaximumMatching.BlockingBucket
-import MaximumMatching.PhaseBound
+import MaximumMatching.PhaseDriver
 
 /-! Complete deletion-aware maximal shortest blocking phases and their outer
 matching solver. The first computed witness is retained and expanded once;
 continued live DDFS uses the same labels, matching and current bridge bucket.
-The phase-count theorem does not assert a bound on concrete running time. -/
+The outer driver proves termination and maximum cardinality. -/
 namespace MaximumMatching.Search
 variable {n : Nat} {G : Graph (Fin n)} {M : Matching G}
 variable [DecidableRel G.Adj]
@@ -88,10 +88,6 @@ def runBlockingPhases (M : Matching G) : PhaseDriver.Result G :=
 theorem runBlockingPhases_isMaximum (M : Matching G) :
     (runBlockingPhases M).matching.IsMaximum :=
   PhaseDriver.run_isMaximum _ blockingPhase_complete M
-
-theorem runBlockingPhases_positivePhases_le_two_sqrt (M : Matching G) :
-    (runBlockingPhases M).positivePhases ≤ 2 * Nat.sqrt n :=
-  PhaseDriver.run_positivePhases_le_two_sqrt _ blockingPhase_shortestBlocking M
 
 /-- A total maximum-cardinality matching solver for finite simple graphs. -/
 def maximumMatching (G : Graph (Fin n)) [DecidableRel G.Adj] : Matching G :=

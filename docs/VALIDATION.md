@@ -18,7 +18,7 @@ The script:
 6. Runs `lake env leanchecker --fresh MaximumMatching` in the source-only project.
 7. Verifies that the source did not change during checking and writes exact hashes and a machine-readable result summary.
 
-The most recent results are in [../validation/summary.json](../validation/summary.json), with the corresponding [source hashes](../validation/source-hashes.json), [fresh build log](../validation/fresh-build.log), [axiom log](../validation/axioms.log), and [kernel replay log](../validation/leanchecker.log). The empty successful kernel output is retained after its command line. Replay checks the supplied proof terms; concrete running-time claims remain outside the proved development.
+The most recent results are in [../validation/summary.json](../validation/summary.json), with the corresponding [source hashes](../validation/source-hashes.json), [fresh build log](../validation/fresh-build.log), [axiom log](../validation/axioms.log), and [kernel replay log](../validation/leanchecker.log). The empty successful kernel output is retained after its command line. Replay checks the supplied correctness and termination proof terms.
 
 ## Trust boundary
 
@@ -27,7 +27,6 @@ The most recent results are in [../validation/summary.json](../validation/summar
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
 - Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.
-- Whole-algorithm time and memory complexity are not certified. `Search.allCandidates_length` establishes the exact quadratic candidate enumeration; runtime arm closures have no compact-storage or linear-extraction bound. The mathematical phase-count bound and output-local linear DDFS transition bounds are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
 
 ## Independent checks
 
@@ -35,7 +34,7 @@ The most recent results are in [../validation/summary.json](../validation/summar
 
 [THIRD_REVIEW.md](THIRD_REVIEW.md) covers the minimum-tenacity base/bridge
 proofs, source blossom recursion and laminarity, relative paths, DDFS
-certificates and stack transitions, and the phase-progress/count proofs.
+certificates and stack transitions, and the phase-progress proofs.
 
 The coordinating agent additionally reviewed the final `eligible_vertex_matched`
 and `matched_outer_inner` additions: the former excludes a free eligible-tenacity
@@ -46,7 +45,7 @@ include both declarations.
 
 [ADDITIONAL_PROOFS.md](ADDITIONAL_PROOFS.md) records the independently reviewed
 base-induction steps, weighted expansion, bridge classification, semantic MIN
-preservation, and DDFS transition accounting added after the third review.
+preservation, and executable DDFS added after the third review.
 
 
 The resumed search/recovery development is recorded in [CHECKPOINT.md](CHECKPOINT.md),

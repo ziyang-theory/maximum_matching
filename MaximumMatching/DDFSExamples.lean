@@ -3,7 +3,7 @@ import MaximumMatching.DDFSMachine
 /-! Kernel-checked executions of the actual DDFS transitions. These fixtures
 exercise collision recovery, red escape, restoration of the collision stack,
 Barrier updates and termination before exploring below a bottleneck. They do
-not replace the general invariant or source-linear-cost proofs. -/
+not replace the general invariant and correctness proofs. -/
 namespace MaximumMatching.DDFS
 
 namespace OwnershipExecution

@@ -1,19 +1,21 @@
-# Execution plan
+# Correctness development
 
-The requested end result is a Lean 4 verification of the concrete Micali–Vazirani maximum-matching algorithm described by the supplied PDF, including a clear separation between functional correctness and complexity. This plan was presented before implementation. Completion of a foundation does not mark the full target complete.
+The requested result is a Lean 4 verification of correctness and termination
+for the executable maximum-matching algorithm described in this repository.
+The source correspondence and representation scope are recorded in SOURCE_MAP.md.
 
-1. **Identify the source and target.** Read the supplied paper, hash the exact version, map the definitions and theorem dependencies, and apply the new `fv-paper-formalization` and `fv-lean` skills. **Completed.** See SOURCE_MAP.md.
-2. **Pin and build the environment.** Reuse installed Lean 4.34.0; create a reproducible Lake project and use Std with no external dependencies. **Completed.**
-3. **Prove matching/path foundations.** Define valid graphs, matchings, simple alternating paths, augmentation, cardinality and semantic levels independently of desired correctness. Prove augmentation and optimality. **Completed for the recorded representation**, including a complete Berge criterion.
-4. **Develop MV structure and operations.** Prove matched-edge identities and limited BFS honesty; implement local MIN updates and bud compression; reconstruct DDFS and blossom/base arguments. **Partially completed.** Lemmas 5.2, 6.9, 6.13 and 6.18, Theorem 5.3, Proposition 6.17, recursive-blossom laminarity and all structural conclusions of Theorem 6.19 are proved, including the general unique same-tenacity bridge at `t = l_m`. The finite DDFS transition system has proved progress, termination, path/bottleneck correctness and exact visited-region coverage. Finite-tenacity bridge classification, local DDFS transition bounds and weighted concatenation for witnessed high-core segments are also proved. Executable DDFS, globally colored parent trees and guarded contraction of the computed bottleneck region, complete finite MIN enumeration, and local semantic MAX assignment are now proved. Ordinary/low-top weighted segments are constructed under lower-threshold induction hypotheses. The actual matching-derived graph, operational bud invariants, recorded petal events and local MAX update are now proved. Lower-blossom inputs yield support soundness and shortest augmentation. Same-level path expansion and local MAX soundness are preserved by actual petal events, and a fixed current-bucket loop executes them. Initial converse support coverage and contraction transport are proved separately; their composition into bucket completeness, end-stage bases, representation costs and the complete synchronized phase remain open. See CHECKPOINT.md for the paused state.
-5. **Assemble the actual MV algorithm.** Prove the complete phase returns a maximal family of disjoint shortest augmenting paths; prove path extraction/removal, outer-loop termination and maximum cardinality; separately count phases and operations. **Partially completed.** Actual family flips, strict shortest-path progress and the square-root phase count are proved. The outer loop terminates for any supplied family search; its optimality theorem exposes the search-completeness contract. Concrete MV search and its cost remain open.
-6. **Check correspondence and reproduce.** Independently review statements and assumptions, build a source-only copy, print transitive axioms and replay the bundled kernel. **Performed for the completed development.** This validates the checked subset; it does not close steps 4–5.
+1. **Identify the source and target.** Hash the supplied paper and map definitions and theorem dependencies. Completed; see SOURCE_MAP.md.
+2. **Pin the environment.** Use Lean 4.34.0 and Std, with no external package dependencies. Completed.
+3. **Prove matching/path foundations.** Define legal graphs, matchings, simple alternating paths, augmentation, cardinality and semantic levels independently of desired correctness. Prove augmentation and the Berge criterion. Completed.
+4. **Prove structure and search operations.** Establish bases, blossom confinement and laminarity, the unique current-tenacity bridge, DDFS correctness and termination, and actual MIN/MAX stage preservation and discovery. Completed.
+5. **Assemble the solver.** Compute path expansion, prove safe deletion and maximal shortest-family discovery, discharge both concrete search contracts, and prove outer-loop termination and maximum cardinality. Completed; see BLOCKING_PHASE_PROOF.md.
+6. **Review and reproduce.** Check statements and assumptions independently, rebuild a source-only copy, audit transitive axioms, and replay the bundled kernel. The final records are in `validation/`.
 
-## Decisions during execution
+## Representation decisions
 
-- Use a symmetric partial mate function for a matching, with graph-edge membership proved in its data. An indexed path stores distinct vertices and explicit alternating edges. These are input definitions; the result matching's validity is derived by the augmentation proof.
-- Preserve infinity rather than totalizing unreachable levels to zero. The theorem development treats all finite/infinite combinations.
-- Prove the central path-splicing argument before building a large unproved blossom interface. Full limited BFS honesty was reconstructed with actual simple path splices, first-intersection arguments and parity reductions.
-- Prove Berge's criterion internally using deterministic paths in the union of two matchings, endpoint injection and finite counting; do not accept optimality as an oracle premise.
-- Keep a precise obstruction for DDFS reconstruction: ordinary visited-node skipping fails at a collision, and permanent ownership fails on a five-vertex rerouting example. See DDFS_OBLIGATIONS.md. These are counterexamples to naive translations, not to MV.
-- Do not rename exhaustive search, generic augmentation, or a conditional phase oracle as an MV implementation. There is deliberately no purported complete `micaliVazirani` function yet.
+- Matchings use a symmetric partial mate function whose edges belong to the graph. Indexed paths store distinct vertices and alternating edges. Augmentation derives output matching validity.
+- Semantic levels retain infinity for unreachable vertices.
+- The structural proofs use actual simple path splices and first-intersection arguments rather than assumed blossom conclusions.
+- The Berge criterion is proved internally from the union of two matchings.
+- DDFS collision recovery handles the failures of ordinary visited-node skipping and permanent ownership. See DDFS_OBLIGATIONS.md.
+- Runtime search uses actual MIN/MAX/DDFS states and stored routes. The live deletion representation removes touched bud fibers and proves preservation of the arms needed for maximality; exact intermediate-state equivalence to literal source deletion is outside the claim.

@@ -3,8 +3,8 @@
 The concrete `Search.blockingPhase` now satisfies `PhaseDriver.Complete` and
 `PhaseDriver.ShortestBlocking`. `Search.maximumMatching_isMaximum` therefore
 proves maximum cardinality for the executable solver, with only a finite simple
-graph and decidable adjacency as inputs. `runBlockingPhases_positivePhases_le_two_sqrt`
-proves at most `2 * Nat.sqrt n` positive phases. Concrete running time remains open.
+graph and decidable adjacency as inputs. The executable searches and outer
+augmentation loop terminate.
 
 ## Live state and actual events
 

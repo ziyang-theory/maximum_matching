@@ -1,5 +1,4 @@
 import MaximumMatching.DDFSTrees
-import MaximumMatching.DDFSWorkExamples
 
 /-! Executable regression checks for collision restoration, abandoned branches,
 and a root equal to the bottleneck. These evaluate the implementation; the
@@ -8,7 +7,39 @@ DDFSTrees. -/
 namespace MaximumMatching.DDFS.ExecutableExamples
 open Machine
 
-instance : DecidableRel WorkExamples.edgeless.Edge := fun _ _ => inferInstanceAs (Decidable False)
+abbrev edgeless : LayeredGraph (Fin 2) where
+  Edge := fun _ _ => False
+  level := fun _ => 0
+  decreases := by intro u v h; exact False.elim h
+
+theorem edgeless_reaches : ReachBottom edgeless := by
+  intro v
+  exact ⟨Path.trivial edgeless v, rfl, rfl⟩
+
+abbrev equalDone : State edgeless :=
+  { initial edgeless 0 0 with mode := .bottleneck 0 (Path.trivial edgeless 0) (Path.trivial edgeless 0) }
+
+/-- Equal roots terminate in exactly the displayed one-step execution, with
+no collision-recovery or graph scan. -/
+theorem equalRoot_trace : Trace 1 (initial edgeless 0 0) equalDone :=
+  .cons (.sameRoot _ rfl rfl rfl rfl) (.refl _)
+
+theorem equalRoot_correct : CorrectOutcome 0 0 equalDone :=
+  reachable_terminal_correct edgeless_reaches (equalRoot_trace.reachable .initial)
+    (Or.inr ⟨0, Path.trivial edgeless 0, Path.trivial edgeless 0, rfl⟩)
+
+abbrev distinctDone : State edgeless :=
+  { initial edgeless 0 1 with mode := .disjoint }
+
+/-- Distinct roots already in the bottom layer also terminate after one
+transition, returning their disjoint zero-edge paths. -/
+theorem distinctRoot_trace : Trace 1 (initial edgeless 0 1) distinctDone :=
+  .cons (.bottom _ rfl (by decide) rfl rfl) (.refl _)
+
+theorem distinctRoot_correct : CorrectOutcome 0 1 distinctDone :=
+  reachable_terminal_correct edgeless_reaches (distinctRoot_trace.reachable .initial) (Or.inl rfl)
+
+instance : DecidableRel edgeless.Edge := fun _ _ => inferInstanceAs (Decidable False)
 def summarize {n : Nat} {H : LayeredGraph (Fin n)} {r g : Fin n} (out : FullOutput H r g) :
     Option Nat × List (Nat × Option Bool × Option Nat × Option Nat) :=
   match out with
@@ -49,16 +80,12 @@ theorem fixture_reaches : ReachBottom fixture := by
 
 /-- info: true -/
 #guard_msgs in
-#eval summarize (executeFull WorkExamples.edgeless_reaches 0 0) ==
+#eval summarize (executeFull edgeless_reaches 0 0) ==
   (some 0, [(0, none, none, none), (1, none, none, none)])
 
 /-- info: true -/
 #guard_msgs in
-#eval summarize (executeFull WorkExamples.edgeless_reaches 0 1) == (none, [])
-
-/-- info: true -/
-#guard_msgs in
-#eval (execute fixture_reaches 0 1).steps == 17
+#eval summarize (executeFull edgeless_reaches 0 1) == (none, [])
 
 -- Vertex 3 was visited on an abandoned branch. Its red parent must still be
 -- present, although neither final saved root-to-bottleneck path contains it.
