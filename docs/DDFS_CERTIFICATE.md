@@ -79,6 +79,6 @@ These existence theorems are separate from the operational proof now recorded
 in [DDFS_OPERATIONAL_PROOF.md](DDFS_OPERATIONAL_PROOF.md). The stack transition
 system has checked coverage, collision/Barrier recovery, progress, finite
 termination and correct path/bottleneck outcomes. Its remaining globally
-colored tree output, executable representation and linear-work refinement are
+colored tree output and executable representation/cost refinement are
 listed in [DDFS_OBLIGATIONS.md](DDFS_OBLIGATIONS.md). Mathematical choice in
 the existence proof is not an efficient search implementation.

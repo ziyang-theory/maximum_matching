@@ -9,6 +9,7 @@ import MaximumMatching.BlossomClosure
 import MaximumMatching.BlossomCover
 import MaximumMatching.BlossomExpansion
 import MaximumMatching.BlossomLaminar
+import MaximumMatching.BridgeClassification
 import MaximumMatching.BridgePath
 import MaximumMatching.Bud
 import MaximumMatching.DDFS
@@ -18,16 +19,21 @@ import MaximumMatching.DDFSCorrectness
 import MaximumMatching.DDFSCut
 import MaximumMatching.DDFSExamples
 import MaximumMatching.DDFSInvariant
+import MaximumMatching.DDFSLocalWork
 import MaximumMatching.DDFSMachine
 import MaximumMatching.DDFSPaths
 import MaximumMatching.DDFSRun
 import MaximumMatching.DDFSStack
 import MaximumMatching.DDFSTermination
 import MaximumMatching.DDFSVisited
+import MaximumMatching.DDFSWork
+import MaximumMatching.DDFSWorkExamples
 import MaximumMatching.DifferencePacking
 import MaximumMatching.DifferenceUniqueness
 import MaximumMatching.Examples
 import MaximumMatching.Family
+import MaximumMatching.GeneralBaseChain
+import MaximumMatching.GeneralBaseEqual
 import MaximumMatching.GeneralBaseStep
 import MaximumMatching.GeneralSuffix
 import MaximumMatching.Honesty
@@ -35,7 +41,9 @@ import MaximumMatching.Levels
 import MaximumMatching.LimitedHonesty
 import MaximumMatching.MatchedLevels
 import MaximumMatching.Min
+import MaximumMatching.MinCorrectness
 import MaximumMatching.MinLevelEdges
+import MaximumMatching.MinScan
 import MaximumMatching.MinTenacityGeometry
 import MaximumMatching.MinimumBase
 import MaximumMatching.MinimumBlossomPaths
@@ -43,6 +51,7 @@ import MaximumMatching.MinimumBridge
 import MaximumMatching.MinimumBridgeAll
 import MaximumMatching.MinimumRelative
 import MaximumMatching.MinimumSuffix
+import MaximumMatching.MinimumWeightedExpansion
 import MaximumMatching.Optimality
 import MaximumMatching.PathLemmas
 import MaximumMatching.Phase
@@ -58,3 +67,4 @@ import MaximumMatching.SegmentSplice
 import MaximumMatching.Splice
 import MaximumMatching.Structure
 import MaximumMatching.SymmetricDifference
+import MaximumMatching.WeightedExpansion

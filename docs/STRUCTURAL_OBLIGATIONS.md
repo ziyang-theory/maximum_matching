@@ -25,6 +25,9 @@ The source PDF has not been changed.
 | Blossom laminarity, Theorem 6.19(3) / Proposition 7.6 | `blossoms_laminar`, `BlossomLaminar.lean` | Arbitrary odd thresholds and roots above their respective thresholds. It does not assume that every finite-tenacity vertex has a base. |
 | Minimum-tenacity path confinement and edge bounds | `minimum_blossom_relative_paths`, `MinimumRelative.lean` | Every vertex on any shortest relative path lies in its blossom or is its base; every edge has tenacity exactly `t`. Uses the genuine shortest-path concatenation in `RelativeJoin.lean`. |
 | Lower-blossom coverage | `unique_blossom_cover_of_base_existence`, `BlossomCover.lean` | Explicitly conditional on actual common-base existence below the cutoff; terminates by decreasing minlevel. |
+| Higher-tenacity predecessor steps | `GeneralBaseEqual`, `GeneralBaseChain` | The equal-tenacity predecessor case, the combined at-least-tenacity step, and higher-threshold prefix preservation along actual base chains are proved. The lower-blossom opposite-path jump remains open. |
+| Weighted high-core realizations | `DDFS.BlossomWeightedMatching.realize`, `realize_disjoint` | Constructs simple alternating realizations with exact summed edge lengths from supplied actual segments whose interiors lie in the target blossom. Both core paths must consist of vertices above the contraction threshold. |
+| Minimum-blossom exit witnesses | `IsBase.minimum_exit_segment`, `minimum_exit_reverse` | Constructs a fresh extension of an actual shortest relative path through a compatible exit edge at globally minimum tenacity, then reverses it into the target-blossom orientation. General segment selection remains open. |
 | Separation of lower-blossom expansions | `BlossomEdgeExpansion.disjoint_of_endpoints`, `blossom_hulls_disjoint` | Derives disjointness from actual segment containment and disjoint high-tenacity cores; does not construct the weighted realizations. |
 
 The minimum-base proof uses a checked induction on minlevel rather than
@@ -44,7 +47,7 @@ The mathematical DDFS result includes the strong per-vertex disjoint-path
 certificate; see [DDFS_CERTIFICATE.md](DDFS_CERTIFICATE.md). Separately, the
 explicit two-search stack transitions now have a total-correctness proof for
 their path/bottleneck outcomes; see [DDFS_OPERATIONAL_PROOF.md](DDFS_OPERATIONAL_PROOF.md).
-Globally colored spanning-tree output and linear machine cost remain unproved.
+Globally colored spanning-tree output and concrete data-structure costs remain unproved. Output-local linear abstract transition bounds are now proved in `DDFSLocalWork`.
 
 ## First missing general theorem
 
@@ -112,8 +115,11 @@ It must supply the following finite data and prove these invariants:
    path by concatenating the witnessed segments. Prove simplicity and
    alternation at every join. For two disjoint DDFS certificate paths,
    construct vertex-disjoint realizations. The lower-blossom separation
-   theorem is checked, but the segment selection and complete weighted
-   concatenation are not yet constructed.
+   and weighted concatenation are checked for high-tenacity core paths with
+   actual supplied edge segments (`WeightedExpansion`). The segments of
+   ordinary descending edges lie inside the target blossom. General segment
+   selection and the artificial low-tenacity `S′` vertices remain unhandled;
+   the theorem must not be applied to those vertices using its high-core premise.
 5. Add the triggering bridge and a shortest prefix to the bottleneck.
    Prove that the resulting actual alternating path has complementary
    parity and the exact length required for `tenacity(w)=t`. An abstract
@@ -136,7 +142,7 @@ assuming those conclusions again.
 
 A direct minlevel induction can avoid the weighted graph only if it can
 reroute through a lower blossom's boundary while preserving the original
-path's bases at threshold `t`. One further general-tenacity case is now
+path's bases at threshold `t`. The strictly higher-tenacity case is
 proved in `GeneralBaseStep.lean`: `AltPath.high_predecessor_occurs` and
 `AltPath.high_predecessor_bases` show that a predecessor of tenacity
 strictly greater than `t` occurs at index `oddlevel(v)-1` on every even
@@ -144,7 +150,15 @@ shortest path, and is the base on both parity paths. These results do not
 assume globally minimum tenacity. They use actual fresh extension when
 the predecessor is absent, and the general suffix tenacity bound.
 
-The unresolved jump can be isolated as this type-checked target:
+`GeneralBaseEqual.lean` now also proves the equal-tenacity case and combines
+it with the higher-tenacity case. The induction hypothesis is invoked only at
+the predecessor's strictly smaller minlevel. `GeneralBaseChain.lean` proves
+that cutting a shortest path along actual common-base chains preserves all
+higher-threshold base values. In particular, `predecessor_blossom_prefix`
+constructs the boundary prefix for the odd minlevel path `q`. It does not
+reroute the opposite even maxlevel path `p`.
+
+The unresolved jump for `p` can be isolated as this type-checked target:
 
 ```lean
 ∀ {n : Nat} (G : Graph (Fin n)) (M : Matching G)
@@ -186,12 +200,17 @@ base, so it does not fill this missing premise. No counterexample to the
 jump statement has been established; this is an exact remaining proof
 obligation for the direct approach.
 
+A reproducible five-vertex obstruction to the minimum-case index argument and
+a precise sufficient rerouting lemma are recorded in
+[GENERAL_BASE_REMAINING.md](GENERAL_BASE_REMAINING.md). This is an obstruction
+to the investigated proof strategies, not a counterexample to the target.
+
 ## Separate algorithm obligations
 
 Even completing the semantic induction would not complete the requested
 MV verification. The DDFS transition, coverage and path/bottleneck correctness
 proofs are now checked. Its colored-tree output, executable adjacency
-refinement and linear cost accounting remain. Petal/bud correspondence
+refinement and concrete data-structure cost accounting remain. Petal/bud correspondence
 (Lemma 6.20), synchronized MIN/MAX refinement
 (Theorem 8.3), exact support discovery, expansion/removal of a maximal
 shortest augmenting-path family, and the concrete algorithm's work bound

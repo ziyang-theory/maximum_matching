@@ -13,6 +13,11 @@ import MaximumMatching
 #check @MaximumMatching.AltPath.minimum_unique_bridge_maxlevel
 #check @MaximumMatching.AltPath.minimum_maxlevel_path_unique_bridge
 #check @MaximumMatching.minimum_unique_base
+#check @MaximumMatching.AltPath.parity_bases_agree_of_predecessor_ge
+#check @MaximumMatching.blossom_threshold_prefix
+#check @MaximumMatching.AltPath.predecessor_blossom_prefix
+#check @MaximumMatching.matched_bridge_levels
+#check @MaximumMatching.unmatched_bridge_tenacity
 #check @MaximumMatching.blossoms_laminar
 #check @MaximumMatching.minimum_blossom_relative_paths
 #check @MaximumMatching.AltPath.minlevel_predecessor_honest
@@ -33,6 +38,14 @@ import MaximumMatching
 #check @MaximumMatching.DDFS.Machine.exists_correct_run
 #check @MaximumMatching.DDFS.Machine.maximal_trace_correct
 #check @MaximumMatching.DDFS.Machine.visited_iff_on_root_to_bottleneck
+#check @MaximumMatching.DDFS.Machine.trace_scanned_bound
+#check @MaximumMatching.DDFS.Machine.exists_correct_run_linear
+#check @MaximumMatching.DDFS.Machine.trace_bottleneck_local_bound
+#check @MaximumMatching.DDFS.Machine.trace_disjoint_local_bound
+#check @MaximumMatching.DDFS.BlossomWeightedMatching.realize
+#check @MaximumMatching.DDFS.BlossomWeightedMatching.realize_disjoint
+#check @MaximumMatching.IsBase.minimum_exit_segment
+#check @MaximumMatching.IsBase.minimum_exit_reverse
 #check @MaximumMatching.exists_differenceFamily
 #check @MaximumMatching.deficit_of_long_paths
 #check @MaximumMatching.AugmentingFamily.shortest_length_increases
@@ -41,3 +54,9 @@ import MaximumMatching
 #check @MaximumMatching.BudForest.compressMany_root
 #check @MaximumMatching.Search.scan_tie_adds_predecessor
 #check @MaximumMatching.Search.scan_reverse_noop
+#check @MaximumMatching.AltPath.minlevel_last_predecessor_honest
+#check @MaximumMatching.predecessor_iff_level_guard
+#check @MaximumMatching.Search.scan_assigns_semantic
+#check @MaximumMatching.Search.scan_rejects_bridge
+#check @MaximumMatching.Search.scanCandidates_preserves
+#check @MaximumMatching.Search.initial_scanCandidates_labelsSound

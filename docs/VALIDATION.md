@@ -27,7 +27,7 @@ The most recent results are in [../validation/summary.json](../validation/summar
 - Semantic minimum levels and selected witnesses in the Berge proof use classical choice. The document distinguishes these from executable path-flip, family, bud and MIN-update functions.
 - Source-only project rebuilding reuses the installed toolchain and standard-library artifacts. Bundled `leanchecker` replays with Lean's own kernel implementation. Neither step rebuilds the compiler or provides an independent second kernel.
 - Lexical scanning is a hygiene check, not adversarial artifact validation. Correspondence requires reading definitions and theorem statements; the review notes record that work and their exact scopes.
-- Whole-algorithm time and memory complexity are not certified. The mathematical phase-count bound and finite DDFS transition termination are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
+- Whole-algorithm time and memory complexity are not certified. The mathematical phase-count bound and output-local linear DDFS transition bounds are proved. They do not establish machine cost: `indexOf` scans path vertices, and no RAM/pointer representation refinement has been formalized.
 
 ## Independent checks
 
@@ -43,3 +43,7 @@ vertex using the strict augmenting-length bound; the latter derives the opposite
 endpoint's inner classification from the proved matched-edge level identities.
 They do not assume unique bases. The final source snapshot and axiom report
 include both declarations.
+
+[ADDITIONAL_PROOFS.md](ADDITIONAL_PROOFS.md) records the independently reviewed
+base-induction steps, weighted expansion, bridge classification, semantic MIN
+preservation, and DDFS transition accounting added after the third review.

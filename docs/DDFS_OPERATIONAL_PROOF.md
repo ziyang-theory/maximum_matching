@@ -1,6 +1,6 @@
 # Operational DDFS path and bottleneck outcomes
 
-The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. It does not yet construct globally colored spanning trees, select a concrete executable adjacency representation, or prove the paper's linear work bound.
+The finite stack transition system now has a checked total-correctness proof for its two path/bottleneck outcomes. It follows the collision and Barrier control rules in §2, pp.6–8 of the supplied paper. Output-local linear abstract transition bounds are also proved. Globally colored spanning-tree output and a concrete executable adjacency/data-structure refinement with running-time costs remain open.
 
 ## Interface and outcome
 
@@ -59,8 +59,12 @@ No discovery-provenance, visited-region, or coverage hypothesis is supplied by t
 
 `DDFSTermination.lean` assigns a natural rank to every finite state. It counts unexplored ordered vertex pairs, multiplied by `4*n+6`, then adds stack lengths and mode credit. Normal, red-recovery, and green-recovery credits are `2*n+3`, `n+2`, and `1`. Terminal credit is zero. Each scan consumes a previously unexplored pair; each pop shortens a stack; and the red-failure credit decrease pays for restoring its saved prefix. `step_rank_lt` proves a strict decrease for every transition, even from states not known reachable.
 
-This is a coarse termination potential, not the source's linear cost analysis. The development still needs a costed finite adjacency implementation, explicit once-per-color backtracking accounting using Barrier/history, and a proof connecting its operations to the source's local edge sets. It also needs construction and verification of a globally consistent red/green partition and spanning trees if that full §2 output representation is required. The previously checked per-vertex semantic certificate does not by itself provide those data structures.
+The original potential is retained as a coarse termination proof. `DDFSWork.lean` proves a sharper invariant-based bound with potential `4 * unscannedEdges + red.tailDepth barrier + green.length + modeCredit`. The credits are 3, 2, 1 and 0 for normal, red recovery, green recovery and terminal states. Scans consume one actual edge and add at most three local credits. Every other transition decreases local credit; restoring the saved red path places Barrier at its endpoint, so its charged suffix has length zero. Thus every initialized trace has at most `4 * scannedEdges + 3` transitions.
+
+`DDFSLocalWork.lean` proves the source's output-local edge inclusion. Scanned sources have root-discovery paths. Scanned targets have continuations to the bottleneck using the exact visited-region theorem. In the disjoint case, a new invariant keeps every visited bottom at an activity center; coverage and layer descent then supply a continuation to a reported bottom from every visited vertex. Concatenation gives an actual path containing each scanned edge. The resulting bounds are `4 * |E_b| + 3` and `4 * |E_p| + 3`, with edge sets interpreted as unions of root-to-output paths. `DDFSWorkExamples` checks both outcomes on an edgeless graph, where a control transition is still needed.
+
+These count abstract transitions. The development still needs a costed finite adjacency implementation and costs for exhaustion tests, stack/path updates and restoration. It also needs construction and verification of a globally consistent red/green partition and spanning trees if that full §2 output representation is required. The previously checked per-vertex semantic certificate does not by itself provide those data structures.
 
 ## Trust
 
-The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice is confined to the abstract existence/termination assembly and does not certify an executable or efficient edge-selection implementation.
+The central correctness theorems are ordinary kernel-checked proofs. Their axiom reports contain only `propext`, `Classical.choice`, and `Quot.sound`; no custom axiom or `sorryAx` is used. Mathematical choice appears in abstract witness, termination and potential definitions and does not certify an executable or efficient edge-selection implementation.
