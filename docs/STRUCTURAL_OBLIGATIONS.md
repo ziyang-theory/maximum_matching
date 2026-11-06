@@ -64,7 +64,11 @@ region under explicit fixed-root/rank representation. `MatchingSearchGraph`
 now constructs the actual predecessor/bud graph, and matching-state operations
 preserve that representation. `MatchingSupportSound` derives support membership
 for selected non-bottleneck roots under lower-blossom input representation.
-Converse support coverage and preservation through same-level petals remain open. Assigned
+`CurrentBridgeRepresentation` now preserves expansion and soundness through
+same-level petals; `CurrentBucket` executes the actual fixed queued list.
+`MatchingSupportComplete` proves initial converse support coverage. Combining
+it with actual path transport to prove complete bucket discovery remains open.
+Assigned
 DDFS layers and expanded segment lengths must stay distinct, especially for
 artificial top vertices. Generic path certificates and weighted concatenation
 do not supply the support correspondence by themselves.

@@ -2,9 +2,12 @@
 
 The predecessor/bud graph of source §4.3 is now constructed from actual MIN
 state, and executable DDFS and MIN updates preserve its operational invariant.
-Under a lower-blossom input representation, actual DDFS linkages give support
-members and shortest augmenting paths. This is a local connection; a complete
-MV phase and its running-time theorem remain unproved.
+A lower-blossom input representation initializes path witnesses that actual
+petal events preserve throughout one search level. The executable current-bucket
+loop retains these invariants, and a disjoint output certifies a shortest
+augmenting path. Converse support coverage is proved before same-level petals;
+its composition through the loop remains unfinished. A complete MV phase and
+its running-time theorem remain unproved. Work is paused; see CHECKPOINT.md.
 
 The source is the supplied arXiv:2012.03582v1 (7 December 2020), pp.13–19,
 33 and 37–40. Exact source hash and locators are in SOURCE_MAP.md.
@@ -89,17 +92,54 @@ not erroneously assigned the current tenacity.
 bud fibers, which are disjoint by root equality. It does not identify petals
 with entire mathematical blossoms. `MatchingFiberExpansion` derives this
 interface from the lower-blossom representation once MIN covers all lower
-members. Constructing and preserving its segments through new same-level
-petals remains necessary.
+members. `PetalRootExpansion` now constructs each new segment by extending an
+old edge or bridge-endpoint arm along the recorded old path to the bottleneck.
+Its lengths telescope, phases agree, and interior vertices remain in the new
+fiber. `CurrentBridgeRepresentation` packages these witnesses for all bridges
+at one fixed tenacity, without assuming support membership or MAX correctness.
+`afterBridgeRepresentation` preserves it, including arms for unprocessed bridges.
+`CurrentBridgeSupport` derives support soundness and shortest augmentation from
+this preserved representation. `PetalCurrentMax` verifies the actual MAX event
+and transports the representation across its unchanged MIN fields.
+
+## Executable bucket and converse support
+
+`CurrentBucket.runCurrentBucket` processes a supplied finite list of queued
+bridges. It skips equal buds, calls DDFS once for each distinct-root trigger,
+executes MAX and contraction on a bottleneck result, and retains the actual
+petal records. The representation is stored as `Nonempty` in `Prop`; it is
+erased rather than used as a runtime oracle. A found result contains the raw
+DDFS paths and equality to the exact call that produced them.
+`CurrentBucketWitness.shortest_augmenting` proves a corresponding real shortest
+augmentation exists; executable matching-path recovery is still separate.
+`CurrentBucketProgress` proves old bud classes never split during the loop.
+The triangle regression executes one actual petal, with final roots `[0,0,0]`
+and maxlabels `[none, some 2, some 2]`.
+
+`SupportBridgeGeometry`, `SupportPathEdges`, `SupportPathCompression` and
+`SupportBridgeRoots` compress an actual maxlevel support witness into two
+actual predecessor/bud graph arms. High-index geometry and lower-blossom
+membership derive every graph edge and identify both triggering buds; disjoint
+original index intervals establish disjointness. `MatchingSupportComplete`
+therefore proves support membership implies strict bottleneck-region membership
+under the initial lower-blossom representation, including `t = l_m`.
+Its converse combines with the earlier support-soundness theorem under that
+theorem's stage-bound hypotheses; no unconditional exact-output wrapper is claimed.
+
+`PetalPathTransport` proves that old fixed-root paths map to actual paths after
+contraction, preserving the exact vertex-image set. `PetalDisjointTransport`
+preserves two disjoint arms when the first ends outside the selected region
+and the second reaches bottom. The case where the first target equals the
+bottleneck is not included in that theorem yet.
 
 ## Remaining proof obligations
 
-- Preserve the path/fiber representation through a sequence of same-level petal
-  events; an intermediate bud may have the current tenacity.
-- Prove converse support coverage and complete current-tenacity discovery.
-  `SupportBridgePrefix` proves honesty at the trigger endpoint even when it is
-  low; `SupportPathReverse` constructs real reverse predecessor witnesses for
-  descending stretches. These are inputs to the unfinished compression proof.
+- Combine the initial converse support arms with actual contraction transport
+  throughout the bucket loop, including a target equal to the bottleneck.
+- Prove exhaustion accounts for all supplied bridges and all current-tenacity
+  vertices, then discharge the prior-MAX completeness induction for the next
+  search level. Initial converse coverage and old-class monotonicity alone do
+  not prove this.
 - Identify final bud roots with canonical bases at the end of the search level.
   `GeneralBasePathTransfer` proves the relevant canonical-base transfer from
   actual shortest-path geometry, not from a supplied support assertion.

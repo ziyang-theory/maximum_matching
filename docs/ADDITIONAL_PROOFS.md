@@ -140,9 +140,11 @@ not identify the region with matching-specific bridge support.
 
 ## Still required for completion
 
-Converse DDFS support coverage, same-level petal path preservation,
+Same-stage converse support coverage throughout the bucket loop,
 end-of-level petal/bud correspondence, complete MIN/MAX search,
-recursive expansion/removal and maximal shortest-family discovery also remain.
+executable recursive expansion/removal and maximal shortest-family discovery
+remain. Initial converse coverage and same-level path expansion preservation
+are now proved, as recorded below.
 The `Complete` and `ShortestBlocking` contracts are still uninstantiated for
 MV. Executable DDFS and its local abstract transition bounds do not establish
 the concrete representation or whole-algorithm running-time bound.
@@ -157,3 +159,28 @@ to the trigger support, and disjoint outcomes give shortest augmenting paths.
 Independent reviewers checked the active-start condition excluding artificial
 unknown layer-zero vertices, exact old-class contraction, odd-bottleneck
 contradiction, bridge occurrence and both color orientations.
+
+## Same-stage preservation and concrete bucket checkpoint
+
+`CurrentBridgeRepresentation` records actual fiber segments and current-bridge
+endpoint arms with exact phase/length equations. `PetalRootExpansion` and
+`PetalCurrentMax` preserve it through actual contraction and MAX refresh;
+`CurrentBridgeSupport` derives support soundness and shortest augmentation.
+`CurrentBucket` executes a fixed queued list with erased proof fields and keeps
+raw DDFS output and actual petal history. Its triangle regression passes.
+`CurrentBucketProgress` proves existing bud classes remain together.
+
+The converse chain now compresses actual maxlevel support paths into disjoint
+predecessor-graph arms under lower-blossom representation, including the
+shortest-augmentation threshold. `MatchingSupportComplete` locates every such
+support member strictly above any actual common bottleneck. Separately,
+`PetalPathTransport` maps actual paths across contraction, and
+`PetalDisjointTransport` preserves disjoint arms for targets outside the region.
+
+Independent reviews checked the actual edge witnesses, both bridge
+orientations, endpoint budgets, old/new fiber identities, proof erasure,
+computed-output provenance, MAX preservation and recursive loop branches.
+Review explicitly identified the unhandled transport case where the target
+is the bottleneck and the still-missing exhaustion/completeness composition.
+No complete phase or concrete running-time claim was added. CHECKPOINT.md
+records the paused continuation tasks; final validation covers this snapshot.

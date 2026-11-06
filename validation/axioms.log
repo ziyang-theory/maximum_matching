@@ -74,7 +74,13 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.AltPath.containsEdge_symm' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.AltPath.current_blossom_boundary_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.current_blossom_suffix_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_after_geometry' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_after_high_vertex' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_after_maxlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_before_minlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_first_high_right' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.current_bridge_prefix_honest' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.current_bridge_right_blossom' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.dishonest_last_predecessor_outer' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.dishonest_outer_predecessor_base' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.disjoint_lower_boundary_reroute' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -144,6 +150,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.AltPath.high_predecessor_occurs' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.high_tenacity_above_half' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.high_vertex_absent_of_lower_blossom' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.high_vertex_minlevel_lt_half' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.higher_base_absent' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.honest_iff_level' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.honest_on_augmenting_of_tenacity_ge' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -173,6 +180,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
  Quot.sound]
 'MaximumMatching.AltPath.low_predecessor_in_base_blossom' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.low_stretch_boundary' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.low_stretch_boundary_parities' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.low_stretch_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.low_stretch_mem' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.low_stretch_reverse_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -190,7 +198,16 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.AltPath.matched_shortest_path_transfer' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.mate_next' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.AltPath.mate_previous' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.AltPath.maxlevel_current_bridge_after_high_vertex' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.AltPath.maxlevel_high_vertex_minlevel_lt_half' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.AltPath.maxlevel_of_complementary_length' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.maxlevel_strict_high_index_below_half' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.AltPath.minimum_after_base_tenacity' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.minimum_bridge_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.minimum_maxlevel_path_unique_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -248,6 +265,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.AltPath.short_closed_blossom_boundary_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.short_high_minlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.short_shortest_no_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.AltPath.short_shortest_no_current_bridge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.shorter_even_prefix_opposite' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.shorter_prefix_intersects' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.AltPath.shortest_of_maxlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -461,6 +479,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DDFS.FiberWeightedMatching.realize' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.FiberWeightedMatching.realize_disjoint_starts' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.FiberWeightedMatching.realize_with_start' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.DDFS.FiberWeightedMatching.restrictRoots' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.FiberWeightedMatching.weight' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.FiberWeightedMatching.weight_add_potential' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.HighestBottleneck' depends on axioms: [propext, Quot.sound]
@@ -633,6 +652,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DDFS.Path.locate_none' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.locate_sound' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.locate_vertex' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.DDFS.Path.map_eq_or_edge' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.pop' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.pop_contains_iff' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.pop_contains_iff_of_ne' depends on axioms: [propext, Quot.sound]
@@ -646,6 +666,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DDFS.Path.prepend' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.prepend_first' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.prepend_last' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.DDFS.Path.restrictRoots' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.snoc' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.snoc_containsEdge' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.Path.snoc_contains_iff' depends on axioms: [propext, Quot.sound]
@@ -795,6 +816,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DDFS.dominates_below' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.dominates_trans' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.edge_exists_of_positive' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.DDFS.fixedRootGraph' does not depend on any axioms
 'MaximumMatching.DDFS.highestBottleneck_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DDFS.highestBottleneck_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DDFS.highestBottleneck_of_closed_region' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -805,6 +827,9 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DDFS.normal_move_exists' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DDFS.onRootTo_fixed_root' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.DDFS.onRootTo_level_gt' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.DDFS.onRootTo_of_disjoint_bottom_path' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.DDFS.path_of_consecutive_indices' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.DDFS.path_of_reverse_consecutive_indices' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DDFS.two_path_dichotomy' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DifferenceFamily' does not depend on any axioms
 'MaximumMatching.DifferenceFamily.empty' depends on axioms: [propext, Quot.sound]
@@ -850,6 +875,12 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.DifferencePath.withoutRight_cardinality_lt' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.DifferencePath.withoutRight_mate' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.EligibleTenacity' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Examples.CurrentBucket.firstStage' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Examples.CurrentBucket.firstState' depends on axioms: [propext]
+'MaximumMatching.Examples.CurrentBucket.node' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Examples.CurrentBucket.result' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Examples.CurrentBucket.secondStage' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Examples.CurrentBucket.secondState' depends on axioms: [propext]
 'MaximumMatching.Examples.DeferredBridge.afterLeftMax' depends on axioms: [propext]
 'MaximumMatching.Examples.DeferredBridge.afterRightMax' depends on axioms: [propext]
 'MaximumMatching.Examples.DeferredBridge.beforeMax' depends on axioms: [propext]
@@ -960,6 +991,8 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.ParitySegment.append_phase' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.ParitySegment.bridge_join' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.ParitySegment.bridge_join_contains' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.ParitySegment.bridge_join_relative' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.ParitySegment.bridge_join_segment' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.ParitySegment.contains_append_iff' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.ParitySegment.contains_reverse_iff' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.ParitySegment.first' depends on axioms: [propext, Quot.sound]
@@ -991,6 +1024,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Predecessor' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.PropEdge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.RootedShortest' depends on axioms: [propext, Quot.sound]
+'MaximumMatching.Search.BridgeEndpointArms' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.Search.BridgesSound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BucketsSound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant' does not depend on any axioms
@@ -1007,14 +1041,31 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.BudGraphInvariant.colored_region_support' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.compress_early_core' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.compress_late_core' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.current_bridge_graph_arms' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.current_bridge_left_root' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.current_bridge_right_root' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.disjoint_bridge_paths_augment' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.disjoint_bridge_paths_shortest' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.early_stretch_edge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.edge_decreases' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.edge_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.edge_of_predecessor' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.edge_target_assigned' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
@@ -1026,6 +1077,14 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.BudGraphInvariant.fiberWeightedMatching_drop' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.high_path_vertex_assigned' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.late_adjacent_edge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.late_consecutive_high_edge' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.late_stretch_edge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.listed_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.lower_blossom_fiber' depends on axioms: [propext,
  Classical.choice,
@@ -1050,13 +1109,54 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.BudGraphInvariant.realize_bottom_path' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.root_eq_of_high' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.root_eq_of_lower_member' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.root_reaches_free' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.support_graph_arms' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.BudGraphInvariant.support_in_bottleneck_region' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.unknown_fixed' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.weightedMatching' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.BudGraphInvariant.weightedMatching_drop' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
 'MaximumMatching.Search.ClassificationSound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.bridge_linkage_path' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.colored_region_support' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.disjoint_bridge_paths_augment' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.disjoint_bridge_paths_shortest' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.execute_disjoint_augment' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.execute_output_sound' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.ofLowerBlossoms' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBridgeRepresentation.of_same_min_data' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.CurrentBucketOutcome' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBucketOutcome.state' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBucketState' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBucketState.afterPetal' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBucketWitness' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.CurrentBucketWitness.shortest_augmenting' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.EarlierPropsSeen' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.EdgeInBucket' does not depend on any axioms
 'MaximumMatching.Search.FrontierAvailable' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -1070,27 +1170,64 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.MinLabelsBound' does not depend on any axioms
 'MaximumMatching.Search.PetalRecord' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.after' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.afterBridgeRepresentation' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.PetalRecord.afterWeightedMatching' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.afterWeightedMatching_drop' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_arm_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_bridge_arms' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_edge_eq_or_edge' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_edge_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_edge_target' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_fixed_before' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.after_invariant' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.after_outside' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.after_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_root_eq_fixed_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_roots_high' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.after_selected' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.after_trigger_equal' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.green_edge_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.guards' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.lift_after_edge' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.maxEvent' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.maxEvent_bucket_mono' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.maxEvent_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.maxEvent_correct_of_current' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.PetalRecord.maxEvent_minLabel' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.maxEvent_outside' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.maxEvent_representation' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.mem_newRoots' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.newFiber' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.newFiber_iff_color' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.newRoots' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.newRoots_fixed' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.newRoots_support' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.newRoots_support_of_current' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
 'MaximumMatching.Search.PetalRecord.red_edge_witness' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.selectedFiber' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.selected_assigned' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.selected_bottom_path_contains_bottleneck' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.PetalRecord.selected_edge_closed' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.selected_fixed' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.selected_path_contains_bottleneck' depends on axioms: [propext,
+ Classical.choice,
+ Quot.sound]
+'MaximumMatching.Search.PetalRecord.selected_tail' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.starts_assigned' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.starts_selected' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.tail_to_after_root' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.transport_disjoint_paths' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.PetalRecord.transport_path' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PetalRecord.trigger' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PredecessorsSound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.PropsSound' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -1098,6 +1235,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.SeenPredecessorsRecorded' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.StageInvariant' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.StageState' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.StageState.current_bridge_known' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.State' does not depend on any axioms
 'MaximumMatching.Search.UnmatchedPending' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.admits' does not depend on any axioms
@@ -1111,6 +1249,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.assignMaxList_preserves_known_maxLabel' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
+'MaximumMatching.Search.assignMax_bucket' does not depend on any axioms
 'MaximumMatching.Search.assignMax_classificationSound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.assignMax_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.assignMax_evenLabel_of_even' depends on axioms: [propext, Quot.sound]
@@ -1125,6 +1264,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.assignMax_support_member' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.bridge_scan_rejects' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.budEdge' does not depend on any axioms
+'MaximumMatching.Search.current_bridge_tenacity_available' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.edgeTenacity' does not depend on any axioms
 'MaximumMatching.Search.edgeTenacity_comm' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.Search.edgeTenacity_enqueue' does not depend on any axioms
@@ -1172,6 +1312,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.maxProcessVertex_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.maxProcessVertex_edgeTenacity' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.Search.maxProcessVertex_labels' depends on axioms: [propext]
+'MaximumMatching.Search.maxProcessVertex_predecessors' depends on axioms: [propext]
 'MaximumMatching.Search.maxProcessVertex_preserves_known_maxLabel' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
@@ -1181,9 +1322,11 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.maxProcessVertex_unmatchedPending' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.maxProcessVertex_unmatched_ready' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.maxProcessVertices' depends on axioms: [propext]
+'MaximumMatching.Search.maxProcessVertices_bucket_mono' depends on axioms: [propext]
 'MaximumMatching.Search.maxProcessVertices_member_correct' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.maxProcessVertices_minLabel' depends on axioms: [propext]
 'MaximumMatching.Search.maxProcessVertices_outside_maxLabel' depends on axioms: [propext]
+'MaximumMatching.Search.maxProcessVertices_predecessors' depends on axioms: [propext]
 'MaximumMatching.Search.maxProcessVertices_preserves_known_maxLabel' depends on axioms: [propext,
  Classical.choice,
  Quot.sound]
@@ -1194,6 +1337,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.parityLabel_has_minLabel' depends on axioms: [propext, Quot.sound]
 'MaximumMatching.Search.parityLabel_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.predecessorGraph' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.predecessorGraph_eq_of_fields' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.recordQueuedPetal' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.recordQueuedPetal_origin' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.recordQueuedPetal_same_root' depends on axioms: [propext, Classical.choice, Quot.sound]
@@ -1223,6 +1367,8 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.Search.refreshKnownEdges_minInvariant' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.refreshKnownEdges_scanned' depends on axioms: [propext]
 'MaximumMatching.Search.refreshKnownEdges_sound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.runCurrentBucket' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.Search.runCurrentBucket_root_congr' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.Search.scan' depends on axioms: [propext]
 'MaximumMatching.Search.scanCandidate' depends on axioms: [propext]
 'MaximumMatching.Search.scanCandidate_bucket_mono' depends on axioms: [propext]
@@ -1438,6 +1584,7 @@ $ /Users/ziyang/Documents/github/formal_verification/formal_verification_skills/
 'MaximumMatching.not_propEdge_of_minlevel_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.oddlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.outer_of_even_minlevel' depends on axioms: [propext, Classical.choice, Quot.sound]
+'MaximumMatching.parity_level_min_or_max' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.predecessor_asymm' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.predecessor_blossom_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]
 'MaximumMatching.predecessor_direct_expansion' depends on axioms: [propext, Classical.choice, Quot.sound]

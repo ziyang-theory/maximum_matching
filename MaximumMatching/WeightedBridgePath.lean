@@ -1,4 +1,4 @@
-import MaximumMatching.WeightedTopExpansion
+import MaximumMatching.ParityBridgeJoin
 
 /-! Actual bridge detours after weighted blossom expansion. The lengths below
 count edges in the matching graph, including the low-top segments. They do not
@@ -37,54 +37,10 @@ theorem bridge_join_contains (a b : ParitySegment M)
         rw [hfree] at hm'
         contradiction
       omega
-  let e := ofEdge b.first a.first (b.phase + 1) hedge hmatch
-  have hp : (b.reverse.phase + b.reverse.length) % 2 = e.phase % 2 := by
-    change (b.phase + b.length + 1 + b.length) % 2 = (b.phase + 1) % 2
-    omega
-  have hj : b.reverse.last = e.first := b.reverse_last
-  have hd : ∀ (i : Fin (b.reverse.length + 1)) (j : Fin (e.length + 1)),
-      0 < j.val → b.reverse.vertex i ≠ e.vertex j := by
-    intro i j hpos he
-    have hj1 : j.val = 1 := by have hjb := j.isLt; change j.val < 1 + 1 at hjb; omega
-    have he' : b.vertex ⟨b.length - i.val, by have hib := i.isLt; change i.val < b.length + 1 at hib; omega⟩ = a.first := by
-      simpa only [e, ofEdge, hj1, Nat.one_ne_zero, ite_false, reverse] using he
-    exact hdis _ ⟨0, by omega⟩ he'
-  let c := b.reverse.append e hp hj hd
-  have hcp : (c.phase + c.length) % 2 = a.phase % 2 := by
-    change (b.phase + b.length + 1 + (b.length + 1)) % 2 = a.phase % 2
-    omega
-  have hcj : c.last = a.first := b.reverse.append_last e hp hj hd
-  have hcd : ∀ (i : Fin (c.length + 1)) (j : Fin (a.length + 1)),
-      0 < j.val → c.vertex i ≠ a.vertex j := by
-    intro i j hpos he
-    have hc : c.Contains (a.vertex j) := ⟨i, he⟩
-    rcases (b.reverse.contains_append_iff e hp hj hd (a.vertex j)).mp hc with hb | he
-    · obtain ⟨k, hk⟩ := (b.contains_reverse_iff _).mp hb
-      exact hdis k j hk
-    · obtain ⟨k, hk⟩ := he
-      by_cases hk0 : k.val = 0
-      · have hh : b.first = a.vertex j := by simpa [e, ofEdge, hk0] using hk
-        exact hdis ⟨0, by omega⟩ j hh
-      · have hh : a.first = a.vertex j := by simpa [e, ofEdge, hk0] using hk
-        have hh' := congrArg Fin.val (a.injective ⟨0, by omega⟩ j hh)
-        change 0 = j.val at hh'
-        omega
-  let d := c.append a hcp hcj hcd
-  have hdp : d.phase % 2 = 0 := by
-    change (b.phase + b.length + 1) % 2 = 0
-    omega
-  have hdf : d.first = b.last :=
-    (c.append_first a hcp hcj hcd).trans ((b.reverse.append_first e hp hj hd).trans b.reverse_first)
-  let z := (d.toAltSegment hdp).fromFree (by change M.Free d.first; rw [hdf]; exact hfree)
-  refine ⟨z, hdf, c.append_last a hcp hcj hcd, rfl, ?_⟩
-  refine ⟨⟨b.length, by change b.length < b.length + 1 + a.length; omega⟩, Or.inl ⟨?_, ?_⟩⟩
-  · change d.vertex ⟨b.length, _⟩ = b.first
-    simp only [d, append, c, reverse, e, ofEdge, show b.length ≤ b.length + 1 by omega,
-      dite_true, Nat.le_refl, Nat.sub_self, first]
-  · change d.vertex ⟨b.length + 1, _⟩ = a.first
-    simp only [d, append, c, reverse, e, ofEdge, Nat.le_refl, dite_true,
-      show ¬b.length + 1 ≤ b.length by omega, dite_false,
-      Nat.add_sub_cancel_left, Nat.one_ne_zero, ite_false]
+  obtain ⟨z, hzf, hzl, hzn, _, i, hi, hj⟩ :=
+    a.bridge_join_relative b hdis hphase hedge hmatch hend
+  let p := z.fromFree (by rw [hzf]; exact hfree)
+  exact ⟨p, hzf, hzl, hzn, i, Or.inl ⟨hi, hj⟩⟩
 
 /-- The endpoint-and-length form of the actual bridge construction. -/
 theorem bridge_join (a b : ParitySegment M)
