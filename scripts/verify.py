@@ -337,7 +337,7 @@ def main() -> None:
         f"#check @MaximumMatching.{name}" for name in key_results
     ) + "\n"
     (logs / "Statements.lean").write_text(statements)
-    with tempfile.TemporaryDirectory(prefix="maximum-matching-check-", dir="/private/tmp") as tmp:
+    with tempfile.TemporaryDirectory(prefix="maximum-matching-check-") as tmp:
         fresh = Path(tmp)
         for path, content in snapshot.items():
             target = fresh / path.relative_to(ROOT)

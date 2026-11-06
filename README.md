@@ -79,3 +79,7 @@ definitions, or [`BlockingPhase.lean`](MaximumMatching/BlockingPhase.lean) for
 the solver and its final correctness theorem. The independent exhaustive test
 is in [`tests/`](tests/), and [`scripts/verify.py`](scripts/verify.py) runs the
 proof audit.
+
+## License
+
+Released under the [MIT License](LICENSE).
