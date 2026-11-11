@@ -11,6 +11,22 @@ depth-first search (DDFS), and the MIN/MAX search for augmenting paths. Each
 nonempty phase finds a maximal family of vertex-disjoint shortest augmenting
 paths and uses them to enlarge the matching.
 
+## Where is MV's algorithm?
+
+The [source-to-code guide](ALGORITHM.md) shows where Algorithm 1 (MIN/MAX), DDFS,
+path recovery, and deletion appear in Lean. To follow one phase, start at
+[`blockingPhaseResult`](MaximumMatching/BlockingPhase.lean#L731). The main search
+operations are [`scan`](MaximumMatching/MinScan.lean#L62) for MIN,
+[`runRecoverableBucket`](MaximumMatching/RecoverableBucket.lean#L376) for MAX,
+and [`next`](MaximumMatching/DDFSCorrectness.lean#L621) for the DDFS transitions.
+
+The guide explains which data the solver computes, which properties Lean proves,
+and where the implementation differs from the paper. Checking the MV
+correspondence requires reading these operations and their phase contracts;
+the maximum-cardinality theorem alone does not establish it. There is no
+whole-program equivalence theorem to a separate formalization of the paper's
+pseudocode.
+
 ## Main result
 
 `Search.maximumMatching G` computes the matching, and
